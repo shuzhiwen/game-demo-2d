@@ -1,0 +1,50 @@
+{
+  "name": "game-demo-2d",
+  "version": "0.0.0",
+  "description": "A progressive 2d game demo developed with phaser",
+  "license": "MIT",
+  "author": {
+    "name": "shuzhiwen",
+    "email": "yuwen4012@gmail.com",
+    "url": "https://github.com/shuzhiwen"
+  },
+  "scripts": {
+    "dev": "vite  --port 9528",
+    "build": "yarn tsc2 && vite build",
+    "tsc2": "yarn tsc && rm tsconfig.tsbuildinfo",
+    "docs": "sudo yarn typedoc src/index.ts",
+    "push": "git push origin"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.11.4",
+    "awesome-chart": "0.3.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "5"
+  },
+  "devDependencies": {
+    "@types/animejs": "^3.1.4",
+    "@types/lodash-es": "^4.17.6",
+    "@types/react-dom": "^18.0.10",
+    "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^5.22.0",
+    "@typescript-eslint/parser": "^5.22.0",
+    "@vitejs/plugin-react": "^1.0.7",
+    "eslint": ">=5.16.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.5.0",
+    "typedoc": "^0.23.21",
+    "typescript": "^4.9.4",
+    "vite": "^2.8.0"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "trailingComma": "es5",
+    "bracketSpacing": false,
+    "jsxBracketSameLine": false,
+    "singleQuote": true,
+    "semi": false
+  }
+}
