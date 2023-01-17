@@ -1,14 +1,13 @@
-import {Box, styled, Tab, TabProps, Tabs, TabsProps, Typography} from '@mui/material'
+import {Box, styled, Tab, TabProps, Tabs, TabsProps} from '@mui/material'
 
 export const MTabs = styled((props: TabsProps) => (
   <Tabs
     textColor="inherit"
     indicatorColor="secondary"
     TabIndicatorProps={{hidden: true}}
-    disableRipple
     {...props}
   />
-))()
+))(() => ({}))
 
 export const MTab = styled((props: TabProps) => <Tab disableRipple {...props} />)(({theme}) => ({
   color: theme.palette.primary.main,
@@ -31,12 +30,8 @@ export function TabPanel(props: TabPanelProps) {
   const {children, value, index, ...other} = props
 
   return (
-    <Box role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && (
-        <Box sx={{p: 3}}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+    <Box height="100%" role="tabpanel" hidden={value !== index} {...other}>
+      {value === index && children}
     </Box>
   )
 }

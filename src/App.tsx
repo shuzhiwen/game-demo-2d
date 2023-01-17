@@ -1,16 +1,16 @@
+import {Stack} from '@mui/system'
 import {SyntheticEvent, useState} from 'react'
 import {MTab, MTabs, TabPanel} from './components/Tab'
 import {SectionOnePage} from './one-sprite'
-import {Stack} from '@mui/system'
+import {SectionZeroPage} from './zero-learn'
 
 enum STEP {
+  Zero,
   One,
-  Two,
-  Three,
 }
 
 export function App() {
-  const [value, setValue] = useState<STEP>(STEP.One)
+  const [value, setValue] = useState<STEP>(STEP.Zero)
   const handleChange = (_: SyntheticEvent, newValue: STEP) => {
     setValue(newValue)
   }
@@ -18,11 +18,13 @@ export function App() {
   return (
     <Stack width="100vw" height="100vh" bgcolor="black">
       <MTabs value={value} onChange={handleChange} centered>
+        <MTab value={STEP.Zero} label="Step Zero: Hello World" wrapped />
         <MTab value={STEP.One} label="Step One: Make A Sprite" wrapped />
-        <MTab value={STEP.Two} label="Step Two" wrapped />
-        <MTab value={STEP.Three} label="Step Three" wrapped />
       </MTabs>
-      <Stack height="100%" p={2}>
+      <Stack flex={1} p={2} overflow="hidden">
+        <TabPanel value={value} index={STEP.Zero}>
+          <SectionZeroPage />
+        </TabPanel>
         <TabPanel value={value} index={STEP.One}>
           <SectionOnePage />
         </TabPanel>
