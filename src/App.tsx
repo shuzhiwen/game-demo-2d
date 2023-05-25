@@ -1,34 +1,41 @@
-import {Stack} from '@mui/system'
-import {SyntheticEvent, useState} from 'react'
-import {MTab, MTabs, TabPanel} from './components/Tab'
-import {SectionOnePage} from './one-sprite'
-import {SectionZeroPage} from './zero-learn'
+import {SportsEsports} from '@mui/icons-material'
+import {IconButton, Menu, MenuItem, Stack, Typography} from '@mui/material'
+import React from 'react'
+import {useLocation, useNavigate} from 'react-router-dom'
 
-enum STEP {
-  Zero,
-  One,
+const MenuDict: Record<string, string> = {
+  '/started': 'started',
+  '/gobang': 'gobang',
 }
 
-export function App() {
-  const [value, setValue] = useState<STEP>(STEP.Zero)
-  const handleChange = (_: SyntheticEvent, newValue: STEP) => {
-    setValue(newValue)
+export function GameMenu() {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+  const navigate = useNavigate()
+  const {pathname} = useLocation()
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleNavigate = (path: string) => {
+    setAnchorEl(null)
+    navigate(path)
   }
 
   return (
-    <Stack width="100vw" height="100vh" bgcolor="black">
-      <MTabs value={value} onChange={handleChange} centered>
-        <MTab value={STEP.Zero} label="Step Zero: Hello World" wrapped />
-        <MTab value={STEP.One} label="Step One: Make A Sprite" wrapped />
-      </MTabs>
-      <Stack flex={1} p={2} overflow="hidden">
-        <TabPanel value={value} index={STEP.Zero}>
-          <SectionZeroPage />
-        </TabPanel>
-        <TabPanel value={value} index={STEP.One}>
-          <SectionOnePage />
-        </TabPanel>
+    <Stack>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <IconButton onClick={handleClick} sx={{width: 'fit-content'}}>
+          <SportsEsports />
+        </IconButton>
+        <Typography color="black">{MenuDict[pathname]}</Typography>
       </Stack>
+      <Menu anchorEl={anchorEl} onClose={handleClick} open={open}>
+        {Object.entries(MenuDict).map(([path, title]) => (
+          <MenuItem key={path} onClick={() => handleNavigate(path)}>
+            {title}
+          </MenuItem>
+        ))}
+      </Menu>
     </Stack>
   )
 }

@@ -1,19 +1,20 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {BrowserRouter as Router, Route} from 'react-router-dom'
-import {AppProvider} from './components/Theme'
-import {App} from './App'
+import {BrowserRouter, Route, Routes} from 'react-router-dom'
+import {GameMenu} from './App'
+import {SectionOnePage} from './gobang'
+import {Started} from './started'
 import './index.css'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <Route path="/">
-        <AppProvider>
-          <App />
-        </AppProvider>
-      </Route>
-    </Router>
+    <BrowserRouter>
+      <GameMenu />
+      <Routes>
+        <Route path="/started" Component={Started} />
+        <Route path="/gobang" Component={SectionOnePage} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 )

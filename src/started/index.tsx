@@ -1,9 +1,10 @@
 import {Stack} from '@mui/material'
-import {AUTO, Game} from 'phaser'
+import {AUTO, Game, Math} from 'phaser'
 import {useEffect, useRef} from 'react'
+import {AppStage} from '../components/Container'
 
-export function SectionZeroPage() {
-  const ref = useRef<HTMLDivElement>()
+export function Started() {
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const container = ref.current!
@@ -29,7 +30,12 @@ export function SectionZeroPage() {
     })
     return () => game.destroy(true, false)
   })
-  return <Stack ref={ref} m="auto" width="800px" height="600px" />
+
+  return (
+    <AppStage>
+      <Stack ref={ref} m="auto" width={800} height={600} />
+    </AppStage>
+  )
 }
 
 function preload(this: Phaser.Scene) {
@@ -47,7 +53,7 @@ const create = (cx: number, cy: number) => {
     let score = 0
     const platforms = this.physics.add.staticGroup()
     const player = this.physics.add.sprite(100, 450, 'dude')
-    const cursors = this.input.keyboard.createCursorKeys()
+    const cursors = this.input.keyboard?.createCursorKeys()
     const bombs = this.physics.add.group()
     const text = this.add.text(16, 16, 'score: 0', {
       fontSize: '32px',
@@ -85,16 +91,17 @@ const create = (cx: number, cy: number) => {
         star.disableBody(true, true)
 
         if (stars.countActive(true) === 0) {
-          stars.children.iterate(function (child: any) {
+          stars.children.iterate((child: any) => {
             child.enableBody(true, child.x, 0, true, true)
+            return null
           })
 
-          const x = player.x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400)
+          const x = player.x < 400 ? Math.Between(400, 800) : Math.Between(0, 400)
           const bomb = bombs.create(x, 16, 'bomb')
 
           bomb.setBounce(1)
           bomb.setCollideWorldBounds(true)
-          bomb.setVelocity(Phaser.Math.Between(-200, 200), 20)
+          bomb.setVelocity(Math.Between(-200, 200), 20)
         }
       },
       undefined,
@@ -129,8 +136,9 @@ const create = (cx: number, cy: number) => {
       repeat: -1,
     })
 
-    stars.children.iterate(function (child: any) {
-      child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8))
+    stars.children.iterate((child: any) => {
+      child.setBounceY(Math.FloatBetween(0.4, 0.8))
+      return null
     })
   }
 }
