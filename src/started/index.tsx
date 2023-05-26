@@ -29,7 +29,7 @@ export function Started() {
       },
     })
     return () => game.destroy(true, false)
-  })
+  }, [])
 
   return (
     <AppStage>

@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import {Stack} from '@mui/material'
+import {isMobile} from '../utils/chaos'
 
 export const FullStack = styled(Stack)({
   width: '100%',
@@ -9,7 +10,7 @@ export const FullStack = styled(Stack)({
 
 export const AppStage = styled(Stack)({
   width: '100vw',
-  height: 'calc(100vh - 40px)',
+  height: isMobile() ? '100vh' : 'calc(100vh - 40px)',
   overflow: 'auto',
-  backgroundColor: 'black',
+  backgroundColor: 'gray',
 })
