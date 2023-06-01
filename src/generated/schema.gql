@@ -3,6 +3,11 @@ type AuthInfo {
   userId: String!
 }
 
+input ChannelInput {
+  channelId: String!
+  userId: String!
+}
+
 """
 Date custom scalar type
 """
@@ -23,24 +28,31 @@ JSON custom scalar type
 scalar JSON
 
 type Mutation {
+  enterChannel(input: ChannelInput!): Boolean!
+  exitChannel(input: ChannelInput!): Boolean!
   loginByEmail(email: String!, password: String!): AuthInfo!
   logonByEmail(email: String!, password: String!, verificationCode: String!): AuthInfo!
   resetPasswordByEmail(email: String!, password: String!, verificationCode: String!): Boolean!
   sayHello(hello: String): Boolean!
+  sendData(input: SendDataInput!): Boolean!
   sendEmailVerificationCode(email: String!): Boolean
-  transport(input: TransportInput!): Boolean!
-  transportLogin(input: TransportLoginInput!): Boolean!
 }
 
 type Query {
   hello: String!
-  transportHistory(input: IdInput!): [Transport!]
-  transportUserCount(input: IdInput!): Int
+  transportHistory(channelId: String!): [Transport!]
+  transportUserCount(channelId: String!): Int
+}
+
+input SendDataInput {
+  channelId: String!
+  data: JSON!
+  userId: String!
 }
 
 type Subscription {
   helloWs: String!
-  transport(input: IdInput!): Transport!
+  transport(channelId: String!): Transport!
 }
 
 interface System {
@@ -50,17 +62,6 @@ interface System {
 
 type Transport {
   data: JSON!
-  userId: String!
-}
-
-input TransportInput {
-  channelId: String!
-  data: JSON!
-  userId: String!
-}
-
-input TransportLoginInput {
-  channelId: String!
   userId: String!
 }
 

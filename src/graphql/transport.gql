@@ -1,24 +1,28 @@
-query transportHistory($input: IdInput!) {
-  transportHistory(input: $input) {
+query transportHistory($channelId: String!) {
+  transportHistory(channelId: $channelId) {
     data
     userId
   }
 }
 
-query transportUserCount($input: IdInput!) {
-  transportUserCount(input: $input)
+query transportUserCount($channelId: String!) {
+  transportUserCount(channelId: $channelId)
 }
 
-mutation transportLogin($input: TransportLoginInput!) {
-  transportLogin(input: $input)
+mutation enterChannel($input: ChannelInput!) {
+  enterChannel(input: $input)
 }
 
-mutation transport($input: TransportInput!) {
-  transport(input: $input)
+mutation exitChannel($input: ChannelInput!) {
+  exitChannel(input: $input)
 }
 
-subscription Transport($input: IdInput!) {
-  transport(input: $input) {
+mutation sendData($input: SendDataInput!) {
+  sendData(input: $input)
+}
+
+subscription transport($channelId: String!) {
+  transport(channelId: $channelId) {
     data
     userId
   }

@@ -1,45 +1,41 @@
-import {Stack} from '@mui/material'
-import {Chart, LayerScatter} from 'awesome-chart'
-import {ElSource} from 'awesome-chart/dist/types'
-import {useEffect, useRef, useState} from 'react'
-import {AppStage} from '../components/Container'
-import {Chess, appendChess, boardId, createBoard, decodeSource} from './render'
-import {isCurrentChessWin} from './scripts/win'
+import {useEnterChannelMutation, useTransportUserCountLazyQuery} from '@generated/apollo'
+import {Button, Stack, TextField} from '@mui/material'
+import {uuid} from 'awesome-chart'
+import {useCallback, useState} from 'react'
+import {useLocalStorage} from 'react-use'
+import {Gobang} from './game'
 
-export function Gobang() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [chart, setChart] = useState<Chart | null>(null)
-  const [role, setRole] = useState<Exclude<Chess, Chess.EMPTY>>(Chess.BLACK)
-
-  useEffect(() => {
-    const container = ref.current!
-    const chart = createBoard({container})
-    setChart(chart)
-    return () => chart.destroy()
-  }, [])
-
-  useEffect(() => {
-    const scatterLayer = chart?.getLayerById(boardId) as LayerScatter
-    scatterLayer?.event.onWithOff('click-point', 'user', ({data}) => {
-      const source = data.source as ElSource[]
-      const {category, x, y} = decodeSource(source)
-      if (category === Chess.EMPTY) {
-        appendChess({role: role, source, chart: chart!})
-        setRole(role === Chess.BLACK ? Chess.WHITE : Chess.BLACK)
-        const win = isCurrentChessWin({
-          data: scatterLayer.data!.rawTableListWithHeaders,
-          position: [x, y] as Vec2,
-        })
-        if (win) {
-          alert(`${role == Chess.WHITE ? 'White' : 'Black'} Chess Win!`)
-        }
-      }
+export function GobangEnter() {
+  const [code, setCode] = useState('')
+  const [userId] = useLocalStorage('userId', uuid())
+  const [channelId, setChannelId] = useLocalStorage('channelId')
+  const [countQuery] = useTransportUserCountLazyQuery()
+  const [enterMutation] = useEnterChannelMutation()
+  const connectServer = useCallback(async () => {
+    const {data: count} = await countQuery({
+      variables: {channelId: code},
     })
-  }, [chart, role])
+    if (count?.transportUserCount && count.transportUserCount >= 2) {
+      alert('房间人数已满')
+    }
+    const {data: enter} = await enterMutation({
+      variables: {input: {channelId: code, userId: userId!}},
+    })
+    if (enter?.enterChannel) {
+      setChannelId(code)
+    } else {
+      alert('连接服务器失败')
+    }
+  }, [code, countQuery, enterMutation, setChannelId, userId])
 
-  return (
-    <AppStage>
-      <Stack ref={ref} m={2} className="fb1 fbjc fbac" sx={{opacity: 0.2}} />
-    </AppStage>
+  return channelId ? (
+    <Gobang />
+  ) : (
+    <Stack p={4} spacing={2}>
+      <TextField label="房间代码" value={code} onChange={(e) => setCode(e.target.value)} />
+      <Button variant="contained" onClick={connectServer}>
+        进入房间
+      </Button>
+    </Stack>
   )
 }

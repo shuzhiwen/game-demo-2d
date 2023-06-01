@@ -13,7 +13,6 @@ import {
   InMemoryCache,
   split,
 } from '@apollo/client'
-import {useMe} from './me'
 
 const HOST = 'localhost:80'
 
@@ -28,13 +27,9 @@ const errorLink = onError(({graphQLErrors, networkError}) => {
 })
 
 function useClient() {
-  const {token = ''} = useMe()
   const wsLink = new GraphQLWsLink(
     createClient({
       url: `ws://${HOST}${GRAPHQL_SERVER}`,
-      connectionParams: {
-        authorization: `Token ${token}`,
-      },
     })
   )
   const authTokenLink = setContext(({operationName}, context) => {
@@ -42,7 +37,6 @@ function useClient() {
       uri: `http://${HOST}${GRAPHQL_SERVER}/${operationName}`,
       headers: {
         ...context.headers,
-        authorization: `Token ${token}`,
       },
     }
   })
@@ -58,7 +52,7 @@ function useClient() {
   return new ApolloClient({
     version: '1.0',
     cache: new InMemoryCache(),
-    link: from([authTokenLink, errorLink, token ? networkLink : httpLink]),
+    link: from([authTokenLink, errorLink, networkLink]),
     defaultOptions: {
       mutate: {
         errorPolicy: 'none',

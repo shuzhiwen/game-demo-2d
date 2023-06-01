@@ -19,23 +19,23 @@ export type Scalars = {
   Void: undefined
 }
 
+export type ChannelInput = {
+  channelId: Scalars['String']
+  userId: Scalars['String']
+}
+
 export type IdInput = {
   id: Scalars['String']
 }
 
-export type TransportInput = {
+export type SendDataInput = {
   channelId: Scalars['String']
   data: Scalars['JSON']
   userId: Scalars['String']
 }
 
-export type TransportLoginInput = {
-  channelId: Scalars['String']
-  userId: Scalars['String']
-}
-
 export type TransportHistoryQueryVariables = Exact<{
-  input: IdInput
+  channelId: Scalars['String']
 }>
 
 export type TransportHistoryQuery = {
@@ -44,25 +44,31 @@ export type TransportHistoryQuery = {
 }
 
 export type TransportUserCountQueryVariables = Exact<{
-  input: IdInput
+  channelId: Scalars['String']
 }>
 
 export type TransportUserCountQuery = {__typename?: 'Query'; transportUserCount?: number | null}
 
-export type TransportLoginMutationVariables = Exact<{
-  input: TransportLoginInput
+export type EnterChannelMutationVariables = Exact<{
+  input: ChannelInput
 }>
 
-export type TransportLoginMutation = {__typename?: 'Mutation'; transportLogin: boolean}
+export type EnterChannelMutation = {__typename?: 'Mutation'; enterChannel: boolean}
 
-export type TransportMutationVariables = Exact<{
-  input: TransportInput
+export type ExitChannelMutationVariables = Exact<{
+  input: ChannelInput
 }>
 
-export type TransportMutation = {__typename?: 'Mutation'; transport: boolean}
+export type ExitChannelMutation = {__typename?: 'Mutation'; exitChannel: boolean}
+
+export type SendDataMutationVariables = Exact<{
+  input: SendDataInput
+}>
+
+export type SendDataMutation = {__typename?: 'Mutation'; sendData: boolean}
 
 export type TransportSubscriptionVariables = Exact<{
-  input: IdInput
+  channelId: Scalars['String']
 }>
 
 export type TransportSubscription = {
@@ -71,8 +77,8 @@ export type TransportSubscription = {
 }
 
 export const TransportHistoryDocument = gql`
-  query transportHistory($input: IdInput!) {
-    transportHistory(input: $input) {
+  query transportHistory($channelId: String!) {
+    transportHistory(channelId: $channelId) {
       data
       userId
     }
@@ -91,7 +97,7 @@ export const TransportHistoryDocument = gql`
  * @example
  * const { data, loading, error } = useTransportHistoryQuery({
  *   variables: {
- *      input: // value for 'input'
+ *      channelId: // value for 'channelId'
  *   },
  * });
  */
@@ -120,8 +126,8 @@ export type TransportHistoryQueryResult = Apollo.QueryResult<
   TransportHistoryQueryVariables
 >
 export const TransportUserCountDocument = gql`
-  query transportUserCount($input: IdInput!) {
-    transportUserCount(input: $input)
+  query transportUserCount($channelId: String!) {
+    transportUserCount(channelId: $channelId)
   }
 `
 
@@ -137,7 +143,7 @@ export const TransportUserCountDocument = gql`
  * @example
  * const { data, loading, error } = useTransportUserCountQuery({
  *   variables: {
- *      input: // value for 'input'
+ *      channelId: // value for 'channelId'
  *   },
  * });
  */
@@ -170,93 +176,132 @@ export type TransportUserCountQueryResult = Apollo.QueryResult<
   TransportUserCountQuery,
   TransportUserCountQueryVariables
 >
-export const TransportLoginDocument = gql`
-  mutation transportLogin($input: TransportLoginInput!) {
-    transportLogin(input: $input)
+export const EnterChannelDocument = gql`
+  mutation enterChannel($input: ChannelInput!) {
+    enterChannel(input: $input)
   }
 `
-export type TransportLoginMutationFn = Apollo.MutationFunction<
-  TransportLoginMutation,
-  TransportLoginMutationVariables
+export type EnterChannelMutationFn = Apollo.MutationFunction<
+  EnterChannelMutation,
+  EnterChannelMutationVariables
 >
 
 /**
- * __useTransportLoginMutation__
+ * __useEnterChannelMutation__
  *
- * To run a mutation, you first call `useTransportLoginMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTransportLoginMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useEnterChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEnterChannelMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [transportLoginMutation, { data, loading, error }] = useTransportLoginMutation({
+ * const [enterChannelMutation, { data, loading, error }] = useEnterChannelMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useTransportLoginMutation(
-  baseOptions?: Apollo.MutationHookOptions<TransportLoginMutation, TransportLoginMutationVariables>
+export function useEnterChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<EnterChannelMutation, EnterChannelMutationVariables>
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useMutation<TransportLoginMutation, TransportLoginMutationVariables>(
-    TransportLoginDocument,
+  return Apollo.useMutation<EnterChannelMutation, EnterChannelMutationVariables>(
+    EnterChannelDocument,
     options
   )
 }
-export type TransportLoginMutationHookResult = ReturnType<typeof useTransportLoginMutation>
-export type TransportLoginMutationResult = Apollo.MutationResult<TransportLoginMutation>
-export type TransportLoginMutationOptions = Apollo.BaseMutationOptions<
-  TransportLoginMutation,
-  TransportLoginMutationVariables
+export type EnterChannelMutationHookResult = ReturnType<typeof useEnterChannelMutation>
+export type EnterChannelMutationResult = Apollo.MutationResult<EnterChannelMutation>
+export type EnterChannelMutationOptions = Apollo.BaseMutationOptions<
+  EnterChannelMutation,
+  EnterChannelMutationVariables
 >
-export const TransportDocument = gql`
-  mutation transport($input: TransportInput!) {
-    transport(input: $input)
+export const ExitChannelDocument = gql`
+  mutation exitChannel($input: ChannelInput!) {
+    exitChannel(input: $input)
   }
 `
-export type TransportMutationFn = Apollo.MutationFunction<
-  TransportMutation,
-  TransportMutationVariables
+export type ExitChannelMutationFn = Apollo.MutationFunction<
+  ExitChannelMutation,
+  ExitChannelMutationVariables
 >
 
 /**
- * __useTransportMutation__
+ * __useExitChannelMutation__
  *
- * To run a mutation, you first call `useTransportMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTransportMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useExitChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useExitChannelMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [transportMutation, { data, loading, error }] = useTransportMutation({
+ * const [exitChannelMutation, { data, loading, error }] = useExitChannelMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useTransportMutation(
-  baseOptions?: Apollo.MutationHookOptions<TransportMutation, TransportMutationVariables>
+export function useExitChannelMutation(
+  baseOptions?: Apollo.MutationHookOptions<ExitChannelMutation, ExitChannelMutationVariables>
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useMutation<TransportMutation, TransportMutationVariables>(
-    TransportDocument,
+  return Apollo.useMutation<ExitChannelMutation, ExitChannelMutationVariables>(
+    ExitChannelDocument,
     options
   )
 }
-export type TransportMutationHookResult = ReturnType<typeof useTransportMutation>
-export type TransportMutationResult = Apollo.MutationResult<TransportMutation>
-export type TransportMutationOptions = Apollo.BaseMutationOptions<
-  TransportMutation,
-  TransportMutationVariables
+export type ExitChannelMutationHookResult = ReturnType<typeof useExitChannelMutation>
+export type ExitChannelMutationResult = Apollo.MutationResult<ExitChannelMutation>
+export type ExitChannelMutationOptions = Apollo.BaseMutationOptions<
+  ExitChannelMutation,
+  ExitChannelMutationVariables
+>
+export const SendDataDocument = gql`
+  mutation sendData($input: SendDataInput!) {
+    sendData(input: $input)
+  }
+`
+export type SendDataMutationFn = Apollo.MutationFunction<
+  SendDataMutation,
+  SendDataMutationVariables
+>
+
+/**
+ * __useSendDataMutation__
+ *
+ * To run a mutation, you first call `useSendDataMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendDataMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendDataMutation, { data, loading, error }] = useSendDataMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendDataMutation(
+  baseOptions?: Apollo.MutationHookOptions<SendDataMutation, SendDataMutationVariables>
+) {
+  const options = {...defaultOptions, ...baseOptions}
+  return Apollo.useMutation<SendDataMutation, SendDataMutationVariables>(SendDataDocument, options)
+}
+export type SendDataMutationHookResult = ReturnType<typeof useSendDataMutation>
+export type SendDataMutationResult = Apollo.MutationResult<SendDataMutation>
+export type SendDataMutationOptions = Apollo.BaseMutationOptions<
+  SendDataMutation,
+  SendDataMutationVariables
 >
 export const TransportDocument = gql`
-  subscription Transport($input: IdInput!) {
-    transport(input: $input) {
+  subscription transport($channelId: String!) {
+    transport(channelId: $channelId) {
       data
       userId
     }
@@ -275,7 +320,7 @@ export const TransportDocument = gql`
  * @example
  * const { data, loading, error } = useTransportSubscription({
  *   variables: {
- *      input: // value for 'input'
+ *      channelId: // value for 'channelId'
  *   },
  * });
  */
