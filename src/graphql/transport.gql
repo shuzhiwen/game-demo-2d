@@ -1,0 +1,25 @@
+query transportHistory($input: IdInput!) {
+  transportHistory(input: $input) {
+    data
+    userId
+  }
+}
+
+query transportUserCount($input: IdInput!) {
+  transportUserCount(input: $input)
+}
+
+mutation transportLogin($input: TransportLoginInput!) {
+  transportLogin(input: $input)
+}
+
+mutation transport($input: TransportInput!) {
+  transport(input: $input)
+}
+
+subscription Transport($input: IdInput!) {
+  transport(input: $input) {
+    data
+    userId
+  }
+}

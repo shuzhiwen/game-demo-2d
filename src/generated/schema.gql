@@ -1,0 +1,70 @@
+type AuthInfo {
+  token: String!
+  userId: String!
+}
+
+"""
+Date custom scalar type
+"""
+scalar Date
+
+input IdInput {
+  id: String!
+}
+
+type Image {
+  name: String!
+  url: String!
+}
+
+"""
+JSON custom scalar type
+"""
+scalar JSON
+
+type Mutation {
+  loginByEmail(email: String!, password: String!): AuthInfo!
+  logonByEmail(email: String!, password: String!, verificationCode: String!): AuthInfo!
+  resetPasswordByEmail(email: String!, password: String!, verificationCode: String!): Boolean!
+  sayHello(hello: String): Boolean!
+  sendEmailVerificationCode(email: String!): Boolean
+  transport(input: TransportInput!): Boolean!
+  transportLogin(input: TransportLoginInput!): Boolean!
+}
+
+type Query {
+  hello: String!
+  transportHistory(input: IdInput!): [Transport!]
+  transportUserCount(input: IdInput!): Int
+}
+
+type Subscription {
+  helloWs: String!
+  transport(input: IdInput!): Transport!
+}
+
+interface System {
+  createTime: Date!
+  updateTime: Date!
+}
+
+type Transport {
+  data: JSON!
+  userId: String!
+}
+
+input TransportInput {
+  channelId: String!
+  data: JSON!
+  userId: String!
+}
+
+input TransportLoginInput {
+  channelId: String!
+  userId: String!
+}
+
+"""
+Void custom scalar type
+"""
+scalar Void

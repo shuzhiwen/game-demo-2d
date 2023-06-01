@@ -1,0 +1,25 @@
+schema:
+  - http://localhost:80
+documents:
+  - src/graphql/*.gql
+config:
+  enumsAsTypes: true
+  onlyOperationTypes: true
+  scalars:
+    Void: undefined
+    Date: number
+generates:
+  src/generated/schema.gql:
+    plugins:
+      - schema-ast
+  src/generated/apollo.ts:
+    plugins:
+      - add:
+          content: '/* eslint-disable */'
+          placement: 'prepend'
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+hooks:
+  afterAllFileWrite:
+    - prettier --write

@@ -1,21 +1,24 @@
-import React from 'react'
+import {StrictMode} from 'react'
 import ReactDOM from 'react-dom'
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import {GameMenu} from './App'
+import {ApolloProvider} from './context'
 import {Gobang} from './gobang'
 import './index.css'
 import {Started} from './started'
 import {isMobile} from './utils/chaos'
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      {!isMobile() && <GameMenu />}
-      <Routes>
-        <Route path="/started" Component={Started} />
-        <Route path="/gobang" Component={Gobang} />
-      </Routes>
-    </BrowserRouter>
-  </React.StrictMode>,
+  <StrictMode>
+    <ApolloProvider>
+      <BrowserRouter>
+        {!isMobile() && <GameMenu />}
+        <Routes>
+          <Route path="/started" Component={Started} />
+          <Route path="/gobang" Component={Gobang} />
+        </Routes>
+      </BrowserRouter>
+    </ApolloProvider>
+  </StrictMode>,
   document.getElementById('root')
 )
