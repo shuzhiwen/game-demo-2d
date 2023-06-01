@@ -1,7 +1,7 @@
 import {Chart, DataTableList, darkTheme, robustRange} from 'awesome-chart'
 import {ElSource, RawTableList} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
-import {Chess, boardId, boardSize, decodeSource} from './chaos'
+import {Role, boardId, boardSize, decodeSource} from './chaos'
 
 const myTheme = merge({}, darkTheme, {animation: {update: {duration: 0, delay: 0}}})
 
@@ -34,7 +34,7 @@ export function createBoard(props: {container: HTMLDivElement}) {
   })
   const initialChesses = ([['x', 'y', 'category']] as RawTableList).concat(
     robustRange(0, boardSize).flatMap((row) =>
-      robustRange(0, boardSize).map((column) => [row, column, Chess.EMPTY])
+      robustRange(0, boardSize).map((column) => [row, column, Role.EMPTY])
     )
   )
 
@@ -55,9 +55,9 @@ export function createBoard(props: {container: HTMLDivElement}) {
       mapping(config) {
         const {category} = decodeSource(config.source as ElSource[])
         switch (category) {
-          case Chess.WHITE:
+          case Role.WHITE:
             return {...config, fill: '#ffffff'}
-          case Chess.BLACK:
+          case Role.BLACK:
             return {...config, fill: '#000000'}
           default:
             return {...config, fill: '#00000000'}

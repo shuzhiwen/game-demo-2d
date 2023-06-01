@@ -1,16 +1,11 @@
 import {Chart, LayerScatter, isRealNumber, DataTableList} from 'awesome-chart'
-import {ElSource} from 'awesome-chart/dist/types'
-import {Chess, boardId, decodeSource} from './chaos'
+import {Role, boardId} from './chaos'
 
-export function appendChess(props: {
-  role: Exclude<Chess, Chess.EMPTY>
-  source: ElSource[]
-  chart: Chart
-}) {
-  const {role, source, chart} = props
+export function appendChess(props: {role: Role; position: Vec2; chart: Chart}) {
+  const {role, position, chart} = props
   const scatterLayer = chart.getLayerById(boardId) as LayerScatter
   const data = scatterLayer.data?.rawTableListWithHeaders
-  const {x, y} = decodeSource(source)
+  const [x, y] = position
 
   if (data && isRealNumber(x) && isRealNumber(y)) {
     const datum = data.find((item) => item[0] === x && item[1] === y)

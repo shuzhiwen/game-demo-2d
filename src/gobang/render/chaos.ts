@@ -4,10 +4,10 @@ export const boardId = 'board'
 
 export const boardSize = 8
 
-export enum Chess {
-  BLACK,
-  WHITE,
-  EMPTY,
+export enum Role {
+  BLACK = 1,
+  WHITE = 2,
+  EMPTY = 3,
 }
 
 export function decodeSource(source: ElSource[]) {
