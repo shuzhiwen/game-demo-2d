@@ -14,7 +14,7 @@ import {
   split,
 } from '@apollo/client'
 
-const HOST = 'localhost:80'
+const HOST = 'shuzhiwen.com:8002'
 
 const GRAPHQL_SERVER = '/graphql'
 
