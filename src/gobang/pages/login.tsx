@@ -36,7 +36,7 @@ export function GobangEnter() {
     })
     if (enter?.enterChannel) {
       setChannelId(code)
-      navigate('stage')
+      navigate('/gobang/prepare')
     } else {
       alert('连接服务器失败')
     }
