@@ -1,3 +1,4 @@
+import {DialogProvider} from '@context/dialog'
 import {StrictMode} from 'react'
 import ReactDOM from 'react-dom'
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
@@ -11,13 +12,15 @@ import {isMobile} from './utils/chaos'
 ReactDOM.render(
   <StrictMode>
     <ApolloProvider>
-      <BrowserRouter>
-        {!isMobile() && <GameMenu />}
-        <Routes>
-          <Route path="/started" Component={Started} />
-          <Route path="/gobang">{Gobang}</Route>
-        </Routes>
-      </BrowserRouter>
+      <DialogProvider>
+        <BrowserRouter>
+          {!isMobile() && <GameMenu />}
+          <Routes>
+            <Route path="/started" Component={Started} />
+            <Route path="/gobang">{Gobang}</Route>
+          </Routes>
+        </BrowserRouter>
+      </DialogProvider>
     </ApolloProvider>
   </StrictMode>,
   document.getElementById('root')

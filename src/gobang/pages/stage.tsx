@@ -1,4 +1,5 @@
 import {AppStage} from '@components'
+import {useDialog} from '@context'
 import {Role, appendChess, boardId, createBoard, decodeSource} from '@gobang/render'
 import {isCurrentChessWin} from '@gobang/scripts'
 import {Stack, Typography} from '@mui/material'
@@ -12,6 +13,7 @@ import {useCustomMutation, useHistoryData} from './hooks'
 import {GOBANG_CHANNEL, GOBANG_ROLE, GOBANG_USER} from './login'
 
 export function GobangStage() {
+  const {notice} = useDialog()
   const navigate = useNavigate()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [role] = useLocalStorage<Role>(GOBANG_ROLE)
@@ -46,13 +48,13 @@ export function GobangStage() {
         const {data} = await appendChessMutation([x, y] as Vec2)
 
         if (!data?.sendData) {
-          alert('连接服务器失败')
+          notice({title: '连接服务器失败'})
         }
       }
     }
     event?.onWithOff('click-point', 'user', listener)
     return () => event?.off('click-point')
-  }, [appendChessMutation, channelId, chart, isMe, userId])
+  }, [appendChessMutation, channelId, chart, isMe, notice, userId])
 
   useEffect(() => {
     if (chart && data?.kind === 'chess') {
@@ -68,13 +70,13 @@ export function GobangStage() {
         })
       ) {
         setTimeout(() => {
-          alert(`${RoleDict[currentRole]}子获胜!`)
-          navigate('/gobang')
           exitMutation()
+          notice({title: `${RoleDict[currentRole]}子获胜!`})
+          navigate('/gobang')
         })
       }
     }
-  }, [chart, currentRole, data, exitMutation, navigate])
+  }, [chart, currentRole, data, exitMutation, navigate, notice])
 
   return (
     <Stack sx={{opacity: 0.2}}>

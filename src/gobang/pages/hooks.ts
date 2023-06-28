@@ -33,7 +33,7 @@ export function useHistoryData(pagination?: Pagination) {
   const {data, refetch} = useTransportHistoryQuery({
     skip: !channelId,
     variables: {...pagination, channelId: channelId!},
-    pollInterval: 5000,
+    pollInterval: 3000,
   })
   const latest = data?.transportHistory?.at(-1) as Maybe<GobangTransportData>
   const isMe = latest ? latest?.userId === userId : role === Role.WHITE
