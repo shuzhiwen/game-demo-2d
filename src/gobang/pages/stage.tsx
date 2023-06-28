@@ -1,4 +1,4 @@
-import {AppStage} from '@components'
+import {AppStage, Background} from '@components'
 import {useDialog} from '@context'
 import {Role, appendChess, boardId, createBoard, decodeSource} from '@gobang/render'
 import {isCurrentChessWin} from '@gobang/scripts'
@@ -79,18 +79,21 @@ export function GobangStage() {
   }, [chart, currentRole, data, exitMutation, navigate, notice])
 
   return (
-    <Stack sx={{opacity: 0.2}}>
-      <AppStage>
-        <Stack flex={1} m={2} spacing={2}>
+    <AppStage>
+      <Background />
+      <Stack flex={1} m={0} spacing={2}>
+        <Stack p={2}>
           <UserStatus align="left" role={anotherRole}>
             {isMe && <Typography>思考中...</Typography>}
           </UserStatus>
-          <Stack ref={containerRef} className="fb1 fbjc fbac" />
+        </Stack>
+        <Stack ref={containerRef} className="fb1 fbjc fbac" />
+        <Stack p={2}>
           <UserStatus align="right" role={role!}>
             {!isMe && <Typography>思考中...</Typography>}
           </UserStatus>
         </Stack>
-      </AppStage>
-    </Stack>
+      </Stack>
+    </AppStage>
   )
 }

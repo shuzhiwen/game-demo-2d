@@ -1,4 +1,4 @@
-import {AppStage} from '@components'
+import {AppStage, Background} from '@components'
 import {Role} from '@gobang/render'
 import {Check} from '@mui/icons-material'
 import {Stack, Typography} from '@mui/material'
@@ -38,7 +38,8 @@ export function GobangPrepare() {
 
   return (
     <AppStage>
-      <Stack width={200} m="auto" spacing={4} sx={{opacity: 0.1}}>
+      <Background />
+      <Stack width={200} m="auto" spacing={4}>
         <UserStatus align="left" role={anotherRole}>
           {gameReady >= 2 && (
             <Stack direction="row" spacing={2}>

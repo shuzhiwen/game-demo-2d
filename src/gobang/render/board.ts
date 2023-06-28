@@ -41,8 +41,10 @@ export function createBoard(props: {container: HTMLDivElement}) {
   axisLayer?.setScale({nice: {fixedStep: 1}})
   axisLayer?.setStyle({
     maxScaleXTextNumber: Infinity,
-    axisLineAxisX: {strokeOpacity: 0.5},
-    axisLineAxisY: {strokeOpacity: 0.5},
+    axisLineAxisX: {strokeWidth: 3, strokeOpacity: 0.5},
+    axisLineAxisY: {strokeWidth: 3, strokeOpacity: 0.5},
+    splitLineAxisX: {strokeWidth: 3},
+    splitLineAxisY: {strokeWidth: 3},
     textX: {hidden: true},
     textY: {hidden: true},
   })

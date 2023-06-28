@@ -10,7 +10,7 @@ export const FullStack = styled(Stack)({
 
 export const AppStage = styled(Stack)({
   width: '100vw',
-  height: isMobile() ? '100vh' : 'calc(100vh - 40px)',
   overflow: 'auto',
-  backgroundColor: 'gray',
+  height: isMobile() ? '100vh' : 'calc(100vh - 40px)',
+  opacity: (import.meta as any).env.DEV ? 0.1 : 1,
 })
