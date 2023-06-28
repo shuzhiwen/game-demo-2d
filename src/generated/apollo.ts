@@ -31,16 +31,25 @@ export type IdInput = {
 export type SendDataInput = {
   channelId: Scalars['String']
   data: Scalars['JSON']
+  seq: Scalars['Int']
+  serialize?: InputMaybe<Scalars['Boolean']>
   userId: Scalars['String']
 }
 
 export type TransportHistoryQueryVariables = Exact<{
   channelId: Scalars['String']
+  offset?: InputMaybe<Scalars['Int']>
+  limit?: InputMaybe<Scalars['Int']>
 }>
 
 export type TransportHistoryQuery = {
   __typename?: 'Query'
-  transportHistory?: Array<{__typename?: 'Transport'; data: any; userId: string}> | null
+  transportHistory?: Array<{
+    __typename?: 'Transport'
+    data: any
+    userId: string
+    seq: number
+  }> | null
 }
 
 export type TransportUserCountQueryVariables = Exact<{
@@ -67,20 +76,21 @@ export type SendDataMutationVariables = Exact<{
 
 export type SendDataMutation = {__typename?: 'Mutation'; sendData: boolean}
 
-export type TransportSubscriptionVariables = Exact<{
+export type ReceiveDataSubscriptionVariables = Exact<{
   channelId: Scalars['String']
 }>
 
-export type TransportSubscription = {
+export type ReceiveDataSubscription = {
   __typename?: 'Subscription'
-  transport: {__typename?: 'Transport'; data: any; userId: string}
+  receiveData: {__typename?: 'Transport'; data: any; userId: string; seq: number}
 }
 
 export const TransportHistoryDocument = gql`
-  query transportHistory($channelId: String!) {
-    transportHistory(channelId: $channelId) {
+  query transportHistory($channelId: String!, $offset: Int, $limit: Int) {
+    transportHistory(channelId: $channelId, offset: $offset, limit: $limit) {
       data
       userId
+      seq
     }
   }
 `
@@ -98,6 +108,8 @@ export const TransportHistoryDocument = gql`
  * const { data, loading, error } = useTransportHistoryQuery({
  *   variables: {
  *      channelId: // value for 'channelId'
+ *      offset: // value for 'offset'
+ *      limit: // value for 'limit'
  *   },
  * });
  */
@@ -299,39 +311,43 @@ export type SendDataMutationOptions = Apollo.BaseMutationOptions<
   SendDataMutation,
   SendDataMutationVariables
 >
-export const TransportDocument = gql`
-  subscription transport($channelId: String!) {
-    transport(channelId: $channelId) {
+export const ReceiveDataDocument = gql`
+  subscription receiveData($channelId: String!) {
+    receiveData(channelId: $channelId) {
       data
       userId
+      seq
     }
   }
 `
 
 /**
- * __useTransportSubscription__
+ * __useReceiveDataSubscription__
  *
- * To run a query within a React component, call `useTransportSubscription` and pass it any options that fit your needs.
- * When your component renders, `useTransportSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useReceiveDataSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useReceiveDataSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTransportSubscription({
+ * const { data, loading, error } = useReceiveDataSubscription({
  *   variables: {
  *      channelId: // value for 'channelId'
  *   },
  * });
  */
-export function useTransportSubscription(
-  baseOptions: Apollo.SubscriptionHookOptions<TransportSubscription, TransportSubscriptionVariables>
+export function useReceiveDataSubscription(
+  baseOptions: Apollo.SubscriptionHookOptions<
+    ReceiveDataSubscription,
+    ReceiveDataSubscriptionVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useSubscription<TransportSubscription, TransportSubscriptionVariables>(
-    TransportDocument,
+  return Apollo.useSubscription<ReceiveDataSubscription, ReceiveDataSubscriptionVariables>(
+    ReceiveDataDocument,
     options
   )
 }
-export type TransportSubscriptionHookResult = ReturnType<typeof useTransportSubscription>
-export type TransportSubscriptionResult = Apollo.SubscriptionResult<TransportSubscription>
+export type ReceiveDataSubscriptionHookResult = ReturnType<typeof useReceiveDataSubscription>
+export type ReceiveDataSubscriptionResult = Apollo.SubscriptionResult<ReceiveDataSubscription>

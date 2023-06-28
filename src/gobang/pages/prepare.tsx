@@ -1,13 +1,12 @@
 import {AppStage} from '@components'
-import {useTransportHistoryQuery} from '@generated/apollo'
 import {Role} from '@gobang/render'
 import {Check} from '@mui/icons-material'
 import {Stack, Typography} from '@mui/material'
-import {useMemo} from 'react'
+import {useEffect, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocalStorage} from 'react-use'
 import {UserStatus} from './common'
-import {getGameReady, useSendData} from './hooks'
+import {useCustomMutation, useHistoryData} from './hooks'
 import {GOBANG_CHANNEL, GOBANG_ROLE, GOBANG_USER} from './login'
 
 export function GobangPrepare() {
@@ -15,21 +14,19 @@ export function GobangPrepare() {
   const [role] = useLocalStorage<Role>(GOBANG_ROLE)
   const [userId] = useLocalStorage<string>(GOBANG_USER)
   const [channelId] = useLocalStorage<string>(GOBANG_CHANNEL)
-  const {prepareMutation} = useSendData()
+  const {prepareMutation} = useCustomMutation()
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
-  const {data} = useTransportHistoryQuery({
-    pollInterval: 1000,
-    variables: {channelId: channelId!},
-    onCompleted(data) {
-      if (getGameReady(data?.transportHistory ?? []) >= 2) {
-        navigate('/gobang/stage')
-      }
-    },
-  })
-  const gameReady = useMemo(
-    () => getGameReady(data?.transportHistory ?? []),
-    [data?.transportHistory]
-  )
+  const {totalData} = useHistoryData()
+  const gameReady = useMemo(() => {
+    const prepareData = totalData.filter(({data}) => data.kind === 'prepare')
+    return new Set(prepareData.map(({userId}) => userId)).size
+  }, [totalData])
+
+  useEffect(() => {
+    if (gameReady >= 2) {
+      setTimeout(() => navigate('/gobang/stage'), 1000)
+    }
+  }, [gameReady, navigate])
 
   useEffectOnce(() => {
     if (!role || !channelId || !userId) {

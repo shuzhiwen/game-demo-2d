@@ -1,5 +1,5 @@
 schema:
-  - http://localhost:80
+  - http://shuzhiwen.com:8002
 documents:
   - src/graphql/*.gql
 config:

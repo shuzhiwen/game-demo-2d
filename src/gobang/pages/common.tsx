@@ -4,6 +4,12 @@ import {PropsWithChildren} from 'react'
 
 type UserStatus = PropsWithChildren<{align: 'left' | 'right'; role: Role}>
 
+export const RoleDict: Record<Role, string> = {
+  [Role.BLACK]: '黑',
+  [Role.WHITE]: '白',
+  [Role.EMPTY]: '',
+}
+
 export function UserStatus({align, role, children}: UserStatus) {
   return (
     <Stack
@@ -21,7 +27,7 @@ export function UserStatus({align, role, children}: UserStatus) {
           bgcolor: role === Role.BLACK ? 'black' : 'white',
         }}
       >
-        {role === Role.BLACK ? '黑' : '白'}
+        {RoleDict[role]}
       </Avatar>
       {align === 'left' && <Box>{children}</Box>}
     </Stack>

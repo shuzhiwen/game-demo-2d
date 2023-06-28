@@ -1,7 +1,8 @@
-query transportHistory($channelId: String!) {
-  transportHistory(channelId: $channelId) {
+query transportHistory($channelId: String!, $offset: Int, $limit: Int) {
+  transportHistory(channelId: $channelId, offset: $offset, limit: $limit) {
     data
     userId
+    seq
   }
 }
 
@@ -21,9 +22,10 @@ mutation sendData($input: SendDataInput!) {
   sendData(input: $input)
 }
 
-subscription transport($channelId: String!) {
-  transport(channelId: $channelId) {
+subscription receiveData($channelId: String!) {
+  receiveData(channelId: $channelId) {
     data
     userId
+    seq
   }
 }

@@ -40,19 +40,21 @@ type Mutation {
 
 type Query {
   hello: String!
-  transportHistory(channelId: String!): [Transport!]
+  transportHistory(channelId: String!, limit: Int, offset: Int): [Transport!]
   transportUserCount(channelId: String!): Int
 }
 
 input SendDataInput {
   channelId: String!
   data: JSON!
+  seq: Int!
+  serialize: Boolean
   userId: String!
 }
 
 type Subscription {
   helloWs: String!
-  transport(channelId: String!): Transport!
+  receiveData(channelId: String!): Transport!
 }
 
 interface System {
@@ -62,6 +64,7 @@ interface System {
 
 type Transport {
   data: JSON!
+  seq: Int!
   userId: String!
 }
 
