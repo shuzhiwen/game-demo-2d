@@ -20,7 +20,7 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@*": ["./src/*", "./public/*"]
+      "@*": ["./src/*"]
     }
   },
   "include": ["src"]

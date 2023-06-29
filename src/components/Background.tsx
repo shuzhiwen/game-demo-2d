@@ -1,7 +1,7 @@
+import bg1 from '@assets/image/bg1.jpg'
+import bg2 from '@assets/image/bg2.jpg'
+import bg3 from '@assets/image/bg3.jpg'
 import {Box} from '@mui/material'
-import bg1 from '@image/bg1.jpg'
-import bg2 from '@image/bg2.jpg'
-import bg3 from '@image/bg3.jpg'
 
 const bgs = [bg1, bg2, bg3]
 
