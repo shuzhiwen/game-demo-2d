@@ -1,6 +1,7 @@
 import {AppStage, Background} from '@components'
+import {useSound} from '@context/sound'
 import {Role} from '@gobang/render'
-import {Check} from '@mui/icons-material'
+import {CheckRounded} from '@mui/icons-material'
 import {Stack, Typography} from '@mui/material'
 import {useEffect, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
@@ -11,6 +12,7 @@ import {GOBANG_CHANNEL, GOBANG_ROLE, GOBANG_USER} from './login'
 
 export function GobangPrepare() {
   const navigate = useNavigate()
+  const {playBackground} = useSound()
   const [role] = useLocalStorage<Role>(GOBANG_ROLE)
   const [userId] = useLocalStorage<string>(GOBANG_USER)
   const [channelId] = useLocalStorage<string>(GOBANG_CHANNEL)
@@ -32,6 +34,7 @@ export function GobangPrepare() {
     if (!role || !channelId || !userId) {
       navigate('/gobang')
     } else {
+      playBackground({type: 'kisstherain'})
       prepareMutation()
     }
   })
@@ -42,16 +45,16 @@ export function GobangPrepare() {
       <Stack width={200} m="auto" spacing={4}>
         <UserStatus align="left" role={anotherRole}>
           {gameReady >= 2 && (
-            <Stack direction="row" spacing={2}>
-              <Check sx={{color: 'green'}} />
+            <Stack direction="row" spacing={1} alignItems="center">
+              <CheckRounded sx={{color: 'lightgreen', fontSize: 36}} />
               <Typography>已准备</Typography>
             </Stack>
           )}
         </UserStatus>
         <UserStatus align="left" role={role!}>
           {gameReady >= 1 && (
-            <Stack direction="row" spacing={2}>
-              <Check sx={{color: 'green'}} />
+            <Stack direction="row" spacing={1} alignItems="center">
+              <CheckRounded sx={{color: 'lightgreen', fontSize: 36}} />
               <Typography>已准备</Typography>
             </Stack>
           )}

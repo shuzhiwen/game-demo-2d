@@ -1,2 +1,2 @@
-export * from './Background'
-export * from './Container'
+export * from './background'
+export * from './container'

@@ -1,7 +1,7 @@
 import {Stack} from '@mui/material'
 import {AUTO, Game, Math} from 'phaser'
 import {useEffect, useRef} from 'react'
-import {AppStage} from '../components/Container'
+import {AppStage} from '../components/container'
 
 export function Started() {
   const ref = useRef<HTMLDivElement>(null)
@@ -39,11 +39,11 @@ export function Started() {
 }
 
 function preload(this: Phaser.Scene) {
-  this.load.image('sky', 'assets/sky.png')
-  this.load.image('ground', 'assets/platform.png')
-  this.load.image('star', 'assets/star.png')
-  this.load.image('bomb', 'assets/bomb.png')
-  this.load.spritesheet('dude', 'assets/dude.png', {frameWidth: 32, frameHeight: 48})
+  this.load.image('sky', 'image/sky.png')
+  this.load.image('ground', 'image/platform.png')
+  this.load.image('star', 'image/star.png')
+  this.load.image('bomb', 'image/bomb.png')
+  this.load.spritesheet('dude', 'image/dude.png', {frameWidth: 32, frameHeight: 48})
 }
 
 const create = (cx: number, cy: number) => {

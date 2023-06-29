@@ -16,13 +16,13 @@ export function UserStatus({align, role, children}: UserStatus) {
       direction="row"
       alignItems="center"
       justifyContent={align === 'left' ? 'start' : 'end'}
-      spacing={4}
+      spacing={2}
     >
       {align === 'right' && <Box>{children}</Box>}
       <Avatar
         sx={{
-          width: 64,
-          height: 64,
+          width: 56,
+          height: 56,
           color: role === Role.BLACK ? 'white' : 'black',
           bgcolor: role === Role.BLACK ? 'black' : 'white',
         }}

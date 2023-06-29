@@ -3,7 +3,9 @@ import {ElSource, RawTableList} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
 import {Role, boardId, boardSize, decodeSource} from './chaos'
 
-const myTheme = merge({}, darkTheme, {animation: {update: {duration: 0, delay: 0}}})
+const myTheme = merge({}, darkTheme, {
+  animation: {update: {duration: 0, delay: 0}},
+})
 
 export function createBoard(props: {container: HTMLDivElement}) {
   const {container} = props
@@ -41,17 +43,17 @@ export function createBoard(props: {container: HTMLDivElement}) {
   axisLayer?.setScale({nice: {fixedStep: 1}})
   axisLayer?.setStyle({
     maxScaleXTextNumber: Infinity,
-    axisLineAxisX: {strokeWidth: 3, strokeOpacity: 0.5},
-    axisLineAxisY: {strokeWidth: 3, strokeOpacity: 0.5},
-    splitLineAxisX: {strokeWidth: 3},
-    splitLineAxisY: {strokeWidth: 3},
+    axisLineAxisX: {strokeWidth: 2, strokeOpacity: 0.5},
+    axisLineAxisY: {strokeWidth: 2, strokeOpacity: 0.5},
+    splitLineAxisX: {strokeWidth: 2},
+    splitLineAxisY: {strokeWidth: 2},
     textX: {hidden: true},
     textY: {hidden: true},
   })
 
   scatterLayer?.setData(new DataTableList(initialChesses))
   scatterLayer?.setStyle({
-    pointSize: [cellSize / 4, cellSize / 4],
+    pointSize: [cellSize / 3, cellSize / 3],
     text: {hidden: true},
     point: {
       mapping(config) {
@@ -67,8 +69,6 @@ export function createBoard(props: {container: HTMLDivElement}) {
       },
     },
   })
-
-  chart.draw()
 
   return chart
 }
