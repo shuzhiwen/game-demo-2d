@@ -2,6 +2,8 @@ import {ElSource} from 'awesome-chart/dist/types'
 
 export const boardId = 'board'
 
+export const readyBoardId = 'ready_board'
+
 export const boardSize = 12
 
 export enum Role {

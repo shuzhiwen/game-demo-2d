@@ -1,11 +1,29 @@
 import {Chart, DataTableList, darkTheme, robustRange} from 'awesome-chart'
-import {ElSource, RawTableList} from 'awesome-chart/dist/types'
+import {ElSource, GraphStyle, RawTableList} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
-import {Role, boardId, boardSize, decodeSource} from './chaos'
+import {Role, boardId, boardSize, decodeSource, readyBoardId} from './chaos'
 
 const myTheme = merge({}, darkTheme, {
   animation: {update: {duration: 0, delay: 0}},
 })
+
+export const initialChesses = ([['x', 'y', 'category']] as RawTableList).concat(
+  robustRange(0, boardSize).flatMap((row) =>
+    robustRange(0, boardSize).map((column) => [row, column, Role.EMPTY])
+  )
+)
+
+const mapping: GraphStyle['mapping'] = (config) => {
+  const {category} = decodeSource(config.source as ElSource[])
+  switch (category) {
+    case Role.WHITE:
+      return {...config, fill: '#ffffff'}
+    case Role.BLACK:
+      return {...config, fill: '#000000'}
+    default:
+      return {...config, fill: '#00000000'}
+  }
+}
 
 export function createBoard(props: {container: HTMLDivElement}) {
   const {container} = props
@@ -29,16 +47,16 @@ export function createBoard(props: {container: HTMLDivElement}) {
     type: 'axis',
     layout: chart.layout.main,
   })
+  const readyScatterLayer = chart.createLayer({
+    id: readyBoardId,
+    type: 'scatter',
+    layout: chart.layout.main,
+  })
   const scatterLayer = chart.createLayer({
     id: boardId,
     type: 'scatter',
     layout: chart.layout.main,
   })
-  const initialChesses = ([['x', 'y', 'category']] as RawTableList).concat(
-    robustRange(0, boardSize).flatMap((row) =>
-      robustRange(0, boardSize).map((column) => [row, column, Role.EMPTY])
-    )
-  )
 
   axisLayer?.setScale({nice: {fixedStep: 1}})
   axisLayer?.setStyle({
@@ -55,19 +73,14 @@ export function createBoard(props: {container: HTMLDivElement}) {
   scatterLayer?.setStyle({
     pointSize: [cellSize / 3, cellSize / 3],
     text: {hidden: true},
-    point: {
-      mapping(config) {
-        const {category} = decodeSource(config.source as ElSource[])
-        switch (category) {
-          case Role.WHITE:
-            return {...config, fill: '#ffffff'}
-          case Role.BLACK:
-            return {...config, fill: '#000000'}
-          default:
-            return {...config, fill: '#00000000'}
-        }
-      },
-    },
+    point: {mapping},
+  })
+
+  readyScatterLayer?.setData(new DataTableList(initialChesses))
+  readyScatterLayer?.setStyle({
+    pointSize: [cellSize / 3, cellSize / 3],
+    point: {opacity: 0.5, mapping},
+    text: {hidden: true},
   })
 
   return chart

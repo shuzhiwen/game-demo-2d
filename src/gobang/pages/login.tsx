@@ -4,12 +4,9 @@ import {Role} from '@gobang/render'
 import {Button, Stack, TextField} from '@mui/material'
 import {uuid} from 'awesome-chart'
 import {useCallback, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
 import {useLocalStorage} from 'react-use'
-
-export const GOBANG_USER = 'GOBANG_USER'
-export const GOBANG_ROLE = 'GOBANG_ROLE'
-export const GOBANG_CHANNEL = 'GOBANG_CHANNEL'
+import {GOBANG_CHANNEL, GOBANG_ROLE, GOBANG_USER} from './constants'
+import {useGobangNavigate} from './hooks'
 
 export function GobangEnter() {
   const [code, setCode] = useState('')
@@ -18,7 +15,7 @@ export function GobangEnter() {
   const [, setRole] = useLocalStorage<Role>(GOBANG_ROLE)
   const [enterMutation] = useEnterChannelMutation()
   const [countQuery] = useTransportUserCountLazyQuery()
-  const navigate = useNavigate()
+  const navigate = useGobangNavigate()
   const {notice} = useDialog()
 
   const connectServer = useCallback(async () => {
@@ -38,7 +35,7 @@ export function GobangEnter() {
     })
     if (enter?.enterChannel) {
       setChannelId(code)
-      navigate('/gobang/prepare')
+      navigate('prepare')
     } else {
       notice({content: '连接服务器失败'})
     }

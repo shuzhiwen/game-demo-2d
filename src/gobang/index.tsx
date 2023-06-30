@@ -1,12 +1,10 @@
 import {Route} from 'react-router-dom'
-import {GobangEnter} from './pages/login'
-import {GobangPrepare} from './pages/prepare'
-import {GobangStage} from './pages/stage'
+import {GobangRouteDict, GobangEnter, GobangPrepare, GobangStage} from './pages'
 
-export const Gobang = (
-  <>
-    <Route path="/gobang" Component={GobangEnter} />
-    <Route path="/gobang/prepare" Component={GobangPrepare} />
-    <Route path="/gobang/stage" Component={GobangStage} />
-  </>
+export const GobangEntry = (
+  <Route path={GobangRouteDict['login']}>
+    <Route path={GobangRouteDict['login']} Component={GobangEnter} />
+    <Route path={GobangRouteDict['prepare']} Component={GobangPrepare} />
+    <Route path={GobangRouteDict['stage']} Component={GobangStage} />
+  </Route>
 )
