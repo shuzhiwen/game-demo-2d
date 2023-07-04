@@ -40,7 +40,8 @@ export function SoundProvider(props: PropsWithChildren) {
     }
   }, [])
   const playBackground = useCallback<Context['playBackground']>(({type, volume}) => {
-    const audio = soundRef.current?.querySelector('audio') || new Audio()
+    soundRef.current?.querySelector('audio')?.remove()
+    const audio = new Audio()
     audio.src = musics[type]
     audio.loop = true
     audio.autoplay = true

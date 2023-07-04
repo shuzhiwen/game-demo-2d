@@ -35,7 +35,7 @@ export function createBoard(props: {container: HTMLDivElement}) {
     adjust: false,
     width: containerSize,
     height: containerSize,
-    padding: [20, 20, 20, 20],
+    padding: [24, 24, 24, 24],
     container: props.container,
     theme: myTheme,
     tooltipOptions: {
@@ -61,10 +61,10 @@ export function createBoard(props: {container: HTMLDivElement}) {
   axisLayer?.setScale({nice: {fixedStep: 1}})
   axisLayer?.setStyle({
     maxScaleXTextNumber: Infinity,
-    axisLineAxisX: {strokeWidth: 2, strokeOpacity: 0.5},
-    axisLineAxisY: {strokeWidth: 2, strokeOpacity: 0.5},
-    splitLineAxisX: {strokeWidth: 2},
-    splitLineAxisY: {strokeWidth: 2},
+    axisLineAxisX: {strokeWidth: 2, strokeOpacity: 0.8},
+    axisLineAxisY: {strokeWidth: 2, strokeOpacity: 0.8},
+    splitLineAxisX: {strokeWidth: 2, strokeOpacity: 0.8},
+    splitLineAxisY: {strokeWidth: 2, strokeOpacity: 0.8},
     textX: {hidden: true},
     textY: {hidden: true},
   })

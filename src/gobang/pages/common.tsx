@@ -1,6 +1,8 @@
 import {Role} from '@gobang/render'
-import {Avatar, Box, Stack} from '@mui/material'
-import {PropsWithChildren} from 'react'
+import {ExitToAppRounded} from '@mui/icons-material'
+import {AppBar, Avatar, Box, IconButton, Stack, Toolbar, Typography} from '@mui/material'
+import {PropsWithChildren, useCallback} from 'react'
+import {useCustomMutation, useGobangNavigate} from './hooks'
 
 type UserStatus = PropsWithChildren<{align: 'left' | 'right'; role: Role}>
 
@@ -31,5 +33,25 @@ export function UserStatus({align, role, children}: UserStatus) {
       </Avatar>
       {align === 'left' && <Box>{children}</Box>}
     </Stack>
+  )
+}
+
+export function GameBar() {
+  const {exitMutation} = useCustomMutation()
+  const navigate = useGobangNavigate()
+  const handleExit = useCallback(async () => {
+    await exitMutation()
+    navigate('login')
+  }, [exitMutation, navigate])
+
+  return (
+    <AppBar position="relative" color="transparent">
+      <Toolbar>
+        <Typography variant="h6" flex={1}></Typography>
+        <IconButton onClick={handleExit}>
+          <ExitToAppRounded sx={{color: 'white'}} />
+        </IconButton>
+      </Toolbar>
+    </AppBar>
   )
 }

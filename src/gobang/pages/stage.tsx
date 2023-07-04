@@ -15,7 +15,7 @@ import {Chart, LayerScatter} from 'awesome-chart'
 import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce, useLocalStorage} from 'react-use'
-import {RoleDict, UserStatus} from './common'
+import {GameBar, RoleDict, UserStatus} from './common'
 import {GOBANG_ROLE} from './constants'
 import {useCustomMutation, useGobangNavigate, useHistoryData} from './hooks'
 
@@ -95,14 +95,15 @@ export function GobangStage() {
   return (
     <AppStage>
       <Background />
+      <GameBar />
       <Stack flex={1} m={0} spacing={2}>
-        <Stack p={2}>
+        <Stack p={3}>
           <UserStatus align="left" role={anotherRole}>
             {isMe && <Typography>思考中...</Typography>}
           </UserStatus>
         </Stack>
         <Stack ref={chartRef} className="fb1 fbjc fbac" />
-        <Stack p={2}>
+        <Stack p={3}>
           <UserStatus align="right" role={role!}>
             {!isMe && <Typography>思考中...</Typography>}
           </UserStatus>

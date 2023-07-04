@@ -5,7 +5,7 @@ import {CheckRounded} from '@mui/icons-material'
 import {Stack, Typography} from '@mui/material'
 import {useEffect, useMemo} from 'react'
 import {useEffectOnce, useLocalStorage} from 'react-use'
-import {UserStatus} from './common'
+import {GameBar, UserStatus} from './common'
 import {GOBANG_ROLE} from './constants'
 import {useCustomMutation, useGobangNavigate, useHistoryData} from './hooks'
 
@@ -35,6 +35,7 @@ export function GobangPrepare() {
   return (
     <AppStage>
       <Background />
+      <GameBar />
       <Stack width={200} m="auto" spacing={4}>
         <UserStatus align="left" role={anotherRole}>
           {gameReady >= 2 && (
