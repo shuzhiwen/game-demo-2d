@@ -4,9 +4,10 @@ import {
   useExitChannelMutation,
   useReceiveDataSubscription,
   useSendDataMutation,
+  useTransportHistoryLazyQuery,
   useTransportHistoryQuery,
 } from '@generated/apollo'
-import {Role} from '@gobang/render'
+import {Role, initialChesses} from '@gobang/render'
 import {useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocalStorage, useLocation} from 'react-use'
@@ -99,4 +100,29 @@ export function useGobangNavigate() {
   })
 
   return navigate
+}
+
+export function useInitialDataLazyQuery() {
+  const [role] = useLocalStorage<Role>(GOBANG_ROLE)
+  const [userId] = useLocalStorage<string>(GOBANG_USER)
+  const [channelId] = useLocalStorage<string>(GOBANG_CHANNEL)
+  const [query] = useTransportHistoryLazyQuery()
+
+  return async () => {
+    const {data} = await query({variables: {channelId: channelId!}})
+    const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
+    const initialData = initialChesses.slice()
+
+    data?.transportHistory?.forEach((datum) => {
+      if (datum.data?.kind === 'chess') {
+        const [x, y] = (datum.data as ChessData).payload
+        const dataRole = datum.userId === userId ? role! : anotherRole
+        const target = initialData.find(([_x, _y]) => x === _x && y === _y)
+        if (!target) throw new Error()
+        target[2] = dataRole
+      }
+    })
+
+    return initialData
+  }
 }

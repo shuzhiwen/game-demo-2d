@@ -52,11 +52,11 @@ export type TransportHistoryQuery = {
   }> | null
 }
 
-export type TransportUserCountQueryVariables = Exact<{
+export type TransportUsersQueryVariables = Exact<{
   channelId: Scalars['String']
 }>
 
-export type TransportUserCountQuery = {__typename?: 'Query'; transportUserCount?: number | null}
+export type TransportUsersQuery = {__typename?: 'Query'; transportUsers: Array<string>}
 
 export type EnterChannelMutationVariables = Exact<{
   input: ChannelInput
@@ -137,56 +137,51 @@ export type TransportHistoryQueryResult = Apollo.QueryResult<
   TransportHistoryQuery,
   TransportHistoryQueryVariables
 >
-export const TransportUserCountDocument = gql`
-  query transportUserCount($channelId: String!) {
-    transportUserCount(channelId: $channelId)
+export const TransportUsersDocument = gql`
+  query transportUsers($channelId: String!) {
+    transportUsers(channelId: $channelId)
   }
 `
 
 /**
- * __useTransportUserCountQuery__
+ * __useTransportUsersQuery__
  *
- * To run a query within a React component, call `useTransportUserCountQuery` and pass it any options that fit your needs.
- * When your component renders, `useTransportUserCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useTransportUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTransportUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTransportUserCountQuery({
+ * const { data, loading, error } = useTransportUsersQuery({
  *   variables: {
  *      channelId: // value for 'channelId'
  *   },
  * });
  */
-export function useTransportUserCountQuery(
-  baseOptions: Apollo.QueryHookOptions<TransportUserCountQuery, TransportUserCountQueryVariables>
+export function useTransportUsersQuery(
+  baseOptions: Apollo.QueryHookOptions<TransportUsersQuery, TransportUsersQueryVariables>
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useQuery<TransportUserCountQuery, TransportUserCountQueryVariables>(
-    TransportUserCountDocument,
+  return Apollo.useQuery<TransportUsersQuery, TransportUsersQueryVariables>(
+    TransportUsersDocument,
     options
   )
 }
-export function useTransportUserCountLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    TransportUserCountQuery,
-    TransportUserCountQueryVariables
-  >
+export function useTransportUsersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<TransportUsersQuery, TransportUsersQueryVariables>
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useLazyQuery<TransportUserCountQuery, TransportUserCountQueryVariables>(
-    TransportUserCountDocument,
+  return Apollo.useLazyQuery<TransportUsersQuery, TransportUsersQueryVariables>(
+    TransportUsersDocument,
     options
   )
 }
-export type TransportUserCountQueryHookResult = ReturnType<typeof useTransportUserCountQuery>
-export type TransportUserCountLazyQueryHookResult = ReturnType<
-  typeof useTransportUserCountLazyQuery
->
-export type TransportUserCountQueryResult = Apollo.QueryResult<
-  TransportUserCountQuery,
-  TransportUserCountQueryVariables
+export type TransportUsersQueryHookResult = ReturnType<typeof useTransportUsersQuery>
+export type TransportUsersLazyQueryHookResult = ReturnType<typeof useTransportUsersLazyQuery>
+export type TransportUsersQueryResult = Apollo.QueryResult<
+  TransportUsersQuery,
+  TransportUsersQueryVariables
 >
 export const EnterChannelDocument = gql`
   mutation enterChannel($input: ChannelInput!) {

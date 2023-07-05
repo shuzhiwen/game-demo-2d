@@ -25,8 +25,8 @@ const mapping: GraphStyle['mapping'] = (config) => {
   }
 }
 
-export function createBoard(props: {container: HTMLDivElement}) {
-  const {container} = props
+export function createBoard(props: {container: HTMLElement; initialData: RawTableList}) {
+  const {container, initialData} = props
   const {width, height} = container.getBoundingClientRect()
   const containerSize = Math.min(width, height)
   const cellSize = containerSize / boardSize
@@ -69,7 +69,7 @@ export function createBoard(props: {container: HTMLDivElement}) {
     textY: {hidden: true},
   })
 
-  scatterLayer?.setData(new DataTableList(initialChesses))
+  scatterLayer?.setData(new DataTableList(initialData))
   scatterLayer?.setStyle({
     pointSize: [cellSize / 3, cellSize / 3],
     text: {hidden: true},

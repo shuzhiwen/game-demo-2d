@@ -41,7 +41,7 @@ type Mutation {
 type Query {
   hello: String!
   transportHistory(channelId: String!, limit: Int, offset: Int): [Transport!]
-  transportUserCount(channelId: String!): Int
+  transportUsers(channelId: String!): [String!]!
 }
 
 input SendDataInput {

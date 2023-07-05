@@ -10,18 +10,24 @@ import {
   decodeSource,
 } from '@gobang/render'
 import {isCurrentChessWin} from '@gobang/scripts'
-import {Stack, Typography} from '@mui/material'
+import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart, LayerScatter} from 'awesome-chart'
 import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce, useLocalStorage} from 'react-use'
 import {GameBar, RoleDict, UserStatus} from './common'
 import {GOBANG_ROLE} from './constants'
-import {useCustomMutation, useGobangNavigate, useHistoryData} from './hooks'
+import {
+  useCustomMutation,
+  useGobangNavigate,
+  useHistoryData,
+  useInitialDataLazyQuery,
+} from './hooks'
 
 export function GobangStage() {
   const {notice} = useDialog()
   const navigate = useGobangNavigate()
+  const queryInitialData = useInitialDataLazyQuery()
   const {playSound, playBackground} = useSound()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [role] = useLocalStorage<Role>(GOBANG_ROLE)
@@ -36,11 +42,16 @@ export function GobangStage() {
   })
 
   useEffectOnce(() => {
-    if (chartRef.current) {
-      const chart = createBoard({container: chartRef.current})
-      setChart(chart)
-      chart.draw()
-    }
+    ;(async () => {
+      if (chartRef.current) {
+        const chart = createBoard({
+          container: chartRef.current,
+          initialData: await queryInitialData(),
+        })
+        setChart(chart)
+        chart.draw()
+      }
+    })()
   })
 
   useEffect(() => {
@@ -96,7 +107,13 @@ export function GobangStage() {
     <AppStage>
       <Background />
       <GameBar />
-      <Stack flex={1} m={0} spacing={2}>
+      <Backdrop open={!chart}>
+        <Stack alignItems="center" spacing={2}>
+          <Typography variant="h6">正在加载中...</Typography>
+          <CircularProgress color="inherit" />
+        </Stack>
+      </Backdrop>
+      <Stack flex={1} m={0} spacing={2} sx={{filter: chart ? '' : 'blur(5px)'}}>
         <Stack p={3}>
           <UserStatus align="left" role={anotherRole}>
             {isMe && <Typography>思考中...</Typography>}

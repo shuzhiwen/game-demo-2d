@@ -1,5 +1,5 @@
 import {useDialog} from '@context'
-import {useEnterChannelMutation, useTransportUserCountLazyQuery} from '@generated/apollo'
+import {useEnterChannelMutation, useTransportUsersLazyQuery} from '@generated/apollo'
 import {Role} from '@gobang/render'
 import {Button, Stack, TextField} from '@mui/material'
 import {uuid} from 'awesome-chart'
@@ -14,32 +14,39 @@ export function GobangEnter() {
   const [, setChannelId] = useLocalStorage<string>(GOBANG_CHANNEL)
   const [, setRole] = useLocalStorage<Role>(GOBANG_ROLE)
   const [enterMutation] = useEnterChannelMutation()
-  const [countQuery] = useTransportUserCountLazyQuery()
+  const [usersQuery] = useTransportUsersLazyQuery()
   const navigate = useGobangNavigate()
   const {notice} = useDialog()
 
   const connectServer = useCallback(async () => {
-    const {data: count} = await countQuery({
+    const {data: usersResult} = await usersQuery({
       variables: {channelId: code},
     })
-    if (!count?.transportUserCount) {
+    const users = usersResult?.transportUsers ?? []
+
+    if (users.includes(userId!)) {
+      navigate('stage')
+      return
+    } else if (!users.length) {
       setRole(Role.BLACK)
-    } else if (count.transportUserCount === 1) {
+    } else if (users.length === 1) {
       setRole(Role.WHITE)
     } else {
       notice({title: '房间人数已满'})
       return
     }
+
     const {data: enter} = await enterMutation({
       variables: {input: {channelId: code, userId: userId!}},
     })
+
     if (enter?.enterChannel) {
       setChannelId(code)
       navigate('prepare')
     } else {
       notice({content: '连接服务器失败'})
     }
-  }, [code, countQuery, enterMutation, navigate, notice, setChannelId, setRole, userId])
+  }, [code, usersQuery, enterMutation, navigate, notice, setChannelId, setRole, userId])
 
   return (
     <Stack p={4} spacing={2}>

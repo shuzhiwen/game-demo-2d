@@ -6,8 +6,8 @@ query transportHistory($channelId: String!, $offset: Int, $limit: Int) {
   }
 }
 
-query transportUserCount($channelId: String!) {
-  transportUserCount(channelId: $channelId)
+query transportUsers($channelId: String!) {
+  transportUsers(channelId: $channelId)
 }
 
 mutation enterChannel($input: ChannelInput!) {
