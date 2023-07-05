@@ -67,9 +67,9 @@ export function GobangStage() {
       }
 
       if (category === Role.EMPTY) {
-        const {data} = await appendChessMutation([x, y] as Vec2, (seq ?? 0) + 1)
+        const result = await appendChessMutation([x, y] as Vec2, (seq ?? 0) + 1)
 
-        if (!data?.sendData) {
+        if (!result?.data?.sendData) {
           notice({title: '连接服务器失败'})
         }
       }

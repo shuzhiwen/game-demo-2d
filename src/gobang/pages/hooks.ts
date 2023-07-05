@@ -8,6 +8,7 @@ import {
   useTransportHistoryQuery,
 } from '@generated/apollo'
 import {Role, initialChesses} from '@gobang/render'
+import {cloneDeep} from 'lodash-es'
 import {useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocalStorage, useLocation} from 'react-use'
@@ -53,11 +54,12 @@ export function useCustomMutation() {
   const [userId] = useLocalStorage<string>(GOBANG_USER)
   const [channelId, setChannelId] = useLocalStorage<string | null>(GOBANG_CHANNEL)
   const [, setRole] = useLocalStorage<Role | null>(GOBANG_ROLE)
-  const [sendMutation] = useSendDataMutation()
+  const [sendMutation, {loading}] = useSendDataMutation()
   const [exitMutation] = useExitChannelMutation()
 
   return {
     prepareMutation: async (seq: number) => {
+      if (loading) return
       if (!userId || !channelId) throw new Error()
       const data = {kind: 'prepare', payload: true} as PrepareData
       return sendMutation({
@@ -65,6 +67,7 @@ export function useCustomMutation() {
       })
     },
     appendChessMutation: async (payload: ChessData['payload'], seq: number) => {
+      if (loading) return
       if (!userId || !channelId) throw new Error()
       const data = {kind: 'chess', payload} as ChessData
       return sendMutation({
@@ -111,7 +114,7 @@ export function useInitialDataLazyQuery() {
   return async () => {
     const {data} = await query({variables: {channelId: channelId!}})
     const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
-    const initialData = initialChesses.slice()
+    const initialData = cloneDeep(initialChesses.slice())
 
     data?.transportHistory?.forEach((datum) => {
       if (datum.data?.kind === 'chess') {
