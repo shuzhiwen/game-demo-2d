@@ -33,7 +33,7 @@ export function GobangStage() {
   const [role] = useLocalStorage<Role>(GOBANG_ROLE)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation, exitMutation} = useCustomMutation()
-  const {isMe, data, seq = 0} = useHistoryData({limit: 1})
+  const {isMe, data, seq = 0} = useHistoryData({limit: 10})
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const currentRole = isMe ? role! : anotherRole
 

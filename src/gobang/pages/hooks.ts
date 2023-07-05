@@ -9,7 +9,7 @@ import {
 } from '@generated/apollo'
 import {Role, initialChesses} from '@gobang/render'
 import {cloneDeep} from 'lodash-es'
-import {useCallback} from 'react'
+import {useCallback, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocalStorage, useLocation} from 'react-use'
 import {GOBANG_CHANNEL, GOBANG_ROLE, GOBANG_USER, GobangRouteDict} from './constants'
@@ -39,15 +39,22 @@ export function useHistoryData(pagination?: Pagination) {
     variables: {...pagination, channelId: channelId!},
     pollInterval: 3000,
   })
-  const latest = data?.transportHistory?.at(-1) as Maybe<GobangTransportData>
-  const isMe = latest ? latest?.userId === userId : role === Role.WHITE
+  const latest = useMemo(
+    () => data?.transportHistory?.find(({data}) => data?.kind === 'chess'),
+    [data?.transportHistory]
+  )
 
   useReceiveDataSubscription({
     variables: {channelId: channelId!},
     onData: () => refetch(),
   })
 
-  return {...latest, isMe, totalData: data?.transportHistory ?? []}
+  return {
+    data: latest?.data,
+    totalData: data?.transportHistory ?? [],
+    isMe: latest ? latest?.userId === userId : role === Role.WHITE,
+    seq: data?.transportHistory?.at(0)?.seq,
+  }
 }
 
 export function useCustomMutation() {
