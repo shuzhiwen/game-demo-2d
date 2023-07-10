@@ -4,6 +4,7 @@ import {useSound} from '@context/sound'
 import {
   Role,
   appendChess,
+  appendFocusChess,
   appendReadyChess,
   boardId,
   createBoard,
@@ -81,8 +82,9 @@ export function GobangStage() {
       const scatterLayer = chart.getLayerById(boardId) as LayerScatter
       const position = data.payload as Vec2
 
-      appendChess({role: currentRole, chart, position})
       playSound({type: 'chess'})
+      appendChess({role: currentRole, chart, position})
+      appendFocusChess({role: currentRole, chart, position})
 
       if (
         isCurrentChessWin({

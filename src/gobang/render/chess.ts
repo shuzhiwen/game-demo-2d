@@ -1,6 +1,6 @@
 import {Chart, DataTableList, LayerScatter} from 'awesome-chart'
-import {initialChesses} from './board'
-import {Role, boardId, readyBoardId} from './chaos'
+import {initialChess} from './board'
+import {Role, boardId, focusBoardId, readyBoardId} from './chaos'
 
 const getChess = (data: Meta[][], x: number, y: number) => {
   const index = data.findIndex(([_x, _y]) => _x === x && _y === y)
@@ -29,10 +29,10 @@ export function appendReadyChess(props: {role: Role; position: Vec2; chart: Char
   let status: 'ready' | 'action' | 'invalid' = 'ready'
 
   if (!getChess(layer.data?.rawTableList ?? [], ...position).isEmpty) {
-    readyLayer.setData(new DataTableList(initialChesses))
+    readyLayer.setData(new DataTableList(initialChess()))
     status = 'invalid'
   } else if (!isEmpty) {
-    readyLayer.setData(new DataTableList(initialChesses))
+    readyLayer.setData(new DataTableList(initialChess()))
     status = 'action'
   } else if (data) {
     data.forEach((datum, i) => i && (datum[2] = Role.EMPTY))
@@ -42,4 +42,15 @@ export function appendReadyChess(props: {role: Role; position: Vec2; chart: Char
   }
 
   return status
+}
+
+export function appendFocusChess(props: {role: Role; position: Vec2; chart: Chart}) {
+  const data = initialChess()
+  const {role, position, chart} = props
+  const {index} = getChess(data, ...position)
+  const layer = chart.getLayerById(focusBoardId) as LayerScatter
+
+  data[index][2] = role
+  layer.setData(new DataTableList(data))
+  layer.draw()
 }

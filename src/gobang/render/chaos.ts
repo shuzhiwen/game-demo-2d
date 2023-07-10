@@ -4,6 +4,8 @@ export const boardId = 'board'
 
 export const readyBoardId = 'ready_board'
 
+export const focusBoardId = 'focus_board'
+
 export const boardSize = 12
 
 export enum Role {

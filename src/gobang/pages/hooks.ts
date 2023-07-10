@@ -7,8 +7,7 @@ import {
   useTransportHistoryLazyQuery,
   useTransportHistoryQuery,
 } from '@generated/apollo'
-import {Role, initialChesses} from '@gobang/render'
-import {cloneDeep} from 'lodash-es'
+import {Role, initialChess} from '@gobang/render'
 import {useCallback, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocalStorage, useLocation} from 'react-use'
@@ -121,7 +120,7 @@ export function useInitialDataLazyQuery() {
   return async () => {
     const {data} = await query({variables: {channelId: channelId!}})
     const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
-    const initialData = cloneDeep(initialChesses.slice())
+    const initialData = initialChess()
 
     data?.transportHistory?.forEach((datum) => {
       if (datum.data?.kind === 'chess') {
