@@ -2,6 +2,14 @@ import {AppStage, Background} from '@components'
 import {useDialog} from '@context'
 import {useSound} from '@context/sound'
 import {
+  RoleDict,
+  useCustomMutation,
+  useGobangNavigate,
+  useGobangStorage,
+  useHistoryData,
+  useInitialDataLazyQuery,
+} from '@gobang/helper'
+import {
   Role,
   appendChess,
   appendFocusChess,
@@ -15,23 +23,16 @@ import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart, LayerScatter} from 'awesome-chart'
 import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
-import {useEffectOnce, useLocalStorage} from 'react-use'
-import {GameBar, RoleDict, UserStatus} from './common'
-import {GOBANG_ROLE} from './constants'
-import {
-  useCustomMutation,
-  useGobangNavigate,
-  useHistoryData,
-  useInitialDataLazyQuery,
-} from './hooks'
+import {useEffectOnce} from 'react-use'
+import {GameBar, UserStatus} from './common'
 
 export function GobangStage() {
   const {notice} = useDialog()
+  const {role} = useGobangStorage()
   const navigate = useGobangNavigate()
-  const queryInitialData = useInitialDataLazyQuery()
   const {playSound, playBackground} = useSound()
+  const queryInitialData = useInitialDataLazyQuery()
   const chartRef = useRef<HTMLDivElement | null>(null)
-  const [role] = useLocalStorage<Role>(GOBANG_ROLE)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation, exitMutation} = useCustomMutation()
   const {isMe, data, seq = 0} = useHistoryData({limit: 10})

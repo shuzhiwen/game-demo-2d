@@ -1,18 +1,22 @@
 import {AppStage, Background} from '@components'
 import {useSound} from '@context/sound'
+import {
+  useCustomMutation,
+  useGobangNavigate,
+  useGobangStorage,
+  useHistoryData,
+} from '@gobang/helper'
 import {Role} from '@gobang/render'
 import {CheckRounded} from '@mui/icons-material'
 import {Stack, Typography} from '@mui/material'
 import {useEffect, useMemo} from 'react'
-import {useEffectOnce, useLocalStorage} from 'react-use'
+import {useEffectOnce} from 'react-use'
 import {GameBar, UserStatus} from './common'
-import {GOBANG_ROLE} from './constants'
-import {useCustomMutation, useGobangNavigate, useHistoryData} from './hooks'
 
 export function GobangPrepare() {
   const navigate = useGobangNavigate()
+  const {role} = useGobangStorage()
   const {playBackground} = useSound()
-  const [role] = useLocalStorage<Role>(GOBANG_ROLE)
   const {prepareMutation} = useCustomMutation()
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const {totalData, seq = 0} = useHistoryData()

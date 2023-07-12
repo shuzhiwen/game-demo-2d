@@ -10,8 +10,9 @@ import {
 import {Role, initialChess} from '@gobang/render'
 import {useCallback, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
-import {useEffectOnce, useLocalStorage, useLocation} from 'react-use'
-import {GOBANG_CHANNEL, GOBANG_ROLE, GOBANG_USER, GobangRouteDict} from './constants'
+import {useEffectOnce, useLocation} from 'react-use'
+import {GobangRouteDict} from './constants'
+import {useGobangStorage} from './context'
 
 export interface PrepareData {
   kind: 'prepare'
@@ -30,9 +31,7 @@ export interface GobangTransportData extends SendDataInput {
 type Pagination = Pick<TransportHistoryQueryVariables, 'limit' | 'offset'>
 
 export function useHistoryData(pagination?: Pagination) {
-  const [role] = useLocalStorage<Role>(GOBANG_ROLE)
-  const [userId] = useLocalStorage<string>(GOBANG_USER)
-  const [channelId] = useLocalStorage<string>(GOBANG_CHANNEL)
+  const {role, userId, channelId} = useGobangStorage()
   const {data, refetch} = useTransportHistoryQuery({
     skip: !channelId,
     variables: {...pagination, channelId: channelId!},
@@ -57,9 +56,7 @@ export function useHistoryData(pagination?: Pagination) {
 }
 
 export function useCustomMutation() {
-  const [userId] = useLocalStorage<string>(GOBANG_USER)
-  const [channelId, setChannelId] = useLocalStorage<string | null>(GOBANG_CHANNEL)
-  const [, setRole] = useLocalStorage<Role | null>(GOBANG_ROLE)
+  const {userId, channelId, setChannelId, setRole} = useGobangStorage()
   const [sendMutation, {loading}] = useSendDataMutation()
   const [exitMutation] = useExitChannelMutation()
 
@@ -83,8 +80,8 @@ export function useCustomMutation() {
     exitMutation: async () => {
       if (!userId || !channelId) throw new Error()
       const result = await exitMutation({variables: {input: {channelId, userId}}})
-      setChannelId(null)
-      setRole(null)
+      setChannelId()
+      setRole()
       return result
     },
   }
@@ -93,8 +90,7 @@ export function useCustomMutation() {
 export function useGobangNavigate() {
   const _navigate = useNavigate()
   const {pathname} = useLocation()
-  const [channelId] = useLocalStorage<string>(GOBANG_CHANNEL)
-  const [role] = useLocalStorage<Role>(GOBANG_ROLE)
+  const {role, channelId} = useGobangStorage()
   const navigate = useCallback(
     (page: Keys<typeof GobangRouteDict>) => _navigate(GobangRouteDict[page]),
     [_navigate]
@@ -112,9 +108,7 @@ export function useGobangNavigate() {
 }
 
 export function useInitialDataLazyQuery() {
-  const [role] = useLocalStorage<Role>(GOBANG_ROLE)
-  const [userId] = useLocalStorage<string>(GOBANG_USER)
-  const [channelId] = useLocalStorage<string>(GOBANG_CHANNEL)
+  const {role, userId, channelId} = useGobangStorage()
   const [query] = useTransportHistoryLazyQuery()
 
   return async () => {

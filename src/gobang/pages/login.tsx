@@ -1,18 +1,13 @@
 import {useDialog} from '@context'
 import {useEnterChannelMutation, useTransportUsersLazyQuery} from '@generated/apollo'
+import {useGobangNavigate, useGobangStorage} from '@gobang/helper'
 import {Role} from '@gobang/render'
 import {Button, Stack, TextField} from '@mui/material'
-import {uuid} from 'awesome-chart'
 import {useCallback, useState} from 'react'
-import {useLocalStorage} from 'react-use'
-import {GOBANG_CHANNEL, GOBANG_ROLE, GOBANG_USER} from './constants'
-import {useGobangNavigate} from './hooks'
 
 export function GobangEnter() {
   const [code, setCode] = useState('')
-  const [userId] = useLocalStorage(GOBANG_USER, uuid())
-  const [, setChannelId] = useLocalStorage<string>(GOBANG_CHANNEL)
-  const [, setRole] = useLocalStorage<Role>(GOBANG_ROLE)
+  const {userId, setChannelId, setRole} = useGobangStorage()
   const [enterMutation] = useEnterChannelMutation()
   const [usersQuery] = useTransportUsersLazyQuery()
   const navigate = useGobangNavigate()
@@ -27,7 +22,7 @@ export function GobangEnter() {
     if (users.includes(userId!)) {
       navigate('stage')
       return
-    } else if (users.length > 2) {
+    } else if (users.length >= 2) {
       notice({title: '房间人数已满'})
       return
     }
@@ -38,9 +33,9 @@ export function GobangEnter() {
     const userCount = enter?.enterChannel
 
     if (userCount) {
-      setRole(userCount === 1 ? Role.BLACK : Role.WHITE)
       setChannelId(code)
-      navigate('prepare')
+      setRole(userCount === 1 ? Role.BLACK : Role.WHITE)
+      setTimeout(() => navigate('prepare'))
     } else {
       notice({content: '连接服务器失败'})
     }

@@ -1,16 +1,10 @@
+import {RoleDict, useCustomMutation, useGobangNavigate} from '@gobang/helper'
 import {Role} from '@gobang/render'
 import {ExitToAppRounded} from '@mui/icons-material'
 import {AppBar, Avatar, Box, IconButton, Stack, Toolbar, Typography} from '@mui/material'
 import {PropsWithChildren, useCallback} from 'react'
-import {useCustomMutation, useGobangNavigate} from './hooks'
 
 type UserStatus = PropsWithChildren<{align: 'left' | 'right'; role: Role}>
-
-export const RoleDict: Record<Role, string> = {
-  [Role.BLACK]: '黑',
-  [Role.WHITE]: '白',
-  [Role.EMPTY]: '',
-}
 
 export function UserStatus({align, role, children}: UserStatus) {
   return (

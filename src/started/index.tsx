@@ -1,4 +1,10 @@
-import {Route} from 'react-router-dom'
+import {Route, Routes} from 'react-router-dom'
 import {Started} from './main'
 
-export const StartedEntry = <Route path="/started" Component={Started} />
+export function StartedEntry() {
+  return (
+    <Routes>
+      <Route path="/started" Component={Started} />
+    </Routes>
+  )
+}
