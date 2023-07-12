@@ -28,8 +28,8 @@ JSON custom scalar type
 scalar JSON
 
 type Mutation {
-  enterChannel(input: ChannelInput!): Boolean!
-  exitChannel(input: ChannelInput!): Boolean!
+  enterChannel(input: ChannelInput!): Int!
+  exitChannel(input: ChannelInput!): Int!
   loginByEmail(email: String!, password: String!): AuthInfo!
   logonByEmail(email: String!, password: String!, verificationCode: String!): AuthInfo!
   resetPasswordByEmail(email: String!, password: String!, verificationCode: String!): Boolean!

@@ -62,13 +62,13 @@ export type EnterChannelMutationVariables = Exact<{
   input: ChannelInput
 }>
 
-export type EnterChannelMutation = {__typename?: 'Mutation'; enterChannel: boolean}
+export type EnterChannelMutation = {__typename?: 'Mutation'; enterChannel: number}
 
 export type ExitChannelMutationVariables = Exact<{
   input: ChannelInput
 }>
 
-export type ExitChannelMutation = {__typename?: 'Mutation'; exitChannel: boolean}
+export type ExitChannelMutation = {__typename?: 'Mutation'; exitChannel: number}
 
 export type SendDataMutationVariables = Exact<{
   input: SendDataInput

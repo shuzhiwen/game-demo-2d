@@ -27,11 +27,7 @@ export function GobangEnter() {
     if (users.includes(userId!)) {
       navigate('stage')
       return
-    } else if (!users.length) {
-      setRole(Role.BLACK)
-    } else if (users.length === 1) {
-      setRole(Role.WHITE)
-    } else {
+    } else if (users.length > 2) {
       notice({title: '房间人数已满'})
       return
     }
@@ -39,8 +35,10 @@ export function GobangEnter() {
     const {data: enter} = await enterMutation({
       variables: {input: {channelId: code, userId: userId!}},
     })
+    const userCount = enter?.enterChannel
 
-    if (enter?.enterChannel) {
+    if (userCount) {
+      setRole(userCount === 1 ? Role.BLACK : Role.WHITE)
       setChannelId(code)
       navigate('prepare')
     } else {
