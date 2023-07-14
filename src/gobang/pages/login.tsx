@@ -25,7 +25,7 @@ export function GobangEnter() {
       const users = usersResult?.transportUsers ?? []
 
       if (users.includes(userId!)) {
-        navigate('stage')
+        navigate(users.length === 1 ? 'prepare' : 'stage')
         return
       } else if (users.length >= 2) {
         showDialog({title: '房间人数已满'})
