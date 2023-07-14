@@ -6,43 +6,43 @@ import DialogTitle from '@mui/material/DialogTitle'
 import {noop} from 'lodash-es'
 import {PropsWithChildren, createContext, useCallback, useContext, useState} from 'react'
 
-type NoticeState = {
+type Props = {
   open: boolean
   title?: Maybe<string>
   content?: Maybe<string>
   onClose?: AnyFunction
 }
 
-type Context = {
-  notice: (props: Omit<NoticeState, 'open'>) => void
+type ContextShape = {
+  showDialog: (props: Omit<Props, 'open'>) => void
 }
 
-const DialogContext = createContext<Context>({notice: noop})
+const Context = createContext<ContextShape>({showDialog: noop})
 
-export const useDialog = () => useContext(DialogContext)
+export const useDialog = () => useContext(Context)
 
 export function DialogProvider(props: PropsWithChildren) {
-  const [notice, setNotice] = useState<NoticeState>({open: false})
-  const showNotice = useCallback((props: Omit<NoticeState, 'open'>) => {
-    setNotice({...props, open: true})
+  const [state, setState] = useState<Props>({open: false})
+  const show = useCallback((props: Omit<Props, 'open'>) => {
+    setState({...props, open: true})
   }, [])
-  const hideNotice = useCallback(() => {
-    notice.onClose?.()
-    setNotice((prev) => ({...prev, open: false, onClose: undefined}))
-  }, [notice])
+  const hide = useCallback(() => {
+    state.onClose?.()
+    setState((prev) => ({...prev, open: false, onClose: undefined}))
+  }, [state])
 
   return (
-    <DialogContext.Provider value={{notice: showNotice}}>
+    <Context.Provider value={{showDialog: show}}>
       {props.children}
-      <Dialog open={notice.open} onClose={hideNotice}>
-        {notice.title && <DialogTitle>{notice.title}</DialogTitle>}
-        {notice.content && <DialogContent>{notice.content}</DialogContent>}
+      <Dialog open={state.open} onClose={hide}>
+        {state.title && <DialogTitle>{state.title}</DialogTitle>}
+        {state.content && <DialogContent>{state.content}</DialogContent>}
         <DialogActions>
-          <Button onClick={hideNotice} fullWidth>
+          <Button onClick={hide} fullWidth>
             我知道了
           </Button>
         </DialogActions>
       </Dialog>
-    </DialogContext.Provider>
+    </Context.Provider>
   )
 }

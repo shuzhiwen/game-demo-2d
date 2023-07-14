@@ -27,7 +27,7 @@ import {useEffectOnce} from 'react-use'
 import {GameBar, UserStatus} from './common'
 
 export function GobangStage() {
-  const {notice} = useDialog()
+  const {showDialog} = useDialog()
   const {role} = useGobangStorage()
   const navigate = useGobangNavigate()
   const {playSound, playBackground} = useSound()
@@ -72,11 +72,11 @@ export function GobangStage() {
         const result = await appendChessMutation([x, y] as Vec2, (seq ?? 0) + 1)
 
         if (!result?.data?.sendData) {
-          notice({title: '连接服务器失败'})
+          showDialog({title: '连接服务器失败'})
         }
       }
     })
-  }, [isMe, chart, seq, role, appendChessMutation, notice])
+  }, [isMe, chart, seq, role, appendChessMutation, showDialog])
 
   useEffect(() => {
     if (chart && data?.kind === 'chess') {
@@ -96,7 +96,7 @@ export function GobangStage() {
         setTimeout(async () => {
           await exitMutation()
           playSound({type: isMe ? 'success' : 'fail'})
-          notice({
+          showDialog({
             title: `${RoleDict[currentRole]}子获胜!`,
             onClose: () => navigate('login'),
           })

@@ -1,4 +1,5 @@
 import {AppStage, Background} from '@components'
+import {useSnack} from '@context'
 import {useSound} from '@context/sound'
 import {
   useCustomMutation,
@@ -6,24 +7,31 @@ import {
   useGobangStorage,
   useHistoryData,
 } from '@gobang/helper'
+import {encodeInviteUrl} from '@gobang/helper/invite'
 import {Role} from '@gobang/render'
 import {CheckRounded} from '@mui/icons-material'
-import {Stack, Typography} from '@mui/material'
-import {useEffect, useMemo} from 'react'
-import {useEffectOnce} from 'react-use'
+import {Button, Stack, Typography} from '@mui/material'
+import {useCallback, useEffect, useMemo} from 'react'
+import {useCopyToClipboard, useEffectOnce} from 'react-use'
 import {GameBar, UserStatus} from './common'
 
 export function GobangPrepare() {
   const navigate = useGobangNavigate()
-  const {role} = useGobangStorage()
+  const {showSnack} = useSnack()
   const {playBackground} = useSound()
+  const {role, channelId} = useGobangStorage()
   const {prepareMutation} = useCustomMutation()
-  const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const {totalData, seq = 0} = useHistoryData()
+  const [, copyAction] = useCopyToClipboard()
+  const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const gameReady = useMemo(() => {
     const prepareData = totalData.filter(({data}) => data.kind === 'prepare')
     return new Set(prepareData.map(({userId}) => userId)).size
   }, [totalData])
+  const invite = useCallback(() => {
+    copyAction(encodeInviteUrl(channelId!))
+    showSnack({message: '邀请链接已复制到剪切板'})
+  }, [channelId, copyAction, showSnack])
 
   useEffectOnce(() => {
     playBackground({type: 'kisstherain'})
@@ -57,6 +65,9 @@ export function GobangPrepare() {
             </Stack>
           )}
         </UserStatus>
+        <Button variant="contained" color="warning" onClick={invite} sx={{borderRadius: 30}}>
+          邀请好友一起玩
+        </Button>
       </Stack>
     </AppStage>
   )

@@ -1,5 +1,4 @@
-import {ApolloProvider, DialogProvider} from '@context'
-import {SoundProvider} from '@context/sound'
+import {ApolloProvider, DialogProvider, SnackProvider, SoundProvider} from '@context'
 import {GobangEntry} from '@gobang'
 import {StrictMode} from 'react'
 import {BrowserRouter} from 'react-router-dom'
@@ -12,11 +11,13 @@ export function App() {
       <ApolloProvider>
         <SoundProvider>
           <DialogProvider>
-            <BrowserRouter>
-              <GameMenu />
-              <StartedEntry />
-              <GobangEntry />
-            </BrowserRouter>
+            <SnackProvider>
+              <BrowserRouter>
+                <GameMenu />
+                <StartedEntry />
+                <GobangEntry />
+              </BrowserRouter>
+            </SnackProvider>
           </DialogProvider>
         </SoundProvider>
       </ApolloProvider>

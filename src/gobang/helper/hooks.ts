@@ -6,7 +6,7 @@ import {
   useSendDataMutation,
   useTransportHistoryLazyQuery,
   useTransportHistoryQuery,
-} from '@generated/apollo'
+} from '@generated'
 import {Role, initialChess} from '@gobang/render'
 import {useCallback, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
