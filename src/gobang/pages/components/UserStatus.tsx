@@ -17,7 +17,7 @@ export function UserStatus(props: UserStatusProps) {
   const timerRef = useRef<number>()
 
   useEffect(() => {
-    if (message) {
+    if (message?.content) {
       setOpen(true)
       clearTimeout(timerRef.current as number)
       timerRef.current = setTimeout(() => setOpen(false), 3000) as any

@@ -21,15 +21,15 @@ export function MessageInput() {
       </IconButton>
       <Popover
         open={open}
-        anchorEl={triggerRef.current}
+        anchorReference="none"
         onClose={() => setOpen(false)}
-        sx={{'.MuiPaper-root': {right: 24}}}
+        sx={{'.MuiPaper-root': {left: 24, right: 24, bottom: 24}}}
       >
         <Stack direction="row" alignItems="center">
           <TextField
-            variant="outlined"
             fullWidth
             value={message}
+            variant="outlined"
             onChange={(e) => setMessage(e.target.value)}
             sx={{fieldset: {border: 'none'}}}
           />
