@@ -1,6 +1,7 @@
 import {
   SendDataInput,
   TransportHistoryQueryVariables,
+  useEnterChannelMutation,
   useExitChannelMutation,
   useReceiveDataSubscription,
   useSendDataMutation,
@@ -8,7 +9,7 @@ import {
   useTransportHistoryQuery,
 } from '@generated'
 import {Role, initialChess} from '@gobang/render'
-import {useCallback, useMemo} from 'react'
+import {useCallback, useMemo, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocation} from 'react-use'
 import {GobangRouteDict} from './constants'
@@ -77,6 +78,13 @@ export function useCustomMutation() {
         variables: {input: {userId, channelId, data, seq, serialize: true}},
       })
     },
+    sendMessageMutation: async (data: string) => {
+      if (loading) return
+      if (!userId || !channelId) throw new Error()
+      return sendMutation({
+        variables: {input: {userId, channelId: `${channelId}_chat`, data, seq: 0}},
+      })
+    },
     exitMutation: async () => {
       if (!userId || !channelId) throw new Error()
       const result = await exitMutation({variables: {input: {channelId, userId}}})
@@ -128,4 +136,30 @@ export function useInitialDataLazyQuery() {
 
     return initialData
   }
+}
+
+export function useChatMessage() {
+  const {userId, channelId} = useGobangStorage()
+  const [enterMutation] = useEnterChannelMutation()
+  const [myMessage, setMyMessage] = useState({content: ''})
+  const [otherMessage, setOtherMessage] = useState({content: ''})
+
+  useReceiveDataSubscription({
+    variables: {channelId: `${channelId}_chat`},
+    onData({data}) {
+      if (data.data?.receiveData.userId === userId) {
+        setMyMessage({content: data.data?.receiveData.data ?? ''})
+      } else {
+        setOtherMessage({content: data.data?.receiveData.data ?? ''})
+      }
+    },
+  })
+
+  useEffectOnce(() => {
+    if (channelId && userId) {
+      enterMutation({variables: {input: {channelId, userId}}})
+    }
+  })
+
+  return {myMessage, otherMessage}
 }

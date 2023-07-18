@@ -13,7 +13,7 @@ import {CheckRounded} from '@mui/icons-material'
 import {Button, Stack, Typography} from '@mui/material'
 import {useCallback, useEffect, useMemo} from 'react'
 import {useCopyToClipboard, useEffectOnce} from 'react-use'
-import {GameBar, UserStatus} from './common'
+import {GameBar, UserStatus} from './components'
 
 export function GobangPrepare() {
   const navigate = useGobangNavigate()
