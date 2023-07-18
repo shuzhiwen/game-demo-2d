@@ -17,7 +17,7 @@ export function MessageInput() {
   return (
     <Stack ref={triggerRef} flex={1} justifyContent="center">
       <IconButton onClick={() => setOpen(true)}>
-        <Message sx={{color: 'lightgray'}} />
+        <Message fontSize="large" sx={{color: 'white'}} />
       </IconButton>
       <Popover
         open={open}

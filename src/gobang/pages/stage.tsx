@@ -1,4 +1,5 @@
 import {AppStage, Background} from '@components'
+import {Hourglass} from '@components/hourglass'
 import {useDialog} from '@context'
 import {useSound} from '@context/sound'
 import {
@@ -121,13 +122,13 @@ export function GobangStage() {
       <Stack flex={1} m={0} spacing={2} sx={{filter: chart ? '' : 'blur(5px)'}}>
         <Stack p={3}>
           <UserStatus align="left" role={anotherRole} message={otherMessage}>
-            {isMe && <Typography>思考中...</Typography>}
+            {isMe && <Hourglass />}
           </UserStatus>
         </Stack>
         <Stack ref={chartRef} className="fb1 fbjc fbac" />
         <Stack p={3}>
           <UserStatus align="right" role={role!} message={myMessage}>
-            {!isMe && <Typography>思考中...</Typography>}
+            {!isMe && <Hourglass />}
           </UserStatus>
         </Stack>
       </Stack>

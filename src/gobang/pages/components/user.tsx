@@ -2,7 +2,7 @@ import {RoleDict} from '@gobang/helper'
 import {Role} from '@gobang/render'
 import {Avatar, Box, Popover, Stack, Typography} from '@mui/material'
 import {PropsWithChildren, useEffect, useRef, useState} from 'react'
-import {MessageInput} from './MessageInput'
+import {MessageInput} from './message'
 
 type UserStatusProps = PropsWithChildren<{
   role: Role
@@ -41,10 +41,11 @@ export function UserStatus(props: UserStatusProps) {
       <Avatar
         ref={anchorRef}
         sx={{
-          width: 56,
-          height: 56,
+          width: 52,
+          height: 52,
           color: role === Role.BLACK ? 'white' : 'black',
           bgcolor: role === Role.BLACK ? 'black' : 'white',
+          border: 'solid 2px gray',
         }}
       >
         {RoleDict[role]}

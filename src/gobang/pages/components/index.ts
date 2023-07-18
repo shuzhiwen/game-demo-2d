@@ -1,2 +1,3 @@
-export * from './GameBar'
-export * from './UserStatus'
+export * from './bar'
+export * from './message'
+export * from './user'
