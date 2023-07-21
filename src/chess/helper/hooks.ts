@@ -1,19 +1,18 @@
+import {initialChess} from '@chess/render'
 import {
   SendDataInput,
   TransportHistoryQueryVariables,
-  useEnterChannelMutation,
   useExitChannelMutation,
   useReceiveDataSubscription,
   useSendDataMutation,
   useTransportHistoryLazyQuery,
   useTransportHistoryQuery,
 } from '@generated'
-import {Role, initialChess} from '@gobang/render'
 import {useCallback, useMemo, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocation} from 'react-use'
-import {GobangRouteDict} from './constants'
-import {useGobangStorage} from './context'
+import {ChessRouteDict, Role} from './constants'
+import {useChessStorage} from './context'
 
 export interface PrepareData {
   kind: 'prepare'
@@ -25,14 +24,14 @@ export interface ChessData {
   payload: [number, number]
 }
 
-export interface GobangTransportData extends SendDataInput {
+export interface ChessTransportData extends SendDataInput {
   data: PrepareData | ChessData
 }
 
 type Pagination = Pick<TransportHistoryQueryVariables, 'limit' | 'offset'>
 
 export function useHistoryData(pagination?: Pagination) {
-  const {role, userId, channelId} = useGobangStorage()
+  const {role, userId, channelId} = useChessStorage()
   const {data, refetch} = useTransportHistoryQuery({
     skip: !channelId,
     variables: {...pagination, channelId: channelId!},
@@ -57,7 +56,7 @@ export function useHistoryData(pagination?: Pagination) {
 }
 
 export function useCustomMutation() {
-  const {userId, channelId, setChannelId, setRole} = useGobangStorage()
+  const {userId, channelId, setChannelId, setRole} = useChessStorage()
   const [sendMutation, {loading}] = useSendDataMutation()
   const [exitMutation] = useExitChannelMutation()
 
@@ -95,19 +94,22 @@ export function useCustomMutation() {
   }
 }
 
-export function useGobangNavigate() {
+export function useChessNavigate() {
   const _navigate = useNavigate()
   const {pathname} = useLocation()
-  const {role, channelId} = useGobangStorage()
+  const {role, channelId} = useChessStorage()
   const navigate = useCallback(
-    (page: Keys<typeof GobangRouteDict>) => _navigate(GobangRouteDict[page]),
-    [_navigate]
+    (page: 'login' | 'prepare' | 'stage') => {
+      const key = pathname?.match('gobang') ? 'gobang' : 'go'
+      _navigate(ChessRouteDict[`${key}_${page}`])
+    },
+    [_navigate, pathname]
   )
 
   useEffectOnce(() => {
     if (!channelId || !role) {
       navigate('login')
-    } else if (!pathname?.match(GobangRouteDict['stage'])) {
+    } else if (!pathname?.match('stage')) {
       navigate('prepare')
     }
   })
@@ -116,7 +118,7 @@ export function useGobangNavigate() {
 }
 
 export function useInitialDataLazyQuery() {
-  const {role, userId, channelId} = useGobangStorage()
+  const {role, userId, channelId} = useChessStorage()
   const [query] = useTransportHistoryLazyQuery()
 
   return async () => {
@@ -139,8 +141,7 @@ export function useInitialDataLazyQuery() {
 }
 
 export function useChatMessage() {
-  const {userId, channelId} = useGobangStorage()
-  const [enterMutation] = useEnterChannelMutation()
+  const {userId, channelId} = useChessStorage()
   const [myMessage, setMyMessage] = useState({content: ''})
   const [otherMessage, setOtherMessage] = useState({content: ''})
 
@@ -153,12 +154,6 @@ export function useChatMessage() {
         setOtherMessage({content: data.data?.receiveData.data ?? ''})
       }
     },
-  })
-
-  useEffectOnce(() => {
-    if (channelId && userId) {
-      enterMutation({variables: {input: {channelId, userId}}})
-    }
   })
 
   return {myMessage, otherMessage}

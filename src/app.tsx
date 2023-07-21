@@ -1,5 +1,5 @@
+import {ChessEntry} from '@chess'
 import {ApolloProvider, DialogProvider, SnackProvider, SoundProvider} from '@context'
-import {GobangEntry} from '@gobang'
 import {StrictMode} from 'react'
 import {BrowserRouter} from 'react-router-dom'
 import {GameMenu} from './menu'
@@ -15,7 +15,7 @@ export function App() {
               <BrowserRouter>
                 <GameMenu />
                 <StartedEntry />
-                <GobangEntry />
+                <ChessEntry />
               </BrowserRouter>
             </SnackProvider>
           </DialogProvider>

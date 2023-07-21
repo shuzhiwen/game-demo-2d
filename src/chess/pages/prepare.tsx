@@ -1,25 +1,25 @@
+import {
+  Role,
+  encodeInviteUrl,
+  useChessNavigate,
+  useChessStorage,
+  useCustomMutation,
+  useHistoryData,
+} from '@chess/helper'
 import {AppStage, Background} from '@components'
 import {useSnack} from '@context'
 import {useSound} from '@context/sound'
-import {
-  useCustomMutation,
-  useGobangNavigate,
-  useGobangStorage,
-  useHistoryData,
-} from '@gobang/helper'
-import {encodeInviteUrl} from '@gobang/helper/invite'
-import {Role} from '@gobang/render'
 import {CheckRounded} from '@mui/icons-material'
 import {Button, Stack, Typography} from '@mui/material'
 import {useCallback, useEffect, useMemo} from 'react'
 import {useCopyToClipboard, useEffectOnce} from 'react-use'
-import {GameBar, UserStatus} from './components'
+import {GameBar, UserStatus} from '../components'
 
-export function GobangPrepare() {
-  const navigate = useGobangNavigate()
+export function ChessPrepare() {
+  const navigate = useChessNavigate()
   const {showSnack} = useSnack()
   const {playBackground} = useSound()
-  const {role, channelId} = useGobangStorage()
+  const {role, channelId} = useChessStorage()
   const {prepareMutation} = useCustomMutation()
   const {totalData, seq = 0} = useHistoryData()
   const [, copyAction] = useCopyToClipboard()

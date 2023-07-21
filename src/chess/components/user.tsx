@@ -1,5 +1,4 @@
-import {RoleDict} from '@gobang/helper'
-import {Role} from '@gobang/render'
+import {Role, RoleDict} from '@chess/helper'
 import {Avatar, Box, Popover, Stack, Typography} from '@mui/material'
 import {PropsWithChildren, useEffect, useRef, useState} from 'react'
 import {MessageInput} from './message'

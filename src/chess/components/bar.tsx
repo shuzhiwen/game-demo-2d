@@ -1,11 +1,11 @@
-import {useCustomMutation, useGobangNavigate} from '@gobang/helper'
+import {useChessNavigate, useCustomMutation} from '@chess/helper'
 import {ExitToAppRounded} from '@mui/icons-material'
 import {AppBar, IconButton, Toolbar, Typography} from '@mui/material'
 import {useCallback} from 'react'
 
 export function GameBar() {
   const {exitMutation} = useCustomMutation()
-  const navigate = useGobangNavigate()
+  const navigate = useChessNavigate()
   const handleExit = useCallback(async () => {
     await exitMutation()
     navigate('login')

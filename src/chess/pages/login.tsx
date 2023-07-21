@@ -1,15 +1,13 @@
+import {Role, decodeInviteUrl, useChessNavigate, useChessStorage} from '@chess/helper'
 import {useDialog} from '@context'
 import {useEnterChannelMutation, useTransportUsersLazyQuery} from '@generated'
-import {useGobangNavigate, useGobangStorage} from '@gobang/helper'
-import {decodeInviteUrl} from '@gobang/helper/invite'
-import {Role} from '@gobang/render'
 import {Button, Stack, TextField} from '@mui/material'
 import {useCallback, useState} from 'react'
 import {useEffectOnce, useSearchParam} from 'react-use'
 
-export function GobangEnter() {
-  const storage = useGobangStorage()
-  const navigate = useGobangNavigate()
+export function ChessEnter() {
+  const storage = useChessStorage()
+  const navigate = useChessNavigate()
   const inviteCode = useSearchParam('code')
   const [code, setCode] = useState('')
   const [enterMutation] = useEnterChannelMutation()

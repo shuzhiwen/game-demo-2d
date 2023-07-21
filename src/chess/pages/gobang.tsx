@@ -1,37 +1,32 @@
+import {
+  Role,
+  RoleDict,
+  boardId,
+  decodeSource,
+  useChatMessage,
+  useChessNavigate,
+  useChessStorage,
+  useCustomMutation,
+  useHistoryData,
+  useInitialDataLazyQuery,
+} from '@chess/helper'
+import {appendChess, appendFocusChess, appendReadyChess, createBoard} from '@chess/render'
+import {isGobangChessWin} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
 import {useDialog} from '@context'
 import {useSound} from '@context/sound'
-import {
-  RoleDict,
-  useChatMessage,
-  useCustomMutation,
-  useGobangNavigate,
-  useGobangStorage,
-  useHistoryData,
-  useInitialDataLazyQuery,
-} from '@gobang/helper'
-import {
-  Role,
-  appendChess,
-  appendFocusChess,
-  appendReadyChess,
-  boardId,
-  createBoard,
-  decodeSource,
-} from '@gobang/render'
-import {isCurrentChessWin} from '@gobang/scripts'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart, LayerScatter} from 'awesome-chart'
 import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce} from 'react-use'
-import {GameBar, UserStatus} from './components'
+import {GameBar, UserStatus} from '../components'
 
 export function GobangStage() {
-  const navigate = useGobangNavigate()
+  const navigate = useChessNavigate()
   const {showDialog} = useDialog()
-  const {role} = useGobangStorage()
+  const {role} = useChessStorage()
   const {playSound, playBackground} = useSound()
   const {myMessage, otherMessage} = useChatMessage()
   const queryInitialData = useInitialDataLazyQuery()
@@ -91,7 +86,7 @@ export function GobangStage() {
       appendFocusChess({role: currentRole, chart, position})
 
       if (
-        isCurrentChessWin({
+        isGobangChessWin({
           data: scatterLayer.data!.rawTableListWithHeaders,
           position,
         })

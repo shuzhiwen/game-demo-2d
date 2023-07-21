@@ -1,7 +1,7 @@
 import {Chart, DataTableList, darkTheme, robustRange} from 'awesome-chart'
 import {ElSource, GraphStyle, RawTableList} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
-import {Role, boardId, boardSize, decodeSource, focusBoardId, readyBoardId} from './chaos'
+import {Role, boardId, boardSize, decodeSource, focusBoardId, readyBoardId} from '../helper'
 
 const myTheme = merge({}, darkTheme, {
   animation: {update: {duration: 0, delay: 0}},

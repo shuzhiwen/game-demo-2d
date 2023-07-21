@@ -1,8 +1,8 @@
-import {Role} from '@gobang/render'
 import {uuid} from 'awesome-chart'
 import {noop} from 'lodash-es'
 import {PropsWithChildren, createContext, useCallback, useContext, useEffect, useState} from 'react'
 import {useLocalStorage} from 'react-use'
+import {Role} from './constants'
 
 type Storage = {
   role: Role
@@ -16,17 +16,17 @@ type Context = Partial<Storage> & {
   setChannelId: (channelId?: string) => void
 }
 
-const GobangContext = createContext<Context>({
+const ChessContext = createContext<Context>({
   userId: uuid(),
   setRole: noop,
   setUserId: noop,
   setChannelId: noop,
 })
 
-export const useGobangStorage = () => useContext(GobangContext)
+export const useChessStorage = () => useContext(ChessContext)
 
-export function GobangStorageProvider(props: PropsWithChildren) {
-  const [storage, setStorage] = useLocalStorage<Partial<Context>>('GOBANG', {
+export function ChessStorageProvider(props: PropsWithChildren) {
+  const [storage, setStorage] = useLocalStorage<Partial<Context>>('CHESS', {
     userId: uuid(),
   })
   const [data, setData] = useState<Partial<Context>>(storage!)
@@ -46,8 +46,8 @@ export function GobangStorageProvider(props: PropsWithChildren) {
   useEffect(() => setStorage(data), [data, setStorage])
 
   return (
-    <GobangContext.Provider value={{...data, setRole, setUserId, setChannelId}}>
+    <ChessContext.Provider value={{...data, setRole, setUserId, setChannelId}}>
       {props.children}
-    </GobangContext.Provider>
+    </ChessContext.Provider>
   )
 }

@@ -2,12 +2,13 @@ import TapHere from '@assets/image/tap-here.jpeg'
 import {SportsEsports} from '@mui/icons-material'
 import {IconButton, Menu, MenuItem, Stack, Typography} from '@mui/material'
 import {isMobile} from '@utils'
-import React from 'react'
+import React, {useMemo} from 'react'
 import {useLocation, useNavigate} from 'react-router-dom'
 
 const MenuDict: Record<string, string> = {
-  '/started': 'started',
-  '/gobang': 'gobang',
+  '/started': '测试',
+  '/gobang': '联机五子棋',
+  '/go': '联机围棋',
 }
 
 export function GameMenu() {
@@ -20,6 +21,10 @@ export function GameMenu() {
     setAnchorEl(null)
     navigate(path)
   }
+  const gameName = useMemo(
+    () => Object.entries(MenuDict).find(([key]) => pathname.match(key))?.[1],
+    [pathname]
+  )
 
   return isMobile() && !isRootPage ? null : (
     <Stack>
@@ -27,7 +32,7 @@ export function GameMenu() {
         <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
           <SportsEsports />
         </IconButton>
-        <Typography color="black">{MenuDict[pathname]}</Typography>
+        <Typography color="black">{gameName}</Typography>
         {isRootPage && (
           <img
             src={TapHere}

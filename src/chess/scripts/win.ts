@@ -1,8 +1,8 @@
+import {boardSize} from '@chess/helper'
 import {DataTable, robustRange, tableListToTable} from 'awesome-chart'
 import {RawTableList} from 'awesome-chart/dist/types'
-import {boardSize} from '../render'
 
-export function isCurrentChessWin(props: {data: RawTableList; position: Vec2}) {
+export function isGobangChessWin(props: {data: RawTableList; position: Vec2}) {
   const {data, position} = props
   const table = new DataTable(tableListToTable(data))
 

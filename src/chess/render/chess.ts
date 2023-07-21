@@ -1,6 +1,6 @@
 import {Chart, DataTableList, LayerScatter} from 'awesome-chart'
+import {Role, boardId, focusBoardId, readyBoardId} from '../helper'
 import {initialChess} from './board'
-import {Role, boardId, focusBoardId, readyBoardId} from './chaos'
 
 const getChess = (data: Meta[][], x: number, y: number) => {
   const index = data.findIndex(([_x, _y]) => _x === x && _y === y)

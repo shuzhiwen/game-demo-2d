@@ -1,4 +1,4 @@
-import {useCustomMutation} from '@gobang/helper'
+import {useCustomMutation} from '@chess/helper'
 import {Message, Send} from '@mui/icons-material'
 import {IconButton, Popover, Stack, TextField} from '@mui/material'
 import {useCallback, useRef, useState} from 'react'
