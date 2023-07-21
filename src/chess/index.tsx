@@ -1,6 +1,6 @@
 import {Navigate, Route, Routes} from 'react-router-dom'
 import {ChessRouteDict, ChessStorageProvider} from './helper'
-import {ChessEnter, ChessPrepare, GobangStage} from './pages'
+import {ChessEnter, ChessPrepare, GoStage, GobangStage} from './pages'
 
 export function ChessEntry() {
   return (
@@ -12,7 +12,7 @@ export function ChessEntry() {
         />
         <Route path={ChessRouteDict['go_login']} Component={ChessEnter} />
         <Route path={ChessRouteDict['go_prepare']} Component={ChessPrepare} />
-        <Route path={ChessRouteDict['go_stage']} Component={GobangStage} />
+        <Route path={ChessRouteDict['go_stage']} Component={GoStage} />
         <Route
           path={ChessRouteDict['gobang_base']}
           element={<Navigate to={ChessRouteDict['gobang_login']} />}
@@ -20,7 +20,6 @@ export function ChessEntry() {
         <Route path={ChessRouteDict['gobang_login']} Component={ChessEnter} />
         <Route path={ChessRouteDict['gobang_prepare']} Component={ChessPrepare} />
         <Route path={ChessRouteDict['gobang_stage']} Component={GobangStage} />
-        <Route path="*" element={<div> Not Found or You do not have permission.</div>} />
       </Routes>
     </ChessStorageProvider>
   )

@@ -11,20 +11,21 @@ import {
   useInitialDataLazyQuery,
 } from '@chess/helper'
 import {appendChess, appendFocusChess, appendReadyChess, createBoard} from '@chess/render'
-import {isGobangChessWin} from '@chess/scripts'
+import {isGoChessIllegal, isGoChessWin} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
-import {useDialog} from '@context'
+import {useDialog, useSnack} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
-import {Chart, LayerScatter} from 'awesome-chart'
+import {Chart, DataTableList, LayerScatter} from 'awesome-chart'
 import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce} from 'react-use'
 import {GameBar, UserStatus} from '../components'
 
-export function GobangStage() {
+export function GoStage() {
   const navigate = useChessNavigate()
+  const {showSnack} = useSnack()
   const {showDialog} = useDialog()
   const {role} = useChessStorage()
   const {playSound, playBackground} = useSound()
@@ -61,21 +62,26 @@ export function GobangStage() {
 
       const source = data.source as ElSource[]
       const {category, x, y} = decodeSource(source)
+      const tableList = chart.getLayerById(boardId)?.data as DataTableList
       const position = [x, y] as Vec2
 
+      if (isGoChessIllegal({data: tableList.rawTableListWithHeaders, position})) {
+        showSnack({message: '非法落子'})
+        return
+      }
       if (appendReadyChess({chart, role, position}) !== 'action') {
         return
       }
 
       if (category === Role.EMPTY) {
-        const result = await appendChessMutation(position, (seq ?? 0) + 1)
+        const result = await appendChessMutation([x, y] as Vec2, (seq ?? 0) + 1)
 
         if (!result?.data?.sendData) {
           showDialog({title: '连接服务器失败'})
         }
       }
     })
-  }, [isMe, chart, seq, role, appendChessMutation, showDialog])
+  }, [appendChessMutation, chart, isMe, role, seq, showDialog, showSnack])
 
   useEffect(() => {
     if (chart && data?.kind === 'chess') {
@@ -87,7 +93,7 @@ export function GobangStage() {
       appendFocusChess({role: currentRole, chart, position})
 
       if (
-        isGobangChessWin({
+        isGoChessWin({
           data: scatterLayer.data!.rawTableListWithHeaders,
           position,
         })
