@@ -1,6 +1,5 @@
 import {initialChess} from '@chess/render'
 import {
-  SendDataInput,
   TransportHistoryQueryVariables,
   useExitChannelMutation,
   useReceiveDataSubscription,
@@ -8,11 +7,18 @@ import {
   useTransportHistoryLazyQuery,
   useTransportHistoryQuery,
 } from '@generated'
+import {RawTableList} from 'awesome-chart/dist/types'
 import {useCallback, useMemo, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocation} from 'react-use'
 import {ChessRouteDict, Role} from './constants'
 import {useChessStorage} from './context'
+
+export type GoPayload = {
+  position: Vec2
+  board: RawTableList
+  eaten?: boolean
+}
 
 export interface PrepareData {
   kind: 'prepare'
@@ -21,11 +27,7 @@ export interface PrepareData {
 
 export interface ChessData {
   kind: 'chess'
-  payload: [number, number]
-}
-
-export interface ChessTransportData extends SendDataInput {
-  data: PrepareData | ChessData
+  payload: Vec2 | GoPayload
 }
 
 type Pagination = Pick<TransportHistoryQueryVariables, 'limit' | 'offset'>
@@ -117,7 +119,7 @@ export function useChessNavigate() {
   return navigate
 }
 
-export function useInitialDataLazyQuery() {
+export function useGobangInitialDataLazyQuery() {
   const {role, userId, channelId} = useChessStorage()
   const [query] = useTransportHistoryLazyQuery()
 
@@ -128,7 +130,7 @@ export function useInitialDataLazyQuery() {
 
     data?.transportHistory?.forEach((datum) => {
       if (datum.data?.kind === 'chess') {
-        const [x, y] = (datum.data as ChessData).payload
+        const [x, y] = (datum.data as ChessData).payload as Vec2
         const dataRole = datum.userId === userId ? role! : anotherRole
         const target = initialData.find(([_x, _y]) => x === _x && y === _y)
         if (!target) throw new Error()
@@ -144,6 +146,10 @@ export function useChatMessage() {
   const {userId, channelId} = useChessStorage()
   const [myMessage, setMyMessage] = useState({content: ''})
   const [otherMessage, setOtherMessage] = useState({content: ''})
+  const setMessage = useCallback((props: {isMe: boolean; content: string}) => {
+    const {isMe, content} = props
+    isMe ? setMyMessage({content}) : setOtherMessage({content})
+  }, [])
 
   useReceiveDataSubscription({
     variables: {channelId: `${channelId}_chat`},
@@ -156,5 +162,5 @@ export function useChatMessage() {
     },
   })
 
-  return {myMessage, otherMessage}
+  return {myMessage, otherMessage, setMessage}
 }

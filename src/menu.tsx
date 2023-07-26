@@ -38,7 +38,7 @@ export function GameMenu() {
             src={TapHere}
             style={{
               position: 'absolute',
-              rotate: '-30deg',
+              rotate: '-40deg',
               zIndex: -1,
               left: 30,
               top: 0,

@@ -1,4 +1,5 @@
 import {Chart, DataTableList, LayerScatter} from 'awesome-chart'
+import {RawTableList} from 'awesome-chart/dist/types'
 import {Role, boardId, focusBoardId, readyBoardId} from '../helper'
 import {initialChess} from './board'
 
@@ -16,8 +17,15 @@ export function appendChess(props: {role: Role; position: Vec2; chart: Chart}) {
   if (isEmpty) {
     data[index][2] = role
     layer.setData(new DataTableList(data))
-    layer.draw()
+    chart.draw()
   }
+}
+
+export function replaceBoard(props: {data: RawTableList; chart: Chart}) {
+  const {data, chart} = props
+  const layer = chart.getLayerById(boardId) as LayerScatter
+  layer.setData(new DataTableList(data))
+  chart.draw()
 }
 
 export function appendReadyChess(props: {role: Role; position: Vec2; chart: Chart}) {
@@ -38,7 +46,7 @@ export function appendReadyChess(props: {role: Role; position: Vec2; chart: Char
     data.forEach((datum, i) => i && (datum[2] = Role.EMPTY))
     data[index][2] = role
     readyLayer.setData(new DataTableList(data))
-    readyLayer.draw()
+    chart.draw()
   }
 
   return status
@@ -52,5 +60,5 @@ export function appendFocusChess(props: {role: Role; position: Vec2; chart: Char
 
   data[index][2] = role
   layer.setData(new DataTableList(data))
-  layer.draw()
+  chart.draw()
 }

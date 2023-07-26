@@ -1,39 +1,41 @@
 import {
+  GoPayload,
   Role,
-  RoleDict,
   boardId,
   decodeSource,
   useChatMessage,
-  useChessNavigate,
   useChessStorage,
   useCustomMutation,
   useHistoryData,
-  useInitialDataLazyQuery,
 } from '@chess/helper'
-import {appendChess, appendFocusChess, appendReadyChess, createBoard} from '@chess/render'
-import {isGoChessIllegal, isGoChessWin} from '@chess/scripts'
+import {
+  appendFocusChess,
+  appendReadyChess,
+  createBoard,
+  initialChess,
+  replaceBoard,
+} from '@chess/render'
+import {checkAppendGoChess, checkEatGoChess} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
 import {useDialog, useSnack} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
-import {Chart, DataTableList, LayerScatter} from 'awesome-chart'
+import {Chart, LayerScatter} from 'awesome-chart'
 import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
-import {useEffectOnce} from 'react-use'
+import {useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
 
 export function GoStage() {
-  const navigate = useChessNavigate()
   const {showSnack} = useSnack()
   const {showDialog} = useDialog()
   const {role} = useChessStorage()
   const {playSound, playBackground} = useSound()
-  const {myMessage, otherMessage} = useChatMessage()
-  const queryInitialData = useInitialDataLazyQuery()
+  const {myMessage, otherMessage, setMessage} = useChatMessage()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
-  const {appendChessMutation, exitMutation} = useCustomMutation()
+  const {appendChessMutation} = useCustomMutation()
   const {isMe, data, seq = 0} = useHistoryData({limit: 10})
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const currentRole = isMe ? role! : anotherRole
@@ -43,16 +45,14 @@ export function GoStage() {
   })
 
   useEffectOnce(() => {
-    ;(async () => {
-      if (chartRef.current) {
-        const chart = createBoard({
-          container: chartRef.current,
-          initialData: await queryInitialData(),
-        })
-        setChart(chart)
-        chart.draw()
-      }
-    })()
+    if (chartRef.current) {
+      const chart = createBoard({
+        container: chartRef.current,
+        initialData: initialChess(),
+      })
+      setChart(chart)
+      chart.draw()
+    }
   })
 
   useEffect(() => {
@@ -61,55 +61,44 @@ export function GoStage() {
       if (isMe || !chart || !role) return
 
       const source = data.source as ElSource[]
-      const {category, x, y} = decodeSource(source)
-      const tableList = chart.getLayerById(boardId)?.data as DataTableList
+      const {x, y} = decodeSource(source)
+      const layer = chart.getLayerById(boardId) as LayerScatter
+      const tableList = layer.data!.rawTableListWithHeaders
       const position = [x, y] as Vec2
 
-      if (isGoChessIllegal({data: tableList.rawTableListWithHeaders, position})) {
-        showSnack({message: '非法落子'})
+      if (checkAppendGoChess({data: tableList, position, role}).life === 0) {
+        showSnack({message: '落子无气，请选择另一处'})
         return
       }
       if (appendReadyChess({chart, role, position}) !== 'action') {
         return
       }
 
-      if (category === Role.EMPTY) {
-        const result = await appendChessMutation([x, y] as Vec2, (seq ?? 0) + 1)
+      const {newBoard, eaten} = checkEatGoChess({data: tableList, position, role})
+      const result = await appendChessMutation(
+        {position: [x, y], board: newBoard, eaten} as GoPayload,
+        (seq ?? 0) + 1
+      )
 
-        if (!result?.data?.sendData) {
-          showDialog({title: '连接服务器失败'})
-        }
+      if (!result?.data?.sendData) {
+        showDialog({title: '连接服务器失败'})
       }
     })
   }, [appendChessMutation, chart, isMe, role, seq, showDialog, showSnack])
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
-      const scatterLayer = chart.getLayerById(boardId) as LayerScatter
-      const position = data.payload as Vec2
+      const {position, board, eaten} = data.payload as GoPayload
 
       playSound({type: 'chess'})
-      appendChess({role: currentRole, chart, position})
+      replaceBoard({chart, data: board})
       appendFocusChess({role: currentRole, chart, position})
 
-      if (
-        isGoChessWin({
-          data: scatterLayer.data!.rawTableListWithHeaders,
-          position,
-        })
-      ) {
-        setTimeout(async () => {
-          await exitMutation()
-          playSound({type: isMe ? 'success' : 'fail'})
-          showDialog({
-            title: `${RoleDict[currentRole]}子获胜!`,
-            onClose: () => navigate('login'),
-          })
-        })
+      if (eaten) {
+        setMessage({isMe, content: '系统消息：吃！'})
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data])
+  }, [data, chart])
 
   return (
     <AppStage>

@@ -7,8 +7,8 @@ import {
   useChessNavigate,
   useChessStorage,
   useCustomMutation,
+  useGobangInitialDataLazyQuery,
   useHistoryData,
-  useInitialDataLazyQuery,
 } from '@chess/helper'
 import {appendChess, appendFocusChess, appendReadyChess, createBoard} from '@chess/render'
 import {isGobangChessWin} from '@chess/scripts'
@@ -20,7 +20,7 @@ import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart, LayerScatter} from 'awesome-chart'
 import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
-import {useEffectOnce} from 'react-use'
+import {useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
 
 export function GobangStage() {
@@ -29,7 +29,7 @@ export function GobangStage() {
   const {role} = useChessStorage()
   const {playSound, playBackground} = useSound()
   const {myMessage, otherMessage} = useChatMessage()
-  const queryInitialData = useInitialDataLazyQuery()
+  const queryInitialData = useGobangInitialDataLazyQuery()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation, exitMutation} = useCustomMutation()
@@ -60,24 +60,22 @@ export function GobangStage() {
       if (isMe || !chart || !role) return
 
       const source = data.source as ElSource[]
-      const {category, x, y} = decodeSource(source)
+      const {x, y} = decodeSource(source)
       const position = [x, y] as Vec2
 
       if (appendReadyChess({chart, role, position}) !== 'action') {
         return
       }
 
-      if (category === Role.EMPTY) {
-        const result = await appendChessMutation(position, (seq ?? 0) + 1)
+      const result = await appendChessMutation(position, (seq ?? 0) + 1)
 
-        if (!result?.data?.sendData) {
-          showDialog({title: '连接服务器失败'})
-        }
+      if (!result?.data?.sendData) {
+        showDialog({title: '连接服务器失败'})
       }
     })
   }, [isMe, chart, seq, role, appendChessMutation, showDialog])
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
       const scatterLayer = chart.getLayerById(boardId) as LayerScatter
       const position = data.payload as Vec2
@@ -102,8 +100,7 @@ export function GobangStage() {
         })
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data])
+  }, [data, chart])
 
   return (
     <AppStage>
