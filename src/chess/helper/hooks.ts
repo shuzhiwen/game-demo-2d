@@ -63,6 +63,7 @@ export function useCustomMutation() {
   const [exitMutation] = useExitChannelMutation()
 
   return {
+    loading,
     prepareMutation: async (seq: number) => {
       if (loading) return
       if (!userId || !channelId) throw new Error()

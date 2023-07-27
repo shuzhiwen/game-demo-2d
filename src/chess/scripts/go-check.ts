@@ -88,14 +88,16 @@ export function checkEatGoChess(props: GoCheckProps) {
     [row, column - 1],
     [row, column + 1],
   ]
-  const removedChesses = checkList.reduce((removed, position) => {
-    const {life, visited} = checkAppendGoChess({
-      data,
-      position,
-      role: body[position[0]]?.[position[1]] ?? Role.EMPTY,
-    })
-    if (life === 0) {
-      Array.from(visited).forEach((item) => removed.add(item))
+  const removedChesses = checkList.reduce((removed, [row, column]) => {
+    if (body[row]?.[column] !== role) {
+      const {life, visited} = checkAppendGoChess({
+        data,
+        position,
+        role: body[row]?.[column] ?? Role.EMPTY,
+      })
+      if (life === 0) {
+        Array.from(visited).forEach((item) => removed.add(item))
+      }
     }
     return removed
   }, new Set<number>())

@@ -30,29 +30,29 @@ export const useSound = () => useContext(SoundContext)
 
 export function SoundProvider(props: PropsWithChildren) {
   const soundRef = useRef<HTMLAudioElement>(null)
+  const backgroundRef = useRef<HTMLAudioElement>(null)
   const playSound = useCallback<Context['playSound']>(({type, volume}) => {
-    if (soundRef.current) {
-      const audio = new Audio(sounds[type])
-      audio.autoplay = true
-      audio.volume = volume ?? 0.5
-      audio.onended = () => soundRef.current?.removeChild(audio)
-      soundRef.current?.append(audio)
-    }
+    const audio = new Audio(sounds[type])
+    audio.autoplay = true
+    audio.volume = volume ?? 0.5
+    audio.onended = () => soundRef.current?.removeChild(audio)
+    soundRef.current?.append(audio)
   }, [])
   const playBackground = useCallback<Context['playBackground']>(({type, volume}) => {
-    soundRef.current?.querySelector('audio')?.remove()
+    backgroundRef.current?.querySelector('audio')?.remove()
     const audio = new Audio()
     audio.src = musics[type]
     audio.loop = true
     audio.autoplay = true
     audio.volume = volume ?? 0.3
-    soundRef.current?.appendChild(audio)
+    backgroundRef.current?.appendChild(audio)
   }, [])
 
   return (
     <SoundContext.Provider value={{playSound, playBackground}}>
       {props.children}
       <Box ref={soundRef} />
+      <Box ref={backgroundRef} />
     </SoundContext.Provider>
   )
 }
