@@ -22,22 +22,22 @@ export function whoIsGoChessWinner(props: {data: RawTableList}) {
       let emptySize = 0
       let hasBlack = false
       let hasWhite = false
-      const judgement = (row: number, column: number) => {
-        if (body[row][column] === Role.EMPTY) {
-          findArea(row, column)
-        } else if (body[row][column] === Role.WHITE) {
+      const judgement = (x: number, y: number) => {
+        if (body[x][y] === Role.EMPTY) {
+          findArea(x, y)
+        } else if (body[x][y] === Role.WHITE) {
           hasWhite = true
-        } else if (body[row][column] === Role.BLACK) {
+        } else if (body[x][y] === Role.BLACK) {
           hasBlack = true
         }
       }
-      const findArea = (row: number, column: number) => {
+      const findArea = (x: number, y: number) => {
         emptySize++
-        emptyPool.delete([row, column])
-        row > 0 && judgement(row - 1, column)
-        row < maxRow - 1 && judgement(row + 1, column)
-        column > 0 && judgement(row, column - 1)
-        column < maxColumn - 1 && judgement(row, column + 1)
+        emptyPool.delete([x, y])
+        x > 0 && judgement(x - 1, y)
+        x < maxRow - 1 && judgement(x + 1, y)
+        y > 0 && judgement(x, y - 1)
+        y < maxColumn - 1 && judgement(x, y + 1)
       }
 
       findArea(...Array.from(emptyPool)[0])

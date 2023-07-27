@@ -9,8 +9,8 @@ const myTheme = merge({}, darkTheme, {
 
 export const initialChess = () =>
   ([['x', 'y', 'category']] as RawTableList).concat(
-    robustRange(0, boardSize).flatMap((row) =>
-      robustRange(0, boardSize).map((column) => [row, column, Role.EMPTY])
+    robustRange(0, boardSize).flatMap((x) =>
+      robustRange(0, boardSize).map((y) => [x, y, Role.EMPTY])
     )
   )
 
@@ -50,7 +50,7 @@ export function createBoard(props: {container: HTMLElement; initialData: RawTabl
     container: props.container,
     theme: myTheme,
     tooltipOptions: {
-      render: () => null,
+      render: (import.meta as any).env.DEV ? undefined : () => null,
     },
   })
   const axisLayer = chart.createLayer({

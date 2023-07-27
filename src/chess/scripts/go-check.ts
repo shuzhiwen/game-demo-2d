@@ -30,40 +30,44 @@ export function checkAppendGoChess(props: GoCheckProps) {
   safeLoop(
     () => chessPool.length !== 0,
     () => {
-      const [row, column] = chessPool.shift()!
+      const [x, y] = chessPool.shift()!
 
-      visited.add(row * maxColumn + column)
+      visited.add(x * maxColumn + y)
 
-      if (row > 0 && !visited.has((row - 1) * maxColumn + column)) {
-        const top = body[row - 1][column]
+      if (x > 0 && !visited.has((x - 1) * maxColumn + y)) {
+        const top = body[x - 1][y]
         if (top === Role.EMPTY) {
           life++
         } else if (top === role) {
-          chessPool.push([row - 1, column])
+          console.log('top')
+          chessPool.push([x - 1, y])
         }
       }
-      if (row < maxRow - 1 && !visited.has((row + 1) * maxColumn + column)) {
-        const bottom = body[row + 1][column]
+      if (x < maxRow - 1 && !visited.has((x + 1) * maxColumn + y)) {
+        const bottom = body[x + 1][y]
         if (bottom === Role.EMPTY) {
           life++
         } else if (bottom === role) {
-          chessPool.push([row + 1, column])
+          console.log('bottom')
+          chessPool.push([x + 1, y])
         }
       }
-      if (column > 0 && !visited.has(row * maxColumn + column - 1)) {
-        const left = body[row][column - 1]
+      if (y > 0 && !visited.has(x * maxColumn + y - 1)) {
+        const left = body[x][y - 1]
         if (left === Role.EMPTY) {
           life++
         } else if (left === role) {
-          chessPool.push([row, column - 1])
+          console.log('left')
+          chessPool.push([x, y - 1])
         }
       }
-      if (column < maxColumn - 1 && !visited.has(row * maxColumn + column + 1)) {
-        const right = body[row][column + 1]
+      if (y < maxColumn - 1 && !visited.has(x * maxColumn + y + 1)) {
+        const right = body[x][y + 1]
         if (right === Role.EMPTY) {
           life++
         } else if (right === role) {
-          chessPool.push([row, column + 1])
+          console.log('right')
+          chessPool.push([x, y + 1])
         }
       }
     }
@@ -74,26 +78,26 @@ export function checkAppendGoChess(props: GoCheckProps) {
 
 export function checkEatGoChess(props: GoCheckProps) {
   const {data, position, role} = props
-  const [row, column] = position
+  const [x, y] = position
 
   data.forEach((item) => {
-    item[0] === row && item[1] === column && (item[2] = role)
+    item[0] === x && item[1] === y && (item[2] = role)
   })
 
   const table = new DataTable(tableListToTable(data))
   const body = table.body as RawTableList<Role>
   const checkList: Vec2[] = [
-    [row - 1, column],
-    [row + 1, column],
-    [row, column - 1],
-    [row, column + 1],
+    [x - 1, y],
+    [x + 1, y],
+    [x, y - 1],
+    [x, y + 1],
   ]
-  const removedChesses = checkList.reduce((removed, [row, column]) => {
-    if (body[row]?.[column] !== role) {
+  const removedChesses = checkList.reduce((removed, [x, y]) => {
+    if (body[x]?.[y] !== role) {
       const {life, visited} = checkAppendGoChess({
         data,
-        position,
-        role: body[row]?.[column] ?? Role.EMPTY,
+        position: [x, y],
+        role: body[x]?.[y] ?? Role.EMPTY,
       })
       if (life === 0) {
         Array.from(visited).forEach((item) => removed.add(item))
@@ -101,16 +105,16 @@ export function checkEatGoChess(props: GoCheckProps) {
     }
     return removed
   }, new Set<number>())
-  const nextBoard = data.map(([row, column, role], index) => {
+  const nextBoard = data.map(([x, y, role], index) => {
     if (
       index !== 0 &&
-      isRealNumber(row) &&
-      isRealNumber(column) &&
-      removedChesses.has(row * table.columns.length + column)
+      isRealNumber(x) &&
+      isRealNumber(y) &&
+      removedChesses.has(x * table.columns.length + y)
     ) {
-      return [row, column, Role.EMPTY]
+      return [x, y, Role.EMPTY]
     }
-    return [row, column, role]
+    return [x, y, role]
   })
 
   return {
@@ -120,7 +124,7 @@ export function checkEatGoChess(props: GoCheckProps) {
 }
 
 function createGameSnapshot(data: RawTableList) {
-  return data.map((row) => row.join('.')).join('__')
+  return data.map((group) => group.join('.')).join('__')
 }
 
 export function isGoBoardRepeat(props: {
