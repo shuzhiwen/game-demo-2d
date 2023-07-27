@@ -60,8 +60,7 @@ export function GobangStage() {
       if (isMe || !chart || !role) return
 
       const source = data.source as ElSource[]
-      const {x, y} = decodeSource(source)
-      const position = [x, y] as Vec2
+      const {position} = decodeSource(source)
 
       if (appendReadyChess({chart, role, position}) !== 'action') {
         return

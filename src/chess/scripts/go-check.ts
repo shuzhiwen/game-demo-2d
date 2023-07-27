@@ -1,4 +1,5 @@
-import {Role} from '@chess/helper'
+import {GoPayload, Role} from '@chess/helper'
+import {TransportHistoryQuery} from '@generated'
 import {DataTable, isRealNumber, safeLoop, tableListToTable} from 'awesome-chart'
 import {RawTableList} from 'awesome-chart/dist/types'
 
@@ -98,7 +99,7 @@ export function checkEatGoChess(props: GoCheckProps) {
     }
     return removed
   }, new Set<number>())
-  const newBoard = data.map(([row, column, role], index) => {
+  const nextBoard = data.map(([row, column, role], index) => {
     if (
       index !== 0 &&
       isRealNumber(row) &&
@@ -111,7 +112,25 @@ export function checkEatGoChess(props: GoCheckProps) {
   })
 
   return {
-    newBoard,
+    nextBoard,
     eaten: !!removedChesses.size,
   }
+}
+
+function createGameSnapshot(data: RawTableList) {
+  return data.map((row) => row.join('.')).join('__')
+}
+
+export function isGoBoardRepeat(props: {
+  data: RawTableList
+  history: TransportHistoryQuery['transportHistory']
+}) {
+  const {data, history} = props
+  const historyBoards = (history ?? [])
+    .filter(({data}) => data?.kind === 'chess')
+    .map(({data}) => (data?.payload as GoPayload)?.board)
+  const currentSnapshot = createGameSnapshot(data)
+  const historySnapShot = historyBoards.map(createGameSnapshot)
+
+  return historySnapShot.includes(currentSnapshot)
 }

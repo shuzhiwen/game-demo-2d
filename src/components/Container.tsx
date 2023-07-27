@@ -13,5 +13,5 @@ export const AppStage = styled(Stack)({
   width: '100vw',
   overflow: 'auto',
   height: isMobile() ? '100%' : 'calc(100% - 40px)',
-  opacity: (import.meta as any).env.DEV ? 0.1 : 1,
+  opacity: (import.meta as any).env.DEV ? 0.05 : 1,
 })

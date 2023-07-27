@@ -15,7 +15,7 @@ import {
   initialChess,
   replaceBoard,
 } from '@chess/render'
-import {checkAppendGoChess, checkEatGoChess} from '@chess/scripts'
+import {checkAppendGoChess, checkEatGoChess, isGoBoardRepeat} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
 import {useDialog, useSnack} from '@context'
@@ -36,7 +36,7 @@ export function GoStage() {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation} = useCustomMutation()
-  const {isMe, data, seq = 0} = useHistoryData({limit: 10})
+  const {isMe, data, totalData, seq = 0} = useHistoryData({limit: 10})
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const currentRole = isMe ? role! : anotherRole
 
@@ -61,22 +61,26 @@ export function GoStage() {
       if (isMe || !chart || !role) return
 
       const source = data.source as ElSource[]
-      const {x, y} = decodeSource(source)
+      const {position} = decodeSource(source)
       const layer = chart.getLayerById(boardId) as LayerScatter
       const tableList = layer.data!.rawTableListWithHeaders
-      const position = [x, y] as Vec2
+      const {nextBoard, eaten} = checkEatGoChess({data: tableList, position, role})
+      const {life} = checkAppendGoChess({data: tableList, position, role})
 
-      if (checkAppendGoChess({data: tableList, position, role}).life === 0) {
-        showSnack({message: '落子无气，请选择另一处'})
+      if (!eaten && life === 0) {
+        showSnack({message: '落子无气，请在选择其他位置'})
+        return
+      }
+      if (isGoBoardRepeat({data: nextBoard, history: totalData})) {
+        showSnack({message: '检测到打劫，禁止落子'})
         return
       }
       if (appendReadyChess({chart, role, position}) !== 'action') {
         return
       }
 
-      const {newBoard, eaten} = checkEatGoChess({data: tableList, position, role})
       const result = await appendChessMutation(
-        {position: [x, y], board: newBoard, eaten} as GoPayload,
+        {position, board: nextBoard, eaten} as GoPayload,
         (seq ?? 0) + 1
       )
 
@@ -84,7 +88,7 @@ export function GoStage() {
         showDialog({title: '连接服务器失败'})
       }
     })
-  }, [appendChessMutation, chart, isMe, role, seq, showDialog, showSnack])
+  }, [appendChessMutation, chart, isMe, role, seq, showDialog, showSnack, totalData])
 
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
