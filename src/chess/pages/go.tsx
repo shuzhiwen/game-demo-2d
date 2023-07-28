@@ -31,7 +31,7 @@ export function GoStage() {
   const {showSnack} = useSnack()
   const {showDialog} = useDialog()
   const {role} = useChessStorage()
-  const {playSound, playBackground} = useSound()
+  const {setSound, setBackground} = useSound()
   const {myMessage, otherMessage, setMessage} = useChatMessage()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
@@ -41,7 +41,7 @@ export function GoStage() {
   const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {
-    playBackground({type: 'hujiashibapai'})
+    setBackground({type: 'hujiashibapai'})
   })
 
   useEffectOnce(() => {
@@ -94,7 +94,7 @@ export function GoStage() {
     if (chart && data?.kind === 'chess') {
       const {position, board, eaten} = data.payload as GoPayload
 
-      playSound({type: 'chess'})
+      setSound({type: 'chess'})
       replaceBoard({chart, data: board})
       appendFocusChess({role: currentRole, chart, position})
 

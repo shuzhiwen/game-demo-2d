@@ -18,7 +18,7 @@ import {GameBar, UserStatus} from '../components'
 export function ChessPrepare() {
   const navigate = useChessNavigate()
   const {showSnack} = useSnack()
-  const {playBackground} = useSound()
+  const {setBackground} = useSound()
   const {role, channelId} = useChessStorage()
   const {prepareMutation} = useCustomMutation()
   const {totalData, seq = 0} = useHistoryData()
@@ -34,7 +34,7 @@ export function ChessPrepare() {
   }, [channelId, copyAction, showSnack])
 
   useEffectOnce(() => {
-    playBackground({type: 'kisstherain'})
+    setBackground({type: 'kisstherain'})
     prepareMutation(seq + 1)
   })
 

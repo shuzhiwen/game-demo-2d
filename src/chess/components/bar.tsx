@@ -1,11 +1,17 @@
 import {useChessNavigate, useCustomMutation} from '@chess/helper'
-import {ExitToAppRounded} from '@mui/icons-material'
+import {useSound} from '@context'
+import {ExitToAppRounded, VolumeOffRounded, VolumeUpRounded} from '@mui/icons-material'
 import {AppBar, IconButton, Toolbar, Typography} from '@mui/material'
 import {useCallback} from 'react'
 
 export function GameBar() {
-  const {exitMutation} = useCustomMutation()
+  const {useSoundControl} = useSound()
   const navigate = useChessNavigate()
+  const {exitMutation} = useCustomMutation()
+  const {pause, play, playing} = useSoundControl
+  const toggleBackground = useCallback(() => {
+    playing ? pause() : play()
+  }, [pause, play, playing])
   const handleExit = useCallback(async () => {
     await exitMutation()
     navigate('login')
@@ -13,10 +19,13 @@ export function GameBar() {
 
   return (
     <AppBar position="relative" color="transparent">
-      <Toolbar>
+      <Toolbar sx={{svg: {color: 'white'}}}>
         <Typography variant="h6" flex={1}></Typography>
+        <IconButton onClick={toggleBackground}>
+          {playing ? <VolumeUpRounded /> : <VolumeOffRounded />}
+        </IconButton>
         <IconButton onClick={handleExit}>
-          <ExitToAppRounded sx={{color: 'white'}} />
+          <ExitToAppRounded />
         </IconButton>
       </Toolbar>
     </AppBar>

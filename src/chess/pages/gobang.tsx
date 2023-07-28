@@ -27,7 +27,7 @@ export function GobangStage() {
   const navigate = useChessNavigate()
   const {showDialog} = useDialog()
   const {role} = useChessStorage()
-  const {playSound, playBackground} = useSound()
+  const {setSound, setBackground} = useSound()
   const {myMessage, otherMessage} = useChatMessage()
   const queryInitialData = useGobangInitialDataLazyQuery()
   const chartRef = useRef<HTMLDivElement | null>(null)
@@ -38,7 +38,7 @@ export function GobangStage() {
   const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {
-    playBackground({type: 'hujiashibapai'})
+    setBackground({type: 'hujiashibapai'})
   })
 
   useEffectOnce(() => {
@@ -79,7 +79,7 @@ export function GobangStage() {
       const scatterLayer = chart.getLayerById(boardId) as LayerScatter
       const position = data.payload as Vec2
 
-      playSound({type: 'chess'})
+      setSound({type: 'chess'})
       appendChess({role: currentRole, chart, position})
       appendFocusChess({role: currentRole, chart, position})
 
@@ -91,7 +91,7 @@ export function GobangStage() {
       ) {
         setTimeout(async () => {
           await exitMutation()
-          playSound({type: isMe ? 'success' : 'fail'})
+          setSound({type: isMe ? 'success' : 'fail'})
           showDialog({
             title: `${RoleDict[currentRole]}子获胜!`,
             onClose: () => navigate('login'),
