@@ -12,37 +12,42 @@ import {useSound} from '@context/sound'
 import {CheckRounded} from '@mui/icons-material'
 import {Button, Stack, Typography} from '@mui/material'
 import {useCallback, useEffect, useMemo} from 'react'
-import {useCopyToClipboard, useEffectOnce} from 'react-use'
+import {useCopyToClipboard, useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
 
 export function ChessPrepare() {
   const navigate = useChessNavigate()
   const {showSnack} = useSnack()
   const {setBackground} = useSound()
-  const {role, channelId} = useChessStorage()
+  const {totalData} = useHistoryData()
   const {prepareMutation} = useCustomMutation()
-  const {totalData, seq = 0} = useHistoryData()
+  const {role, channelId, userId} = useChessStorage()
   const [, copyAction] = useCopyToClipboard()
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const gameReady = useMemo(() => {
-    const prepareData = totalData.filter(({data}) => data.kind === 'prepare')
-    return new Set(prepareData.map(({userId}) => userId)).size
+    const prepareData = totalData?.filter(({data}) => data.kind === 'prepare')
+    return new Set(prepareData?.map(({userId}) => userId))
   }, [totalData])
-  const invite = useCallback(() => {
+  const generateInvitationLink = useCallback(() => {
     copyAction(encodeInviteUrl(channelId!))
     showSnack({message: '邀请链接已复制到剪切板'})
   }, [channelId, copyAction, showSnack])
 
   useEffectOnce(() => {
     setBackground({type: 'kisstherain'})
-    prepareMutation(seq + 1)
   })
 
   useEffect(() => {
-    if (gameReady >= 2) {
+    if (gameReady.size >= 2) {
       setTimeout(() => navigate('stage'), 1000)
     }
   }, [gameReady, navigate])
+
+  useUpdateEffect(() => {
+    if (!gameReady.has(userId!)) {
+      prepareMutation(0)
+    }
+  }, [gameReady, userId])
 
   return (
     <AppStage>
@@ -50,7 +55,7 @@ export function ChessPrepare() {
       <GameBar />
       <Stack width={200} m="auto" spacing={4}>
         <UserStatus align="left" role={anotherRole}>
-          {gameReady >= 2 && (
+          {gameReady.size >= 2 && (
             <Stack direction="row" spacing={1} alignItems="center">
               <CheckRounded sx={{color: 'lightgreen', fontSize: 36}} />
               <Typography>已就绪</Typography>
@@ -58,14 +63,19 @@ export function ChessPrepare() {
           )}
         </UserStatus>
         <UserStatus align="left" role={role!}>
-          {gameReady >= 1 && (
+          {gameReady.has(userId!) && (
             <Stack direction="row" spacing={1} alignItems="center">
               <CheckRounded sx={{color: 'lightgreen', fontSize: 36}} />
               <Typography>已就绪</Typography>
             </Stack>
           )}
         </UserStatus>
-        <Button variant="contained" color="warning" onClick={invite} sx={{borderRadius: 30}}>
+        <Button
+          color="warning"
+          variant="contained"
+          onClick={generateInvitationLink}
+          sx={{borderRadius: 30}}
+        >
           邀请好友一起玩
         </Button>
       </Stack>

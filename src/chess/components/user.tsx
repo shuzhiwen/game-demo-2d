@@ -69,7 +69,9 @@ export function UserStatus(props: UserStatusProps) {
           },
         }}
       >
-        <Typography sx={{p: 2}}>{message?.content}</Typography>
+        <Stack sx={{p: 2, maxWidth: 'calc(100vw - 120px)'}}>
+          <Typography>{message?.content}</Typography>
+        </Stack>
       </Popover>
       {align === 'left' && <Box>{children}</Box>}
     </Stack>

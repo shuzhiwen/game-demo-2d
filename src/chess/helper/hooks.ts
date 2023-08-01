@@ -51,7 +51,7 @@ export function useHistoryData(pagination?: Pagination) {
 
   return {
     data: latest?.data,
-    totalData: data?.transportHistory ?? [],
+    totalData: data?.transportHistory,
     isMe: latest ? latest?.userId === userId : role === Role.WHITE,
     seq: data?.transportHistory?.at(0)?.seq,
   }
@@ -63,7 +63,6 @@ export function useCustomMutation() {
   const [exitMutation] = useExitChannelMutation()
 
   return {
-    loading,
     prepareMutation: async (seq: number) => {
       if (loading) return
       if (!userId || !channelId) throw new Error()

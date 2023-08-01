@@ -36,7 +36,7 @@ export function GoStage() {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation} = useCustomMutation()
-  const {isMe, data, totalData, seq = 0} = useHistoryData({limit: 10})
+  const {isMe, data, totalData, seq = 0} = useHistoryData({limit: 5})
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const currentRole = isMe ? role! : anotherRole
 
@@ -81,7 +81,7 @@ export function GoStage() {
 
       const result = await appendChessMutation(
         {position, board: nextBoard, eaten} as GoPayload,
-        (seq ?? 0) + 1
+        seq + 1
       )
 
       if (!result?.data?.sendData) {

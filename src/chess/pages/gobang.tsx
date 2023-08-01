@@ -33,7 +33,7 @@ export function GobangStage() {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation, exitMutation} = useCustomMutation()
-  const {isMe, data, seq = 0} = useHistoryData({limit: 10})
+  const {isMe, data, seq = 0} = useHistoryData({limit: 5})
   const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const currentRole = isMe ? role! : anotherRole
 
@@ -66,7 +66,7 @@ export function GobangStage() {
         return
       }
 
-      const result = await appendChessMutation(position, (seq ?? 0) + 1)
+      const result = await appendChessMutation(position, seq + 1)
 
       if (!result?.data?.sendData) {
         showDialog({title: '连接服务器失败'})
