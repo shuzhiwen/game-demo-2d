@@ -1,5 +1,9 @@
 import {ElSource} from 'awesome-chart/dist/types'
 
+export type Source = ElSource & {
+  meta: {category: Meta; x: number; y: number}
+}
+
 export function encodeInviteUrl(inviteCode: string) {
   const pathname = window.location.pathname.split('/').find(Boolean)
   const base64 = btoa(encodeURI(inviteCode))
@@ -14,12 +18,9 @@ export function decodeInviteUrl(inviteCode: string) {
   }
 }
 
-export function decodeSource(source: ElSource[]) {
+export function decodeSource(source: Source) {
   return {
-    category: source.find((item) => item.category === 'category')?.value,
-    position: [
-      source.find((item) => item.category === 'x')?.value,
-      source.find((item) => item.category === 'y')?.value,
-    ] as Vec2,
+    category: source.meta?.category,
+    position: [source.meta.x, source.meta.y] as Vec2,
   }
 }

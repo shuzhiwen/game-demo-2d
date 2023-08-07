@@ -22,7 +22,6 @@ import {useDialog, useSnack} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart, LayerScatter} from 'awesome-chart'
-import {ElSource} from 'awesome-chart/dist/types'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
@@ -60,8 +59,7 @@ export function GoStage() {
     event?.onWithOff('click-point', 'user', async ({data}) => {
       if (isMe || !chart || !role) return
 
-      const source = data.source as ElSource[]
-      const {position} = decodeSource(source)
+      const {position} = decodeSource(data.source)
       const layer = chart.getLayerById(boardId) as LayerScatter
       const tableList = layer.data!.rawTableListWithHeaders
       const {nextBoard, eaten} = checkEatGoChess({data: tableList, position, role})

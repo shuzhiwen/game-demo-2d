@@ -1,10 +1,11 @@
 import {Chart, DataTableList, darkTheme, robustRange} from 'awesome-chart'
-import {ElSource, GraphStyle, RawTableList} from 'awesome-chart/dist/types'
+import {GraphStyle, RawTableList} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
-import {Role, boardId, boardSize, decodeSource, focusBoardId, readyBoardId} from '../helper'
+import {Role, Source, boardId, boardSize, decodeSource, focusBoardId, readyBoardId} from '../helper'
+import {createChessLayer} from './layer'
 
 const myTheme = merge({}, darkTheme, {
-  animation: {update: {duration: 0, delay: 0}},
+  animation: {update: {duration: 500, delay: 0}},
 })
 
 export const initialChess = () =>
@@ -15,7 +16,7 @@ export const initialChess = () =>
   )
 
 const mapping: GraphStyle['mapping'] = (config) => {
-  const {category} = decodeSource(config.source as ElSource[])
+  const {category} = decodeSource(config.source as Source)
   switch (category) {
     case Role.WHITE:
       return {...config, fill: '#ffffff'}
@@ -27,7 +28,7 @@ const mapping: GraphStyle['mapping'] = (config) => {
 }
 
 const focusMapping: GraphStyle['mapping'] = (config) => {
-  const {category} = decodeSource(config.source as ElSource[])
+  const {category} = decodeSource(config.source as Source)
   switch (category) {
     case Role.EMPTY:
       return config
@@ -58,19 +59,16 @@ export function createBoard(props: {container: HTMLElement; initialData: RawTabl
     type: 'axis',
     layout: chart.layout.main,
   })
-  const readyScatterLayer = chart.createLayer({
+  const readyScatterLayer = createChessLayer(chart, {
     id: readyBoardId,
-    type: 'scatter',
     layout: chart.layout.main,
   })
-  const focusScatterLayer = chart.createLayer({
+  const focusScatterLayer = createChessLayer(chart, {
     id: focusBoardId,
-    type: 'scatter',
     layout: chart.layout.main,
   })
-  const scatterLayer = chart.createLayer({
+  const scatterLayer = createChessLayer(chart, {
     id: boardId,
-    type: 'scatter',
     layout: chart.layout.main,
   })
 
