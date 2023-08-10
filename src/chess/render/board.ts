@@ -4,6 +4,7 @@ import {merge} from 'lodash-es'
 import {
   ChineseChess,
   Role,
+  RoleColorDict,
   Source,
   boardId,
   boardSize,
@@ -24,17 +25,12 @@ export const initialChess = () =>
     )
   )
 
-const chessMapping: GraphStyle['mapping'] = (config) => {
-  const {category} = decodeSource(config.source as Source)
-  switch (category) {
-    case Role.WHITE:
-      return {...config, fill: '#fffbf0'}
-    case Role.BLACK:
-      return {...config, fill: '#161823'}
-    default:
-      return {...config, opacity: 0}
+const chessMappingFactory =
+  (key: Keys<ElConfig>) =>
+  (config: ElConfig): ElConfig => {
+    const {category} = decodeSource(config.source as Source)
+    return {...config, [key]: RoleColorDict[category as Role]}
   }
-}
 
 const focusMapping: GraphStyle['mapping'] = (config) => {
   const {category} = decodeSource(config.source as Source)
@@ -99,13 +95,13 @@ export function createBoard(props: {container: HTMLElement; initialData: RawTabl
   scatterLayer?.setStyle({
     pointSize: [cellSize / 3, cellSize / 3],
     text: {hidden: true},
-    point: {mapping: chessMapping},
+    point: {mapping: chessMappingFactory('fill')},
   })
 
   readyScatterLayer?.setData(new DataTableList(initialChess()))
   readyScatterLayer?.setStyle({
     pointSize: [cellSize / 3, cellSize / 3],
-    point: {opacity: 0.5, mapping: chessMapping},
+    point: {opacity: 0.5, mapping: chessMappingFactory('fill')},
     text: {hidden: true},
   })
 
@@ -168,20 +164,6 @@ const initialChineseChess: RawTableList = [
   [8, 6, Role.RED, ChineseChess['PAWN']],
 ]
 
-const chineseChessMappingFactory =
-  (key: Keys<ElConfig>) =>
-  (config: ElConfig): ElConfig => {
-    const {category} = decodeSource(config.source as Source)
-    switch (category) {
-      case Role.BLACK:
-        return {...config, [key]: '#161823'}
-      case Role.RED:
-        return {...config, [key]: '#c4473d'}
-      default:
-        return {...config, opacity: 0}
-    }
-  }
-
 export function createChineseBoard(props: {container: HTMLElement}) {
   const {container} = props
   const {width, height} = container.getBoundingClientRect()
@@ -208,12 +190,12 @@ export function createChineseBoard(props: {container: HTMLElement}) {
     line: {strokeWidth: 2},
     chess: {
       fill: 'rgb(238,232,170)',
-      mapping: chineseChessMappingFactory('stroke'),
+      mapping: chessMappingFactory('stroke'),
       strokeWidth: 2,
     },
     text: {
       fontSize: 16,
-      mapping: chineseChessMappingFactory('fill'),
+      mapping: chessMappingFactory('fill'),
       shadow: '',
     },
   })

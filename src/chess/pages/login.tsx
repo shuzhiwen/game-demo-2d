@@ -1,8 +1,8 @@
-import {Role, decodeInviteUrl, useChessNavigate, useChessStorage} from '@chess/helper'
+import {decodeInviteUrl, useChessNavigate, useChessStorage, useStaticRole} from '@chess/helper'
 import {useDialog} from '@context'
 import {useEnterChannelMutation, useTransportUsersLazyQuery} from '@generated'
 import {Button, Stack, TextField} from '@mui/material'
-import {useCallback, useState} from 'react'
+import {useState} from 'react'
 import {useEffectOnce, useSearchParam} from 'react-use'
 
 export function ChessEnter() {
@@ -12,39 +12,37 @@ export function ChessEnter() {
   const [code, setCode] = useState('')
   const [enterMutation] = useEnterChannelMutation()
   const [usersQuery] = useTransportUsersLazyQuery()
+  const {firstRole, secondRole} = useStaticRole()
   const {showDialog} = useDialog()
 
-  const connectServer = useCallback(
-    async (channelId = code) => {
-      const {userId, setChannelId, setRole} = storage
-      const {data: usersResult} = await usersQuery({
-        variables: {channelId},
-      })
-      const users = usersResult?.transportUsers ?? []
+  const connectServer = async (channelId = code) => {
+    const {userId, setChannelId, setRole} = storage
+    const {data: usersResult} = await usersQuery({
+      variables: {channelId},
+    })
+    const users = usersResult?.transportUsers ?? []
 
-      if (users.includes(userId!)) {
-        navigate(users.length === 1 ? 'prepare' : 'stage')
-        return
-      } else if (users.length >= 2) {
-        showDialog({title: '房间人数已满'})
-        return
-      }
+    if (users.includes(userId!)) {
+      navigate(users.length === 1 ? 'prepare' : 'stage')
+      return
+    } else if (users.length >= 2) {
+      showDialog({title: '房间人数已满'})
+      return
+    }
 
-      const {data: enter} = await enterMutation({
-        variables: {input: {channelId, userId: userId!}},
-      })
-      const userCount = enter?.enterChannel
+    const {data: enter} = await enterMutation({
+      variables: {input: {channelId, userId: userId!}},
+    })
+    const userCount = enter?.enterChannel
 
-      if (userCount) {
-        setChannelId(channelId)
-        setRole(userCount === 1 ? Role.BLACK : Role.WHITE)
-        setTimeout(() => navigate('prepare'))
-      } else {
-        showDialog({content: '连接服务器失败'})
-      }
-    },
-    [code, storage, usersQuery, enterMutation, navigate, showDialog]
-  )
+    if (userCount) {
+      setChannelId(channelId)
+      setRole(userCount === 1 ? firstRole : secondRole)
+      setTimeout(() => navigate('prepare'))
+    } else {
+      showDialog({content: '连接服务器失败'})
+    }
+  }
 
   useEffectOnce(() => {
     if (inviteCode) {

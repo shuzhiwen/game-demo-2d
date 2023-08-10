@@ -1,4 +1,4 @@
-import {Role, RoleDict} from '@chess/helper'
+import {Role, RoleBgColorDict, RoleColorDict, RoleDict} from '@chess/helper'
 import {Avatar, Box, Popover, Stack, Typography} from '@mui/material'
 import {PropsWithChildren, useEffect, useRef, useState} from 'react'
 import {MessageInput} from './message'
@@ -42,8 +42,8 @@ export function UserStatus(props: UserStatusProps) {
         sx={{
           width: 52,
           height: 52,
-          color: role === Role.BLACK ? 'white' : 'black',
-          bgcolor: role === Role.BLACK ? 'black' : 'white',
+          color: RoleBgColorDict[role],
+          bgcolor: RoleColorDict[role],
           border: 'solid 2px gray',
         }}
       >

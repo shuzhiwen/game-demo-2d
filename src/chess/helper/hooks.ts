@@ -123,6 +123,18 @@ export function useChessNavigate() {
   return navigate
 }
 
+export function useStaticRole() {
+  const {pathname} = useLocation()
+  const {role} = useChessStorage()
+  const isChinese = pathname?.match('chinese')
+
+  return {
+    firstRole: isChinese ? Role.RED : Role.BLACK,
+    secondRole: isChinese ? Role.BLACK : Role.WHITE,
+    anotherRole: role !== Role.BLACK ? Role.BLACK : isChinese ? Role.RED : Role.WHITE,
+  }
+}
+
 export function useGobangInitialDataLazyQuery() {
   const {role, userId, channelId} = useChessStorage()
   const [query] = useTransportHistoryLazyQuery()

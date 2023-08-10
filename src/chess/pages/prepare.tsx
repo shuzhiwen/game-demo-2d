@@ -1,10 +1,10 @@
 import {
-  Role,
   encodeInviteUrl,
   useChessNavigate,
   useChessStorage,
   useCustomMutation,
   useHistoryData,
+  useStaticRole,
 } from '@chess/helper'
 import {AppStage, Background} from '@components'
 import {useSnack} from '@context'
@@ -23,7 +23,7 @@ export function ChessPrepare() {
   const {prepareMutation} = useCustomMutation()
   const {role, channelId, userId} = useChessStorage()
   const [, copyAction] = useCopyToClipboard()
-  const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
+  const {anotherRole} = useStaticRole()
   const gameReady = useMemo(() => {
     const prepareData = totalData?.filter(({data}) => data.kind === 'prepare')
     return new Set(prepareData?.map(({userId}) => userId))

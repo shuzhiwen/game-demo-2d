@@ -1,4 +1,4 @@
-import {Role, useChatMessage, useChessStorage, useHistoryData} from '@chess/helper'
+import {useChatMessage, useChessStorage, useHistoryData, useStaticRole} from '@chess/helper'
 import {createChineseBoard} from '@chess/render'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
@@ -16,7 +16,7 @@ export function ChineseStage() {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {isMe} = useHistoryData({limit: 5})
-  const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
+  const {anotherRole} = useStaticRole()
 
   useEffectOnce(() => {
     setBackground({type: 'hujiashibapai'})

@@ -20,6 +20,20 @@ export const RoleDict: Record<Role, string> = {
   [Role.EMPTY]: '',
 }
 
+export const RoleColorDict: Record<Role, string> = {
+  [Role.RED]: '#c4473d',
+  [Role.BLACK]: '#161823',
+  [Role.WHITE]: '#fffbf0',
+  [Role.EMPTY]: '#00000000',
+}
+
+export const RoleBgColorDict: Record<Role, string> = {
+  [Role.RED]: '#fffbf0',
+  [Role.BLACK]: '#fffbf0',
+  [Role.WHITE]: '#161823',
+  [Role.EMPTY]: '#00000000',
+}
+
 export enum ChineseChess {
   /** 将帅 */
   KING,
