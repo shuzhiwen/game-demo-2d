@@ -102,7 +102,11 @@ export function useChessNavigate() {
   const {role, channelId} = useChessStorage()
   const navigate = useCallback(
     (page: 'login' | 'prepare' | 'stage') => {
-      const key = pathname?.match('gobang') ? 'gobang' : 'go'
+      const key = pathname?.match('gobang')
+        ? 'gobang'
+        : pathname?.match('chinese')
+        ? 'chinese'
+        : 'go'
       _navigate(ChessRouteDict[`${key}_${page}`])
     },
     [_navigate, pathname]

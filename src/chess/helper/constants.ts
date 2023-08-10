@@ -10,12 +10,44 @@ export enum Role {
   BLACK = 1,
   WHITE = 2,
   EMPTY = 3,
+  RED = 4,
 }
 
 export const RoleDict: Record<Role, string> = {
+  [Role.RED]: '红',
   [Role.BLACK]: '黑',
   [Role.WHITE]: '白',
   [Role.EMPTY]: '',
+}
+
+export enum ChineseChess {
+  /** 将帅 */
+  KING,
+  /** 士仕 */
+  MANDARIN,
+  /** 象相 */
+  ELEPHANT,
+  /** 馬 */
+  KNIGHT,
+  /** 車 */
+  ROOK,
+  /** 炮 */
+  CANNON,
+  /** 兵卒 */
+  PAWN,
+}
+
+export const ChineseChessDict: Record<
+  ChineseChess,
+  Record<Extract<Role, Role.BLACK | Role.RED>, string>
+> = {
+  [ChineseChess.KING]: {[Role.BLACK]: '将', [Role.RED]: '帅'},
+  [ChineseChess.MANDARIN]: {[Role.BLACK]: '士', [Role.RED]: '仕'},
+  [ChineseChess.ELEPHANT]: {[Role.BLACK]: '象', [Role.RED]: '相'},
+  [ChineseChess.KNIGHT]: {[Role.BLACK]: '馬', [Role.RED]: '馬'},
+  [ChineseChess.ROOK]: {[Role.BLACK]: '車', [Role.RED]: '車'},
+  [ChineseChess.CANNON]: {[Role.BLACK]: '炮', [Role.RED]: '炮'},
+  [ChineseChess.PAWN]: {[Role.BLACK]: '卒', [Role.RED]: '兵'},
 }
 
 export const ChessRouteDict = {
@@ -27,4 +59,8 @@ export const ChessRouteDict = {
   gobang_login: '/gobang/login',
   gobang_prepare: '/gobang/prepare',
   gobang_stage: '/gobang/stage',
+  chinese_base: '/chinese',
+  chinese_login: '/chinese/login',
+  chinese_prepare: '/chinese/prepare',
+  chinese_stage: '/chinese/stage',
 }
