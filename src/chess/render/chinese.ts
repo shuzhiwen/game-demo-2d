@@ -1,4 +1,5 @@
 import {ChineseChess, ChineseChessDict, Role} from '@chess/helper'
+import {checkPlaceChineseChess} from '@chess/scripts/chinese-check'
 import {
   Chart,
   DataTableList,
@@ -37,6 +38,13 @@ export function createChineseChessLayer(
   return chart.createLayer({...options, type: 'chineseChess' as any})
 }
 
+export type ChineseSourceMeta = {
+  focused: boolean
+  chess: ChineseChess
+  category: Extract<Role, Role.BLACK | Role.RED>
+  position: Vec2
+}
+
 type DataKey = 'x' | 'y' | 'category' | 'chess'
 
 type LayerScatterStyle = Partial<{
@@ -50,19 +58,27 @@ class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
 
   style: Maybe<LayerScatterStyle>
 
+  private role: Maybe<Role>
+
+  private focusPosition: Maybe<Vec2>
+
   private boardLineData: DrawerData<LineDrawerProps>[] = []
 
   private boardTextData: (DrawerData<TextDrawerProps> & {
-    meta?: {chess: ChineseChess; category: Extract<Role, Role.BLACK | Role.RED>}
+    meta?: ChineseSourceMeta
   })[] = []
 
   private boardChessData: (DrawerData<CircleDrawerProps> & {
-    meta: {chess: ChineseChess; category: Extract<Role, Role.BLACK | Role.RED>}
+    meta: ChineseSourceMeta
   })[] = []
 
   constructor(options: BasicLayerOptions<any>, context: ChartContext) {
     super({context, options, sublayers: ['line', 'text', 'chess']})
     this.needRecalculated = true
+  }
+
+  setRole(role: Role) {
+    this.role = role
   }
 
   setData(data: LayerScatter['data']) {
@@ -75,7 +91,9 @@ class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
   }
 
   update() {
-    if (!this.data) throw new Error('There is not data available!')
+    if (!this.data) {
+      throw new Error('There is not data available!')
+    }
 
     const {layout} = this.options
     const data = tableListToObjects<DataKey, number>(this.data.source)
@@ -84,16 +102,21 @@ class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
     const chessSize = Math.max(stepWidth, stepHeight) / 2.8
 
     this.boardChessData = data.map(({x, y, category, chess}) => ({
+      r: chessSize,
       x: left + x * stepWidth,
       y: top + y * stepHeight,
-      meta: {chess, category},
-      r: chessSize,
+      meta: {
+        chess,
+        category,
+        position: [x, y],
+        focused: this.focusPosition?.[0] === x && this.focusPosition[1] === y,
+      },
     }))
     this.boardTextData = this.boardChessData.map((item) =>
       createText({
         ...item,
         style: this.style?.text,
-        value: ChineseChessDict[item.meta.chess][item.meta.category],
+        value: ChineseChessDict[item.meta.chess]?.[item.meta.category],
         position: 'center',
       })
     )
@@ -174,7 +197,38 @@ class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
     })
     this.drawBasic({
       type: 'text',
-      data: [{data: this.boardTextData, ...this.style?.text}],
+      data: [
+        {
+          data: this.boardTextData,
+          ...this.style?.text,
+          opacity: this.boardTextData.map(({value}) => (value ? 1 : 0)),
+        },
+      ],
+    })
+    this.event.onWithOff('click-chess', 'internal', ({data}) => {
+      const {chess, category, position} = data.source.meta as ChineseSourceMeta
+
+      if (
+        this.focusPosition &&
+        checkPlaceChineseChess({
+          data: this.data!.source,
+          position: this.focusPosition,
+          nextPosition: position,
+          role: this.role!,
+          chess,
+        })
+      ) {
+        this.focusPosition = null
+        this.event.fire('move-chess', {
+          position: this.focusPosition,
+          nextPosition: position,
+        })
+      } else {
+        this.focusPosition = category ? position : null
+      }
+
+      this.needRecalculated = true
+      this.draw()
     })
   }
 }

@@ -1,4 +1,5 @@
 import {ElSource} from 'awesome-chart/dist/types'
+import {Role} from './constants'
 
 export type Source = ElSource & {
   meta: Partial<{category: Meta; x: number; y: number}>
@@ -20,7 +21,7 @@ export function decodeInviteUrl(inviteCode: string) {
 
 export function decodeSource(source: Source) {
   return {
-    category: source.meta.category,
+    category: source.meta.category as Role,
     position: [source.meta.x, source.meta.y] as Vec2,
   }
 }
