@@ -163,10 +163,11 @@ const initialChineseChess: RawTableList = [
 const chineseChessColorMapping = (config: ElConfig): ElConfig => {
   const {category} = decodeSource(config.source)
   const {focused} = config.source.meta as ChineseSourceMeta
+  const valid = category === Role.BLACK || category === Role.RED
   return {
     ...config,
-    stroke: category ? RoleColorDict[category] : '#00000000',
-    fill: category ? 'rgb(238,232,170)' : '#00000000',
+    stroke: valid ? RoleColorDict[category] : '#00000000',
+    fill: valid ? 'rgb(238,232,170)' : '#00000000',
     opacity: focused ? 0.5 : 1,
   }
 }
@@ -199,7 +200,7 @@ export function createChineseBoard(props: {container: HTMLElement}) {
   const initialData = ([['x', 'y', 'category', 'chess']] as RawTableList).concat(
     robustRange(0, 8).flatMap((x) =>
       robustRange(0, 9).map((y) => {
-        return [x, y, ...(chessMap.get(`${x}-${y}`) || [0, 0])]
+        return [x, y, ...(chessMap.get(`${x}-${y}`) || [Role.EMPTY, -1])]
       })
     )
   )

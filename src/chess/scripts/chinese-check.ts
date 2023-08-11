@@ -3,15 +3,15 @@ import {robustRange} from 'awesome-chart'
 import {RawTableList} from 'awesome-chart/dist/types'
 
 interface GoCheckProps {
-  role: Role
-  chess: ChineseChess
   data: RawTableList
-  position: Vec2
+  prevPosition: Vec2
   nextPosition: Vec2
 }
 
 type SubCheckProps = Omit<GoCheckProps, 'data'> & {
   data: Map<string, [Role, ChineseChess]>
+  chess: ChineseChess
+  role: Role
 }
 
 const createKey = (keys: Meta[]) => keys.join('-')
@@ -28,25 +28,26 @@ const SubCheckDict: Record<ChineseChess, (props: SubCheckProps) => boolean> = {
 
 export function checkPlaceChineseChess(props: GoCheckProps) {
   const {data: rawData, ...rest} = props
-  const {role, position, nextPosition, chess} = rest
+  const {prevPosition, nextPosition} = rest
   const data: Map<string, [Role, ChineseChess]> = new Map(
     rawData.map(([x, y, ...data]) => [createKey([x, y]), data as any])
   )
+  const [role, chess] = data.get(createKey(prevPosition))!
 
   if (
     // 不能吃自己的子
-    createKey(position) === createKey(nextPosition) ||
+    createKey(prevPosition) === createKey(nextPosition) ||
     data.get(createKey(nextPosition))?.[0] === role
   ) {
     return
   }
 
-  return SubCheckDict[chess]({...rest, data})
+  return SubCheckDict[chess]({...rest, chess, role, data})
 }
 
 function checkPlaceChineseChessForPawn(props: SubCheckProps) {
-  const {role, position, nextPosition} = props
-  const [prevX, prevY, nextX, nextY] = [...position, ...nextPosition]
+  const {role, prevPosition, nextPosition} = props
+  const [prevX, prevY, nextX, nextY] = [...prevPosition, ...nextPosition]
 
   if (role === Role.BLACK) {
     if (prevY <= 4) {
@@ -78,33 +79,39 @@ function checkPlaceChineseChessForPawn(props: SubCheckProps) {
 }
 
 export function checkPlaceChineseChessForCannonOrRook(props: SubCheckProps) {
-  const {chess, data, position, nextPosition} = props
-  const [prevX, prevY, nextX, nextY] = [...position, ...nextPosition]
+  const {chess, data, prevPosition, nextPosition} = props
+  const [prevX, prevY, nextX, nextY] = [...prevPosition, ...nextPosition]
 
   // 车炮竖着走
   if (prevX === nextX && prevY !== nextY) {
     const [min, max] = prevY < nextY ? [prevY, nextY] : [nextY, prevY]
+    const eatChess =
+      data.get(createKey([prevX, prevY]))?.[0] !== Role.EMPTY &&
+      data.get(createKey([nextX, nextY]))?.[0] !== Role.EMPTY
     const chessOnPath = robustRange(min, max, 1)
       .map((y) => data.get(createKey([nextX, y]))?.[0])
-      .filter((role) => role !== Role.EMPTY)
+      .filter((role) => role !== Role.EMPTY).length
 
     return chess === ChineseChess.CANNON
-      ? chessOnPath.length <= 1
+      ? chessOnPath === 1 || (chessOnPath === 3 && eatChess)
       : chess === ChineseChess.ROOK
-      ? chessOnPath.length === 0
+      ? [1, 2].includes(chessOnPath)
       : false
   }
   // 车炮横着走
   if (prevY === nextY && prevX !== nextX) {
     const [min, max] = prevX < nextX ? [prevX, nextX] : [nextX, prevX]
+    const eatChess =
+      data.get(createKey([prevX, prevY]))?.[0] !== Role.EMPTY &&
+      data.get(createKey([nextX, nextY]))?.[0] !== Role.EMPTY
     const chessOnPath = robustRange(min, max, 1)
       .map((x) => data.get(createKey([x, nextY]))?.[0])
-      .filter((role) => role !== Role.EMPTY)
+      .filter((role) => role !== Role.EMPTY).length
 
     return chess === ChineseChess.CANNON
-      ? chessOnPath.length <= 1
+      ? chessOnPath === 1 || (chessOnPath === 3 && eatChess)
       : chess === ChineseChess.ROOK
-      ? chessOnPath.length === 0
+      ? [1, 2].includes(chessOnPath)
       : false
   }
 
@@ -112,8 +119,8 @@ export function checkPlaceChineseChessForCannonOrRook(props: SubCheckProps) {
 }
 
 export function checkPlaceChineseChessForKnight(props: SubCheckProps) {
-  const {data, position, nextPosition} = props
-  const [prevX, prevY, nextX, nextY] = [...position, ...nextPosition]
+  const {data, prevPosition, nextPosition} = props
+  const [prevX, prevY, nextX, nextY] = [...prevPosition, ...nextPosition]
 
   if (
     // left
@@ -140,8 +147,8 @@ export function checkPlaceChineseChessForKnight(props: SubCheckProps) {
 }
 
 export function checkPlaceChineseChessForElephant(props: SubCheckProps) {
-  const {role, data, position, nextPosition} = props
-  const [prevX, prevY, nextX, nextY] = [...position, ...nextPosition]
+  const {role, data, prevPosition, nextPosition} = props
+  const [prevX, prevY, nextX, nextY] = [...prevPosition, ...nextPosition]
   const centerPosition = [(prevX + nextX) / 2, (prevY + nextY) / 2]
 
   if (
@@ -157,8 +164,8 @@ export function checkPlaceChineseChessForElephant(props: SubCheckProps) {
 }
 
 export function checkPlaceChineseChessForMandarin(props: SubCheckProps) {
-  const {role, position, nextPosition} = props
-  const [prevX, prevY, nextX, nextY] = [...position, ...nextPosition]
+  const {role, prevPosition, nextPosition} = props
+  const [prevX, prevY, nextX, nextY] = [...prevPosition, ...nextPosition]
   const between = (d: Meta, min: Meta, max: Meta) => d >= min && d <= max
 
   if (
@@ -174,8 +181,8 @@ export function checkPlaceChineseChessForMandarin(props: SubCheckProps) {
 }
 
 export function checkPlaceChineseChessForKing(props: SubCheckProps) {
-  const {role, position, nextPosition} = props
-  const [prevX, prevY, nextX, nextY] = [...position, ...nextPosition]
+  const {role, prevPosition, nextPosition} = props
+  const [prevX, prevY, nextX, nextY] = [...prevPosition, ...nextPosition]
   const between = (d: Meta, min: Meta, max: Meta) => d >= min && d <= max
 
   if (

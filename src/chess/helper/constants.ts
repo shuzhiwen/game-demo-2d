@@ -51,10 +51,7 @@ export enum ChineseChess {
   PAWN,
 }
 
-export const ChineseChessDict: Record<
-  ChineseChess,
-  Record<Extract<Role, Role.BLACK | Role.RED>, string>
-> = {
+export const ChineseChessDict: Record<ChineseChess, Partial<Record<Role, string>>> = {
   [ChineseChess.KING]: {[Role.BLACK]: '将', [Role.RED]: '帅'},
   [ChineseChess.MANDARIN]: {[Role.BLACK]: '士', [Role.RED]: '仕'},
   [ChineseChess.ELEPHANT]: {[Role.BLACK]: '象', [Role.RED]: '相'},
