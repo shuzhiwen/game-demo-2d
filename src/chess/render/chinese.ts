@@ -237,7 +237,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
         const board = cloneDeep(this.data.source)
         const focus = board.find(([x, y]) => isEqual([x, y], this.focusPosition))!
         const next = board.find(([x, y]) => isEqual([x, y], this.nextPosition))!
-        const eaten = next[2] !== Role.EMPTY
+        const eaten = Object.values(ChineseChess).includes(next[3]) ? next[3] : null
 
         ;[next[2], next[3]] = [focus[2], focus[3]]
         ;[focus[2], focus[3]] = [Role.EMPTY, -1]
@@ -246,8 +246,8 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
         this.chessEvent.fire('chess', {
           prevPosition: this.focusPosition,
           nextPosition: position,
-          board,
           eaten,
+          board,
         } as ChinesePayload)
       } else if (
         this.focusPosition &&

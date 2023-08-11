@@ -1,5 +1,5 @@
 import {
-  Role,
+  GobangPayload,
   RoleDict,
   boardId,
   decodeSource,
@@ -7,10 +7,16 @@ import {
   useChessNavigate,
   useChessStorage,
   useCustomMutation,
-  useGobangInitialDataLazyQuery,
   useHistoryData,
+  useStaticRole,
 } from '@chess/helper'
-import {appendChess, appendFocusChess, appendReadyChess, createBoard} from '@chess/render'
+import {
+  appendFocusChess,
+  appendReadyChess,
+  createBoard,
+  initialChess,
+  replaceBoard,
+} from '@chess/render'
 import {isGobangChessWin} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
@@ -18,22 +24,22 @@ import {useDialog} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart, LayerScatter} from 'awesome-chart'
+import {isEqual} from 'lodash-es'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
 
 export function GobangStage() {
   const navigate = useChessNavigate()
-  const {showDialog} = useDialog()
   const {role} = useChessStorage()
+  const {showDialog} = useDialog()
+  const {anotherRole} = useStaticRole()
   const {setSound, setBackground} = useSound()
   const {myMessage, otherMessage} = useChatMessage()
-  const queryInitialData = useGobangInitialDataLazyQuery()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation, exitMutation} = useCustomMutation()
   const {isMe, data, seq = 0} = useHistoryData({limit: 5})
-  const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {
@@ -45,7 +51,7 @@ export function GobangStage() {
       if (chartRef.current) {
         const chart = createBoard({
           container: chartRef.current,
-          initialData: await queryInitialData(),
+          initialData: await initialChess(),
         })
         setChart(chart)
         chart.draw()
@@ -58,31 +64,28 @@ export function GobangStage() {
     event?.onWithOff('click-point', 'user', async ({data}) => {
       if (isMe || !chart || !role) return
 
+      const scatterLayer = chart.getLayerById(boardId) as LayerScatter
+      const nextData = scatterLayer.data!.rawTableListWithHeaders
       const {position} = decodeSource(data.source)
 
       if (appendReadyChess({chart, role, position}) !== 'action') {
         return
       }
 
-      await appendChessMutation(position, seq + 1)
+      nextData.find(([x, y]) => isEqual([x, y], position))![2] = role
+      await appendChessMutation({position, board: nextData}, seq + 1)
     })
   }, [appendChessMutation, chart, isMe, role, seq])
 
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
-      const scatterLayer = chart.getLayerById(boardId) as LayerScatter
-      const position = data.payload as Vec2
+      const {position, board} = data.payload as GobangPayload
 
       setSound({type: 'chess'})
-      appendChess({role: currentRole, chart, position})
+      replaceBoard({chart, data: board})
       appendFocusChess({role: currentRole, chart, position})
 
-      if (
-        isGobangChessWin({
-          data: scatterLayer.data!.rawTableListWithHeaders,
-          position,
-        })
-      ) {
+      if (isGobangChessWin({data: board, position})) {
         setTimeout(async () => {
           await exitMutation()
           setSound({type: isMe ? 'success' : 'fail'})

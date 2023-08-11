@@ -1,12 +1,12 @@
 import {
   GoPayload,
-  Role,
   boardId,
   decodeSource,
   useChatMessage,
   useChessStorage,
   useCustomMutation,
   useHistoryData,
+  useStaticRole,
 } from '@chess/helper'
 import {
   appendFocusChess,
@@ -29,13 +29,13 @@ import {GameBar, UserStatus} from '../components'
 export function GoStage() {
   const {showSnack} = useSnack()
   const {role} = useChessStorage()
+  const {anotherRole} = useStaticRole()
   const {setSound, setBackground} = useSound()
   const {myMessage, otherMessage, setMessage} = useChatMessage()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation} = useCustomMutation()
   const {isMe, data, totalData, seq = 0} = useHistoryData({limit: 5})
-  const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
   const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {

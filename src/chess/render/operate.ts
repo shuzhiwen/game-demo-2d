@@ -8,19 +8,6 @@ const getChess = (data: Meta[][], x: number, y: number) => {
   return {isEmpty: data[index]?.[2] === Role.EMPTY, index}
 }
 
-export function appendChess(props: {role: Role; position: Vec2; chart: Chart}) {
-  const {role, position, chart} = props
-  const layer = chart.getLayerById(boardId) as LayerScatter
-  const data = layer.data?.rawTableListWithHeaders ?? []
-  const {isEmpty, index} = getChess(data, ...position)
-
-  if (isEmpty) {
-    data[index][2] = role
-    layer.setData(new DataTableList(data))
-    chart.draw()
-  }
-}
-
 export function replaceBoard(props: {data: RawTableList; chart: Chart}) {
   const {data, chart} = props
   const layer = chart.getLayerById(boardId)

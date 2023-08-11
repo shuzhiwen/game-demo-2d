@@ -1,27 +1,30 @@
-import {initialChess} from '@chess/render'
 import {
   TransportHistoryQueryVariables,
   useExitChannelMutation,
   useReceiveDataSubscription,
   useSendDataMutation,
-  useTransportHistoryLazyQuery,
   useTransportHistoryQuery,
 } from '@generated'
 import {RawTableList} from 'awesome-chart/dist/types'
 import {useCallback, useMemo, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocation} from 'react-use'
-import {ChessRouteDict, Role} from './constants'
+import {ChessRouteDict, ChineseChess, Role} from './constants'
 import {useChessStorage} from './context'
+
+export type GobangPayload = {
+  position: Vec2
+  board: RawTableList
+}
 
 export type GoPayload = {
   position: Vec2
   board: RawTableList
-  eaten?: boolean
+  eaten: boolean
 }
 
 export type ChinesePayload = {
-  eaten: boolean
+  eaten: Maybe<ChineseChess>
   prevPosition: Vec2
   nextPosition: Vec2
   board: RawTableList
@@ -34,7 +37,7 @@ export interface PrepareData {
 
 export interface ChessData {
   kind: 'chess'
-  payload: Vec2 | GoPayload | ChinesePayload
+  payload: GobangPayload | GoPayload | ChinesePayload
 }
 
 type Pagination = Pick<TransportHistoryQueryVariables, 'limit' | 'offset'>
@@ -139,29 +142,6 @@ export function useStaticRole() {
     firstRole: isChinese ? Role.RED : Role.BLACK,
     secondRole: isChinese ? Role.BLACK : Role.WHITE,
     anotherRole: role !== Role.BLACK ? Role.BLACK : isChinese ? Role.RED : Role.WHITE,
-  }
-}
-
-export function useGobangInitialDataLazyQuery() {
-  const {role, userId, channelId} = useChessStorage()
-  const [query] = useTransportHistoryLazyQuery()
-
-  return async () => {
-    const {data} = await query({variables: {channelId: channelId!}})
-    const anotherRole = role === Role.WHITE ? Role.BLACK : Role.WHITE
-    const initialData = initialChess()
-
-    data?.transportHistory?.forEach((datum) => {
-      if (datum.data?.kind === 'chess') {
-        const [x, y] = (datum.data as ChessData).payload as Vec2
-        const dataRole = datum.userId === userId ? role! : anotherRole
-        const target = initialData.find(([_x, _y]) => x === _x && y === _y)
-        if (!target) throw new Error()
-        target[2] = dataRole
-      }
-    })
-
-    return initialData
   }
 }
 

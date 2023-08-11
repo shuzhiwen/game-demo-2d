@@ -1,7 +1,10 @@
 import {
+  ChineseChess,
   ChinesePayload,
+  RoleDict,
   boardId,
   useChatMessage,
+  useChessNavigate,
   useChessStorage,
   useCustomMutation,
   useHistoryData,
@@ -11,6 +14,7 @@ import {createChineseBoard, replaceBoard} from '@chess/render'
 import {LayerChineseChess} from '@chess/render/chinese'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
+import {useDialog} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart} from 'awesome-chart'
@@ -19,14 +23,17 @@ import {useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
 
 export function ChineseStage() {
+  const navigate = useChessNavigate()
+  const {showDialog} = useDialog()
   const {role} = useChessStorage()
+  const {anotherRole} = useStaticRole()
   const {setSound, setBackground} = useSound()
-  const {appendChessMutation} = useCustomMutation()
+  const {appendChessMutation, exitMutation} = useCustomMutation()
   const {myMessage, otherMessage, setMessage} = useChatMessage()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {isMe, data, seq = 0} = useHistoryData({limit: 5})
-  const {anotherRole} = useStaticRole()
+  const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {
     setBackground({type: 'hujiashibapai'})
@@ -59,6 +66,17 @@ export function ChineseStage() {
       setSound({type: 'chess'})
       replaceBoard({chart, data: board})
       eaten && setMessage({isMe, content: '系统消息：吃！'})
+
+      if (eaten === ChineseChess['KING']) {
+        setTimeout(async () => {
+          await exitMutation()
+          setSound({type: isMe ? 'success' : 'fail'})
+          showDialog({
+            title: `${RoleDict[currentRole]}方获胜!`,
+            onClose: () => navigate('login'),
+          })
+        })
+      }
     }
   }, [data, chart])
 

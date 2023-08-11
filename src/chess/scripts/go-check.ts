@@ -39,7 +39,6 @@ export function checkAppendGoChess(props: GoCheckProps) {
         if (top === Role.EMPTY) {
           life++
         } else if (top === role) {
-          console.log('top')
           chessPool.push([x - 1, y])
         }
       }
@@ -48,7 +47,6 @@ export function checkAppendGoChess(props: GoCheckProps) {
         if (bottom === Role.EMPTY) {
           life++
         } else if (bottom === role) {
-          console.log('bottom')
           chessPool.push([x + 1, y])
         }
       }
@@ -57,7 +55,6 @@ export function checkAppendGoChess(props: GoCheckProps) {
         if (left === Role.EMPTY) {
           life++
         } else if (left === role) {
-          console.log('left')
           chessPool.push([x, y - 1])
         }
       }
@@ -66,7 +63,6 @@ export function checkAppendGoChess(props: GoCheckProps) {
         if (right === Role.EMPTY) {
           life++
         } else if (right === role) {
-          console.log('right')
           chessPool.push([x, y + 1])
         }
       }
