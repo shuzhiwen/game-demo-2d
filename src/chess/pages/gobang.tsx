@@ -64,13 +64,9 @@ export function GobangStage() {
         return
       }
 
-      const result = await appendChessMutation(position, seq + 1)
-
-      if (!result?.data?.sendData) {
-        showDialog({title: '连接服务器失败'})
-      }
+      await appendChessMutation(position, seq + 1)
     })
-  }, [isMe, chart, seq, role, appendChessMutation, showDialog])
+  }, [appendChessMutation, chart, isMe, role, seq])
 
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {

@@ -1,21 +1,31 @@
-import {useChatMessage, useChessStorage, useHistoryData, useStaticRole} from '@chess/helper'
-import {createChineseBoard} from '@chess/render'
+import {
+  ChinesePayload,
+  boardId,
+  useChatMessage,
+  useChessStorage,
+  useCustomMutation,
+  useHistoryData,
+  useStaticRole,
+} from '@chess/helper'
+import {createChineseBoard, replaceBoard} from '@chess/render'
+import {LayerChineseChess} from '@chess/render/chinese'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart} from 'awesome-chart'
-import {useRef, useState} from 'react'
-import {useEffectOnce} from 'react-use'
+import {useEffect, useRef, useState} from 'react'
+import {useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
 
 export function ChineseStage() {
   const {role} = useChessStorage()
-  const {setBackground} = useSound()
-  const {myMessage, otherMessage} = useChatMessage()
+  const {setSound, setBackground} = useSound()
+  const {appendChessMutation} = useCustomMutation()
+  const {myMessage, otherMessage, setMessage} = useChatMessage()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
-  const {isMe} = useHistoryData({limit: 5})
+  const {isMe, data, seq = 0} = useHistoryData({limit: 5})
   const {anotherRole} = useStaticRole()
 
   useEffectOnce(() => {
@@ -26,11 +36,31 @@ export function ChineseStage() {
     if (chartRef.current) {
       const chart = createChineseBoard({
         container: chartRef.current,
+        role: role!,
       })
       setChart(chart)
       chart.draw()
     }
   })
+
+  useEffect(() => {
+    const layer = chart?.getLayerById(boardId) as Maybe<LayerChineseChess>
+    layer?.chessEvent.onWithOff('chess', 'user', (data) => {
+      appendChessMutation(data, seq + 1)
+    })
+  }, [appendChessMutation, chart, seq])
+
+  useUpdateEffect(() => {
+    if (chart && data?.kind === 'chess') {
+      const {board, eaten} = data.payload as ChinesePayload
+      const layer = chart.getLayerById(boardId) as LayerChineseChess
+
+      layer.disabled = isMe
+      setSound({type: 'chess'})
+      replaceBoard({chart, data: board})
+      eaten && setMessage({isMe, content: '系统消息：吃！'})
+    }
+  }, [data, chart])
 
   return (
     <AppStage>

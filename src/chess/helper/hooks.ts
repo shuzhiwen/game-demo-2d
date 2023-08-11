@@ -20,6 +20,13 @@ export type GoPayload = {
   eaten?: boolean
 }
 
+export type ChinesePayload = {
+  eaten: boolean
+  prevPosition: Vec2
+  nextPosition: Vec2
+  board: RawTableList
+}
+
 export interface PrepareData {
   kind: 'prepare'
   payload: true
@@ -27,12 +34,13 @@ export interface PrepareData {
 
 export interface ChessData {
   kind: 'chess'
-  payload: Vec2 | GoPayload
+  payload: Vec2 | GoPayload | ChinesePayload
 }
 
 type Pagination = Pick<TransportHistoryQueryVariables, 'limit' | 'offset'>
 
 export function useHistoryData(pagination?: Pagination) {
+  const {secondRole} = useStaticRole()
   const {role, userId, channelId} = useChessStorage()
   const {data, refetch} = useTransportHistoryQuery({
     skip: !channelId,
@@ -50,9 +58,9 @@ export function useHistoryData(pagination?: Pagination) {
   })
 
   return {
-    data: latest?.data,
+    data: latest?.data as Maybe<AnyObject>,
     totalData: data?.transportHistory,
-    isMe: latest ? latest?.userId === userId : role === Role.WHITE,
+    isMe: latest ? latest?.userId === userId : role === secondRole,
     seq: data?.transportHistory?.at(0)?.seq,
   }
 }
@@ -67,7 +75,7 @@ export function useCustomMutation() {
       if (loading) return
       if (!userId || !channelId) throw new Error()
       const data = {kind: 'prepare', payload: true} as PrepareData
-      return sendMutation({
+      sendMutation({
         variables: {input: {userId, channelId, data, seq}},
       })
     },
@@ -75,23 +83,22 @@ export function useCustomMutation() {
       if (loading) return
       if (!userId || !channelId) throw new Error()
       const data = {kind: 'chess', payload} as ChessData
-      return sendMutation({
+      sendMutation({
         variables: {input: {userId, channelId, data, seq, serialize: true}},
       })
     },
     sendMessageMutation: async (data: string) => {
       if (loading) return
       if (!userId || !channelId) throw new Error()
-      return sendMutation({
+      sendMutation({
         variables: {input: {userId, channelId: `${channelId}_chat`, data, seq: 0}},
       })
     },
     exitMutation: async () => {
       if (!userId || !channelId) throw new Error()
-      const result = await exitMutation({variables: {input: {channelId, userId}}})
+      await exitMutation({variables: {input: {channelId, userId}}})
       setChannelId()
       setRole()
-      return result
     },
   }
 }

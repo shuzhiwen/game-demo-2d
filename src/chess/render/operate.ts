@@ -23,8 +23,8 @@ export function appendChess(props: {role: Role; position: Vec2; chart: Chart}) {
 
 export function replaceBoard(props: {data: RawTableList; chart: Chart}) {
   const {data, chart} = props
-  const layer = chart.getLayerById(boardId) as LayerScatter
-  layer.setData(new DataTableList(data))
+  const layer = chart.getLayerById(boardId)
+  layer?.setData(new DataTableList(data))
   chart.draw()
 }
 

@@ -1,8 +1,9 @@
-import {ChineseChess, ChineseChessDict, Role} from '@chess/helper'
+import {ChineseChess, ChineseChessDict, ChinesePayload, Role} from '@chess/helper'
 import {checkPlaceChineseChess} from '@chess/scripts'
 import {
   Chart,
   DataTableList,
+  EventManager,
   LayerBase,
   LayerDict,
   LayerScatter,
@@ -25,7 +26,22 @@ import {
   TextDrawerProps,
   TextStyle,
 } from 'awesome-chart/dist/types'
-import {isEqual, range} from 'lodash-es'
+import {cloneDeep, isEqual, range} from 'lodash-es'
+
+type DataKey = 'x' | 'y' | 'category' | 'chess'
+
+type LayerScatterStyle = Partial<{
+  chess: GraphStyle
+  line: GraphStyle
+  text: TextStyle
+}>
+
+export type ChineseSourceMeta = {
+  focused: boolean
+  chess: ChineseChess
+  category: Role
+  position: Vec2
+}
 
 export function createChineseChessLayer(
   chart: Chart,
@@ -38,27 +54,18 @@ export function createChineseChessLayer(
   return chart.createLayer({...options, type: 'chineseChess' as any})
 }
 
-export type ChineseSourceMeta = {
-  focused: boolean
-  chess: ChineseChess
-  category: Role
-  position: Vec2
-}
+export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
+  chessEvent = new EventManager<'chess', 'user', (data: ChinesePayload) => void>(
+    LayerChineseChess.name
+  )
 
-type DataKey = 'x' | 'y' | 'category' | 'chess'
-
-type LayerScatterStyle = Partial<{
-  chess: GraphStyle
-  line: GraphStyle
-  text: TextStyle
-}>
-
-class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
   data: Maybe<DataTableList>
 
   style: Maybe<LayerScatterStyle>
 
-  disablePlaceChess = false
+  role: Maybe<Role>
+
+  disabled = false
 
   private focusPosition: Maybe<Vec2>
 
@@ -82,6 +89,8 @@ class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
   setData(data: LayerScatter['data']) {
     this.data = validateAndCreateData('tableList', this.data, data)
     checkColumns(this.data, ['x', 'y', 'category', 'chess'])
+    this.focusPosition = null
+    this.nextPosition = null
   }
 
   setStyle(style: LayerStyle<LayerChineseChess['style']>) {
@@ -218,20 +227,28 @@ class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
     this.event.onWithOff('click-chess', 'internal', ({data}) => {
       const {category, position} = data.source.meta as ChineseSourceMeta
 
-      if (this.disablePlaceChess) {
-        this.nextPosition = null
+      if (this.disabled || !this.data) {
         this.focusPosition = null
+        this.nextPosition = null
         return
       }
 
       if (isEqual(this.nextPosition, position)) {
-        this.log.info('move-chess')
-        this.nextPosition = null
-        this.focusPosition = null
-        this.event.fire('move-chess', {
-          position: this.focusPosition,
+        const board = cloneDeep(this.data.source)
+        const focus = board.find(([x, y]) => isEqual([x, y], this.focusPosition))!
+        const next = board.find(([x, y]) => isEqual([x, y], this.nextPosition))!
+        const eaten = next[2] !== Role.EMPTY
+
+        ;[next[2], next[3]] = [focus[2], focus[3]]
+        ;[focus[2], focus[3]] = [Role.EMPTY, -1]
+
+        this.disabled = true
+        this.chessEvent.fire('chess', {
+          prevPosition: this.focusPosition,
           nextPosition: position,
-        })
+          board,
+          eaten,
+        } as ChinesePayload)
       } else if (
         this.focusPosition &&
         checkPlaceChineseChess({
@@ -240,12 +257,13 @@ class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
           nextPosition: position,
         })
       ) {
-        this.log.info('check-chess')
         this.nextPosition = position
       } else {
-        this.log.info('focus-chess')
-        this.focusPosition = category !== Role.EMPTY ? position : null
+        this.focusPosition = null
         this.nextPosition = null
+        if (category !== Role.EMPTY && category === this.role) {
+          this.focusPosition = position
+        }
       }
 
       this.needRecalculated = true

@@ -18,7 +18,7 @@ import {
 import {checkAppendGoChess, checkEatGoChess, isGoBoardRepeat} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
-import {useDialog, useSnack} from '@context'
+import {useSnack} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart, LayerScatter} from 'awesome-chart'
@@ -28,7 +28,6 @@ import {GameBar, UserStatus} from '../components'
 
 export function GoStage() {
   const {showSnack} = useSnack()
-  const {showDialog} = useDialog()
   const {role} = useChessStorage()
   const {setSound, setBackground} = useSound()
   const {myMessage, otherMessage, setMessage} = useChatMessage()
@@ -77,16 +76,9 @@ export function GoStage() {
         return
       }
 
-      const result = await appendChessMutation(
-        {position, board: nextBoard, eaten} as GoPayload,
-        seq + 1
-      )
-
-      if (!result?.data?.sendData) {
-        showDialog({title: '连接服务器失败'})
-      }
+      await appendChessMutation({position, board: nextBoard, eaten}, seq + 1)
     })
-  }, [appendChessMutation, chart, isMe, role, seq, showDialog, showSnack, totalData])
+  }, [appendChessMutation, chart, isMe, role, seq, showSnack, totalData])
 
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
@@ -95,10 +87,7 @@ export function GoStage() {
       setSound({type: 'chess'})
       replaceBoard({chart, data: board})
       appendFocusChess({role: currentRole, chart, position})
-
-      if (eaten) {
-        setMessage({isMe, content: '系统消息：吃！'})
-      }
+      eaten && setMessage({isMe, content: '系统消息：吃！'})
     }
   }, [data, chart])
 

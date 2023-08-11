@@ -172,8 +172,8 @@ const chineseChessColorMapping = (config: ElConfig): ElConfig => {
   }
 }
 
-export function createChineseBoard(props: {container: HTMLElement}) {
-  const {container} = props
+export function createChineseBoard(props: {container: HTMLElement; role: Role}) {
+  const {container, role} = props
   const {width, height} = container.getBoundingClientRect()
   const containerSize = Math.min(width, height)
   const chart = new Chart({
@@ -189,7 +189,7 @@ export function createChineseBoard(props: {container: HTMLElement}) {
     },
   })
   const layer = createChineseChessLayer(chart, {
-    id: focusBoardId,
+    id: boardId,
     layout: chart.layout.main,
   })
   const chessMap = new Map(
@@ -205,6 +205,7 @@ export function createChineseBoard(props: {container: HTMLElement}) {
     )
   )
 
+  layer.role = role
   layer.setData(new DataTableList(initialData))
   layer.setStyle({
     line: {strokeWidth: 2},
