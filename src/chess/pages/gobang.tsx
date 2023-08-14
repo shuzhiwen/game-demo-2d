@@ -11,7 +11,7 @@ import {
   useStaticRole,
 } from '@chess/helper'
 import {createBoard} from '@chess/render'
-import {LayerCommonChess} from '@chess/render/chess'
+import {LayerChess} from '@chess/render/chess'
 import {isGobangChessWin} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
@@ -57,7 +57,7 @@ export function GobangStage() {
   useEffect(() => {
     if (!chart || !role) return
 
-    const layer = chart.getLayerById(boardId) as LayerCommonChess
+    const layer = chart.getLayerById(boardId) as LayerChess
 
     layer.chessEvent.onWithOff('chess', 'user', async ({position, board}) => {
       board.find(([x, y]) => isEqual([x, y], position))![2] = role
@@ -68,7 +68,7 @@ export function GobangStage() {
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
       const {position, board} = data.payload as GobangPayload
-      const layer = chart.getLayerById(boardId) as LayerCommonChess
+      const layer = chart.getLayerById(boardId) as LayerChess
 
       setSound({type: 'chess'})
       replaceBoard({chart, data: board, position})

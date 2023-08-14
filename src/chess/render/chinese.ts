@@ -10,6 +10,7 @@ import {
   checkColumns,
   createStyle,
   createText,
+  group,
   registerCustomLayer,
   tableListToObjects,
   validateAndCreateData,
@@ -21,7 +22,6 @@ import {
   DrawerData,
   GraphStyle,
   LayerScatterOptions,
-  LayerStyle,
   LineDrawerProps,
   TextDrawerProps,
   TextStyle,
@@ -30,7 +30,8 @@ import {cloneDeep, isEqual, range} from 'lodash-es'
 
 type DataKey = 'x' | 'y' | 'role' | 'chess'
 
-type LayerScatterStyle = Partial<{
+type LayerStyle = Partial<{
+  highlight: GraphStyle
   chess: GraphStyle
   line: GraphStyle
   text: TextStyle
@@ -38,7 +39,6 @@ type LayerScatterStyle = Partial<{
 
 export type ChineseSourceMeta = {
   focused: boolean
-  highlight: boolean
   chess: ChineseChess
   position: Vec2
   role: Role
@@ -62,7 +62,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
 
   data: Maybe<DataTableList>
 
-  style: Maybe<LayerScatterStyle>
+  style: Maybe<LayerStyle>
 
   role: Maybe<Role>
 
@@ -74,18 +74,22 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
 
   private nextPosition: Maybe<Vec2>
 
-  private boardLineData: DrawerData<LineDrawerProps>[] = []
+  private lineData: DrawerData<LineDrawerProps>[] = []
 
-  private boardTextData: (DrawerData<TextDrawerProps> & {
+  private textData: (DrawerData<TextDrawerProps> & {
     meta?: ChineseSourceMeta
   })[] = []
 
-  private boardChessData: (DrawerData<CircleDrawerProps> & {
+  private boardTextData: DrawerData<TextDrawerProps>[] = []
+
+  private chessData: (DrawerData<CircleDrawerProps> & {
     meta: ChineseSourceMeta
   })[] = []
 
+  private highlightChessData: Maybe<DrawerData<CircleDrawerProps>>
+
   constructor(options: BasicLayerOptions<any>, context: ChartContext) {
-    super({context, options, sublayers: ['line', 'text', 'chess']})
+    super({context, options, sublayers: ['line', 'text', 'boardText', 'chess', 'highlight']})
     this.needRecalculated = true
   }
 
@@ -96,7 +100,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
     this.nextPosition = null
   }
 
-  setStyle(style: LayerStyle<LayerChineseChess['style']>) {
+  setStyle(style: LayerStyle) {
     this.style = createStyle(this.options, {}, this.style ?? {}, style)
   }
 
@@ -109,9 +113,9 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
     const data = tableListToObjects<DataKey, number>(this.data.source)
     const {top, left, width, height, right, bottom} = layout
     const [stepWidth, stepHeight] = [width / 8, height / 9]
-    const chessSize = Math.max(stepWidth, stepHeight) / 2.5
+    const chessSize = Math.max(stepWidth, stepHeight) / 2.8
 
-    this.boardChessData = data.map(({x, y, role, chess}) => ({
+    this.chessData = data.map(({x, y, role, chess}) => ({
       r: chessSize,
       x: left + x * stepWidth,
       y: top + y * stepHeight,
@@ -120,22 +124,24 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
         role,
         position: [x, y],
         focused: isEqual(this.focusPosition, [x, y]),
-        highlight: isEqual(this.highlightPosition, [x, y]),
       },
     }))
+    this.highlightChessData = this.chessData.find(({meta}) =>
+      isEqual(meta.position, this.highlightPosition)
+    ) || {x: -100, y: -100, r: 0}
 
     if (this.nextPosition && this.focusPosition) {
-      const focus = this.boardChessData.find(({meta}) => {
+      const focus = this.chessData.find(({meta}) => {
         return isEqual(meta.position, this.focusPosition)
       })!
-      const next = this.boardChessData.find(({meta}) => {
+      const next = this.chessData.find(({meta}) => {
         return isEqual(meta.position, this.nextPosition)
       })!
       next.meta = {...focus.meta, position: next.meta.position}
       focus.meta = {...focus.meta, role: Role.EMPTY}
     }
 
-    this.boardTextData = this.boardChessData.map((item) =>
+    this.textData = this.chessData.map((item) =>
       createText({
         ...item,
         style: this.style?.text,
@@ -143,7 +149,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
         position: 'center',
       })
     )
-    this.boardTextData.push(
+    this.boardTextData = [
       createText({
         x: left + width / 4,
         y: top + height / 2,
@@ -155,9 +161,9 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
         y: top + height / 2,
         value: '汉界',
         position: 'center',
-      })
-    )
-    this.boardLineData = range(0, 10)
+      }),
+    ]
+    this.lineData = range(0, 10)
       .map((i) => ({
         x1: left,
         x2: right,
@@ -211,23 +217,34 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
   draw() {
     this.drawBasic({
       type: 'line',
-      data: [{data: this.boardLineData, ...this.style?.line}],
+      data: [{data: this.lineData, ...this.style?.line}],
+    })
+    this.drawBasic({
+      type: 'text',
+      sublayer: 'boardText',
+      data: [{data: this.boardTextData, ...this.style?.text}],
     })
     this.drawBasic({
       type: 'circle',
-      data: [{data: this.boardChessData, ...this.style?.chess}],
+      sublayer: 'highlight',
+      data: [{data: group(this.highlightChessData), ...this.style?.highlight}],
+    })
+    this.drawBasic({
+      type: 'circle',
+      data: [{data: this.chessData, ...this.style?.chess}],
       sublayer: 'chess',
     })
     this.drawBasic({
       type: 'text',
       data: [
         {
-          data: this.boardTextData,
+          data: this.textData,
           ...this.style?.text,
-          opacity: this.boardTextData.map(({value}) => (value ? 1 : 0)),
+          opacity: this.textData.map(({value}) => (value ? 1 : 0)),
         },
       ],
     })
+
     this.event.onWithOff('click-chess', 'internal', ({data}) => {
       const {role, position} = data.source.meta as ChineseSourceMeta
 

@@ -9,7 +9,7 @@ import {
   useStaticRole,
 } from '@chess/helper'
 import {LayerChineseChess, createBoard} from '@chess/render'
-import {LayerCommonChess} from '@chess/render/chess'
+import {LayerChess} from '@chess/render/chess'
 import {checkAppendGoChess, checkEatGoChess, isGoBoardRepeat} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
@@ -50,7 +50,7 @@ export function GoStage() {
   useEffect(() => {
     if (!chart || !role) return
 
-    const layer = chart.getLayerById(boardId) as LayerCommonChess
+    const layer = chart.getLayerById(boardId) as LayerChess
 
     layer.chessEvent.onWithOff('chess', 'user', async (data) => {
       const {position, board} = data

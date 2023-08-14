@@ -1,5 +1,5 @@
 import {Chart, DataTableList, darkTheme, robustRange} from 'awesome-chart'
-import {ElConfig, RawTableList} from 'awesome-chart/dist/types'
+import {CacheLayerAnimation, ElConfig, RawTableList} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
 import {ChineseChess, Role, RoleColorDict, boardId, boardSize} from '../helper'
 import {ChessSourceMeta, createChessLayer} from './chess'
@@ -10,25 +10,37 @@ const myTheme = merge({}, darkTheme, {
 })
 
 const chessColorMappingFactory = (mode: 'chess' | 'chinese') => (d: ElConfig) => {
-  const {role, focused, highlight} = d.source.meta as ChessSourceMeta
+  const {role, focused} = d.source.meta as ChessSourceMeta
   const valid = role !== Role.EMPTY
 
   return {
     ...d,
-    stroke: highlight ? 'orange' : mode === 'chess' ? d.stroke : RoleColorDict[role],
-    strokeWidth: highlight ? 2 : d.strokeWidth,
+    stroke: mode === 'chess' ? d.stroke : RoleColorDict[role],
     fill: mode === 'chess' ? RoleColorDict[role] : 'rgb(238,232,170)',
     fillOpacity: valid ? 1 : 0,
     opacity: focused ? 0.5 : 1,
   }
 }
 
-export const initialChess = () =>
-  ([['x', 'y', 'role']] as RawTableList).concat(
-    robustRange(0, boardSize).flatMap((x) =>
-      robustRange(0, boardSize).map((y) => [x, y, Role.EMPTY])
-    )
-  )
+const highlightAnimationConfig: CacheLayerAnimation['options'] = {
+  highlight: {
+    loop: {
+      type: 'fade',
+      delay: 1000,
+      duration: 2000,
+      initialOpacity: 1,
+      startOpacity: 1,
+      endOpacity: 0.2,
+      alternate: true,
+    },
+  },
+}
+
+const initialChess = ([['x', 'y', 'role']] as RawTableList).concat(
+  robustRange(0, boardSize).flatMap((x) => {
+    return robustRange(0, boardSize).map((y) => [x, y, Role.EMPTY])
+  })
+)
 
 export function createBoard(props: {container: HTMLElement; role: Role}) {
   const {container, role} = props
@@ -58,11 +70,12 @@ export function createBoard(props: {container: HTMLElement; role: Role}) {
   })
 
   chessLayer.role = role
-  chessLayer.setData(new DataTableList(initialChess()))
+  chessLayer.setAnimation(highlightAnimationConfig)
+  chessLayer.setData(new DataTableList(initialChess))
   chessLayer.setStyle({
-    pointSize: [cellSize / 3, cellSize / 3],
-    point: {mapping: chessColorMappingFactory('chess')},
-    text: {hidden: true},
+    chess: {mapping: chessColorMappingFactory('chess')},
+    highlight: {strokeWidth: 2, stroke: 'orange', fillOpacity: 0},
+    chessSize: [cellSize / 3, cellSize / 3],
   })
 
   axisLayer?.setScale({nice: {fixedStep: 1}})
@@ -148,18 +161,13 @@ export function createChineseBoard(props: {container: HTMLElement; role: Role}) 
   )
 
   chineseLayer.role = role
+  chineseLayer.setAnimation(highlightAnimationConfig)
   chineseLayer.setData(new DataTableList(initialData))
   chineseLayer.setStyle({
+    text: {shadow: '', fontSize: 16, mapping: chessColorMappingFactory('chess')},
+    chess: {strokeWidth: 2, mapping: chessColorMappingFactory('chinese')},
+    highlight: {strokeWidth: 4, stroke: 'orange', fillOpacity: 0},
     line: {strokeWidth: 2},
-    chess: {
-      strokeWidth: 2,
-      mapping: chessColorMappingFactory('chinese'),
-    },
-    text: {
-      shadow: '',
-      fontSize: 16,
-      mapping: chessColorMappingFactory('chess'),
-    },
   })
 
   return chart
