@@ -1,27 +1,22 @@
 import {
   GoPayload,
   boardId,
-  decodeSource,
+  replaceBoard,
   useChatMessage,
   useChessStorage,
   useCustomMutation,
   useHistoryData,
   useStaticRole,
 } from '@chess/helper'
-import {
-  appendFocusChess,
-  appendReadyChess,
-  createBoard,
-  initialChess,
-  replaceBoard,
-} from '@chess/render'
+import {LayerChineseChess, createBoard} from '@chess/render'
+import {LayerCommonChess} from '@chess/render/chess'
 import {checkAppendGoChess, checkEatGoChess, isGoBoardRepeat} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
 import {useSnack} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
-import {Chart, LayerScatter} from 'awesome-chart'
+import {Chart} from 'awesome-chart'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce, useUpdateEffect} from 'react-use'
 import {GameBar, UserStatus} from '../components'
@@ -36,7 +31,6 @@ export function GoStage() {
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation} = useCustomMutation()
   const {isMe, data, totalData, seq = 0} = useHistoryData({limit: 5})
-  const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {
     setBackground({type: 'hujiashibapai'})
@@ -46,7 +40,7 @@ export function GoStage() {
     if (chartRef.current) {
       const chart = createBoard({
         container: chartRef.current,
-        initialData: initialChess(),
+        role: role!,
       })
       setChart(chart)
       chart.draw()
@@ -54,40 +48,40 @@ export function GoStage() {
   })
 
   useEffect(() => {
-    const event = chart?.getLayerById(boardId)?.event
-    event?.onWithOff('click-point', 'user', async ({data}) => {
-      if (isMe || !chart || !role) return
+    if (!chart || !role) return
 
-      const {position} = decodeSource(data.source)
-      const layer = chart.getLayerById(boardId) as LayerScatter
-      const tableList = layer.data!.rawTableListWithHeaders
-      const {nextBoard, eaten} = checkEatGoChess({data: tableList, position, role})
-      const {life} = checkAppendGoChess({data: tableList, position, role})
+    const layer = chart.getLayerById(boardId) as LayerCommonChess
+
+    layer.chessEvent.onWithOff('chess', 'user', async (data) => {
+      const {position, board} = data
+      const {nextBoard, eaten} = checkEatGoChess({data: board, position, role})
+      const {life} = checkAppendGoChess({data: board, position, role})
+      const layer = chart.getLayerById(boardId) as LayerChineseChess
 
       if (!eaten && life === 0) {
         showSnack({message: '落子无气，请在选择其他位置'})
+        layer.disabled = false
         return
       }
       if (isGoBoardRepeat({data: nextBoard, history: totalData})) {
         showSnack({message: '检测到打劫，禁止落子'})
-        return
-      }
-      if (appendReadyChess({chart, role, position}) !== 'action') {
+        layer.disabled = false
         return
       }
 
       await appendChessMutation({position, board: nextBoard, eaten}, seq + 1)
     })
-  }, [appendChessMutation, chart, isMe, role, seq, showSnack, totalData])
+  }, [appendChessMutation, chart, role, seq, showSnack, totalData])
 
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
       const {position, board, eaten} = data.payload as GoPayload
+      const layer = chart.getLayerById(boardId) as LayerChineseChess
 
       setSound({type: 'chess'})
-      replaceBoard({chart, data: board})
-      appendFocusChess({role: currentRole, chart, position})
+      replaceBoard({chart, data: board, position})
       eaten && setMessage({isMe, content: '系统消息：吃！'})
+      layer.disabled = isMe
     }
   }, [data, chart])
 
@@ -95,7 +89,7 @@ export function GoStage() {
     <AppStage>
       <Background />
       <GameBar />
-      <Backdrop open={!chart}>
+      <Backdrop open={!chart && !totalData}>
         <Stack alignItems="center" spacing={2}>
           <Typography variant="h6">正在加载中...</Typography>
           <CircularProgress color="inherit" />

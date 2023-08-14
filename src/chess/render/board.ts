@@ -1,46 +1,37 @@
 import {Chart, DataTableList, darkTheme, robustRange} from 'awesome-chart'
-import {ElConfig, GraphStyle, RawTableList} from 'awesome-chart/dist/types'
+import {ElConfig, RawTableList} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
-import {
-  ChineseChess,
-  Role,
-  RoleColorDict,
-  boardId,
-  boardSize,
-  decodeSource,
-  focusBoardId,
-  readyBoardId,
-} from '../helper'
-import {ChineseSourceMeta, createChineseChessLayer} from './chinese'
-
-export const initialChess = () =>
-  ([['x', 'y', 'category']] as RawTableList).concat(
-    robustRange(0, boardSize).flatMap((x) =>
-      robustRange(0, boardSize).map((y) => [x, y, Role.EMPTY])
-    )
-  )
+import {ChineseChess, Role, RoleColorDict, boardId, boardSize} from '../helper'
+import {ChessSourceMeta, createChessLayer} from './chess'
+import {createChineseChessLayer} from './chinese'
 
 const myTheme = merge({}, darkTheme, {
   animation: {update: {duration: 0, delay: 0}},
 })
 
-const chessColorMapping = (config: ElConfig): ElConfig => {
-  const {category} = decodeSource(config.source)
-  return {...config, fill: RoleColorDict[category]}
-}
+const chessColorMappingFactory = (mode: 'chess' | 'chinese') => (d: ElConfig) => {
+  const {role, focused, highlight} = d.source.meta as ChessSourceMeta
+  const valid = role !== Role.EMPTY
 
-const focusMapping: GraphStyle['mapping'] = (config) => {
-  const {category} = decodeSource(config.source)
-  switch (category) {
-    case Role.EMPTY:
-      return config
-    default:
-      return {...config, strokeWidth: 5, stroke: 'orange'}
+  return {
+    ...d,
+    stroke: highlight ? 'orange' : mode === 'chess' ? d.stroke : RoleColorDict[role],
+    strokeWidth: highlight ? 2 : d.strokeWidth,
+    fill: mode === 'chess' ? RoleColorDict[role] : 'rgb(238,232,170)',
+    fillOpacity: valid ? 1 : 0,
+    opacity: focused ? 0.5 : 1,
   }
 }
 
-export function createBoard(props: {container: HTMLElement; initialData: RawTableList}) {
-  const {container, initialData} = props
+export const initialChess = () =>
+  ([['x', 'y', 'role']] as RawTableList).concat(
+    robustRange(0, boardSize).flatMap((x) =>
+      robustRange(0, boardSize).map((y) => [x, y, Role.EMPTY])
+    )
+  )
+
+export function createBoard(props: {container: HTMLElement; role: Role}) {
+  const {container, role} = props
   const {width, height} = container.getBoundingClientRect()
   const containerSize = Math.min(width, height)
   const cellSize = containerSize / boardSize
@@ -61,20 +52,17 @@ export function createBoard(props: {container: HTMLElement; initialData: RawTabl
     type: 'axis',
     layout: chart.layout.main,
   })
-  const readyScatterLayer = chart.createLayer({
-    type: 'scatter',
-    id: readyBoardId,
-    layout: chart.layout.main,
-  })
-  const focusScatterLayer = chart.createLayer({
-    type: 'scatter',
-    id: focusBoardId,
-    layout: chart.layout.main,
-  })
-  const scatterLayer = chart.createLayer({
-    type: 'scatter',
+  const chessLayer = createChessLayer(chart, {
     id: boardId,
     layout: chart.layout.main,
+  })
+
+  chessLayer.role = role
+  chessLayer.setData(new DataTableList(initialChess()))
+  chessLayer.setStyle({
+    pointSize: [cellSize / 3, cellSize / 3],
+    point: {mapping: chessColorMappingFactory('chess')},
+    text: {hidden: true},
   })
 
   axisLayer?.setScale({nice: {fixedStep: 1}})
@@ -86,40 +74,6 @@ export function createBoard(props: {container: HTMLElement; initialData: RawTabl
     splitLineAxisY: {strokeWidth: 2, strokeOpacity: 0.4},
     textX: {hidden: true},
     textY: {hidden: true},
-  })
-
-  scatterLayer?.setData(new DataTableList(initialData))
-  scatterLayer?.setStyle({
-    pointSize: [cellSize / 3, cellSize / 3],
-    text: {hidden: true},
-    point: {mapping: chessColorMapping},
-  })
-
-  readyScatterLayer?.setData(new DataTableList(initialChess()))
-  readyScatterLayer?.setStyle({
-    pointSize: [cellSize / 3, cellSize / 3],
-    point: {opacity: 0.5, mapping: chessColorMapping},
-    text: {hidden: true},
-  })
-
-  focusScatterLayer?.setData(new DataTableList(initialChess()))
-  focusScatterLayer?.setStyle({
-    pointSize: [cellSize / 3, cellSize / 3],
-    point: {fillOpacity: 0, mapping: focusMapping},
-    text: {hidden: true},
-  })
-  focusScatterLayer?.setAnimation({
-    point: {
-      loop: {
-        type: 'fade',
-        delay: 1000,
-        duration: 2000,
-        initialOpacity: 1,
-        startOpacity: 1,
-        endOpacity: 0.2,
-        alternate: true,
-      },
-    },
   })
 
   return chart
@@ -160,18 +114,6 @@ const initialChineseChess: RawTableList = [
   [8, 6, Role.RED, ChineseChess['PAWN']],
 ]
 
-const chineseChessColorMapping = (config: ElConfig): ElConfig => {
-  const {category} = decodeSource(config.source)
-  const {focused} = config.source.meta as ChineseSourceMeta
-  const valid = category === Role.BLACK || category === Role.RED
-  return {
-    ...config,
-    stroke: valid ? RoleColorDict[category] : '#00000000',
-    fill: valid ? 'rgb(238,232,170)' : '#00000000',
-    opacity: focused ? 0.5 : 1,
-  }
-}
-
 export function createChineseBoard(props: {container: HTMLElement; role: Role}) {
   const {container, role} = props
   const {width, height} = container.getBoundingClientRect()
@@ -188,7 +130,7 @@ export function createChineseBoard(props: {container: HTMLElement; role: Role}) 
       render: (import.meta as any).env.DEV ? undefined : () => null,
     },
   })
-  const layer = createChineseChessLayer(chart, {
+  const chineseLayer = createChineseChessLayer(chart, {
     id: boardId,
     layout: chart.layout.main,
   })
@@ -197,7 +139,7 @@ export function createChineseBoard(props: {container: HTMLElement; role: Role}) 
       return [`${x}-${y}`, data]
     })
   )
-  const initialData = ([['x', 'y', 'category', 'chess']] as RawTableList).concat(
+  const initialData = ([['x', 'y', 'role', 'chess']] as RawTableList).concat(
     robustRange(0, 8).flatMap((x) =>
       robustRange(0, 9).map((y) => {
         return [x, y, ...(chessMap.get(`${x}-${y}`) || [Role.EMPTY, -1])]
@@ -205,12 +147,19 @@ export function createChineseBoard(props: {container: HTMLElement; role: Role}) 
     )
   )
 
-  layer.role = role
-  layer.setData(new DataTableList(initialData))
-  layer.setStyle({
+  chineseLayer.role = role
+  chineseLayer.setData(new DataTableList(initialData))
+  chineseLayer.setStyle({
     line: {strokeWidth: 2},
-    chess: {strokeWidth: 2, mapping: chineseChessColorMapping},
-    text: {fontSize: 16, mapping: chessColorMapping, shadow: ''},
+    chess: {
+      strokeWidth: 2,
+      mapping: chessColorMappingFactory('chinese'),
+    },
+    text: {
+      shadow: '',
+      fontSize: 16,
+      mapping: chessColorMappingFactory('chess'),
+    },
   })
 
   return chart

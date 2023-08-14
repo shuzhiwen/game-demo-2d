@@ -28,7 +28,7 @@ import {
 } from 'awesome-chart/dist/types'
 import {cloneDeep, isEqual, range} from 'lodash-es'
 
-type DataKey = 'x' | 'y' | 'category' | 'chess'
+type DataKey = 'x' | 'y' | 'role' | 'chess'
 
 type LayerScatterStyle = Partial<{
   chess: GraphStyle
@@ -38,9 +38,10 @@ type LayerScatterStyle = Partial<{
 
 export type ChineseSourceMeta = {
   focused: boolean
+  highlight: boolean
   chess: ChineseChess
-  category: Role
   position: Vec2
+  role: Role
 }
 
 export function createChineseChessLayer(
@@ -67,6 +68,8 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
 
   disabled = false
 
+  highlightPosition: Maybe<Vec2>
+
   private focusPosition: Maybe<Vec2>
 
   private nextPosition: Maybe<Vec2>
@@ -88,7 +91,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
 
   setData(data: LayerScatter['data']) {
     this.data = validateAndCreateData('tableList', this.data, data)
-    checkColumns(this.data, ['x', 'y', 'category', 'chess'])
+    checkColumns(this.data, ['x', 'y', 'role', 'chess'])
     this.focusPosition = null
     this.nextPosition = null
   }
@@ -106,17 +109,18 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
     const data = tableListToObjects<DataKey, number>(this.data.source)
     const {top, left, width, height, right, bottom} = layout
     const [stepWidth, stepHeight] = [width / 8, height / 9]
-    const chessSize = Math.max(stepWidth, stepHeight) / 2.8
+    const chessSize = Math.max(stepWidth, stepHeight) / 2.5
 
-    this.boardChessData = data.map(({x, y, category, chess}) => ({
+    this.boardChessData = data.map(({x, y, role, chess}) => ({
       r: chessSize,
       x: left + x * stepWidth,
       y: top + y * stepHeight,
       meta: {
         chess,
-        category,
+        role,
         position: [x, y],
         focused: isEqual(this.focusPosition, [x, y]),
+        highlight: isEqual(this.highlightPosition, [x, y]),
       },
     }))
 
@@ -128,14 +132,14 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
         return isEqual(meta.position, this.nextPosition)
       })!
       next.meta = {...focus.meta, position: next.meta.position}
-      focus.meta = {...focus.meta, category: Role.EMPTY}
+      focus.meta = {...focus.meta, role: Role.EMPTY}
     }
 
     this.boardTextData = this.boardChessData.map((item) =>
       createText({
         ...item,
         style: this.style?.text,
-        value: ChineseChessDict[item.meta.chess]?.[item.meta.category],
+        value: ChineseChessDict[item.meta.chess]?.[item.meta.role],
         position: 'center',
       })
     )
@@ -143,13 +147,13 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
       createText({
         x: left + width / 4,
         y: top + height / 2,
-        value: 'ChuHe',
+        value: '楚河',
         position: 'center',
       }),
       createText({
         x: right - width / 4,
         y: top + height / 2,
-        value: 'HanJie',
+        value: '汉界',
         position: 'center',
       })
     )
@@ -225,7 +229,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
       ],
     })
     this.event.onWithOff('click-chess', 'internal', ({data}) => {
-      const {category, position} = data.source.meta as ChineseSourceMeta
+      const {role, position} = data.source.meta as ChineseSourceMeta
 
       if (this.disabled || !this.data) {
         this.focusPosition = null
@@ -261,7 +265,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
       } else {
         this.focusPosition = null
         this.nextPosition = null
-        if (category !== Role.EMPTY && category === this.role) {
+        if (role !== Role.EMPTY && role === this.role) {
           this.focusPosition = position
         }
       }

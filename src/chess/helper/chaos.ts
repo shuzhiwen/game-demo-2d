@@ -1,8 +1,14 @@
-import {ElSource} from 'awesome-chart/dist/types'
-import {Role} from './constants'
+import {LayerChineseChess, LayerCommonChess} from '@chess/render'
+import {Chart, DataTableList} from 'awesome-chart'
+import {RawTableList} from 'awesome-chart/dist/types'
+import {boardId} from '../helper'
 
-export type Source = ElSource & {
-  meta: Partial<{category: Meta; x: number; y: number}>
+export function replaceBoard(props: {data: RawTableList; chart: Chart; position: Vec2}) {
+  const {data, chart, position} = props
+  const layer = chart.getLayerById(boardId) as LayerChineseChess | LayerCommonChess
+  layer.highlightPosition = position
+  layer?.setData(new DataTableList(data))
+  chart.draw()
 }
 
 export function encodeInviteUrl(inviteCode: string) {
@@ -16,12 +22,5 @@ export function decodeInviteUrl(inviteCode: string) {
     return decodeURI(atob(inviteCode))
   } catch {
     return null
-  }
-}
-
-export function decodeSource(source: Source) {
-  return {
-    category: source.meta.category as Role,
-    position: [source.meta.x, source.meta.y] as Vec2,
   }
 }

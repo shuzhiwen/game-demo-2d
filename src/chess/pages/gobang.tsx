@@ -2,7 +2,7 @@ import {
   GobangPayload,
   RoleDict,
   boardId,
-  decodeSource,
+  replaceBoard,
   useChatMessage,
   useChessNavigate,
   useChessStorage,
@@ -10,20 +10,15 @@ import {
   useHistoryData,
   useStaticRole,
 } from '@chess/helper'
-import {
-  appendFocusChess,
-  appendReadyChess,
-  createBoard,
-  initialChess,
-  replaceBoard,
-} from '@chess/render'
+import {createBoard} from '@chess/render'
+import {LayerCommonChess} from '@chess/render/chess'
 import {isGobangChessWin} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
 import {useDialog} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
-import {Chart, LayerScatter} from 'awesome-chart'
+import {Chart} from 'awesome-chart'
 import {isEqual} from 'lodash-es'
 import {useEffect, useRef, useState} from 'react'
 import {useEffectOnce, useUpdateEffect} from 'react-use'
@@ -39,7 +34,7 @@ export function GobangStage() {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
   const {appendChessMutation, exitMutation} = useCustomMutation()
-  const {isMe, data, seq = 0} = useHistoryData({limit: 5})
+  const {isMe, data, totalData, seq = 0} = useHistoryData({limit: 5})
   const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {
@@ -51,7 +46,7 @@ export function GobangStage() {
       if (chartRef.current) {
         const chart = createBoard({
           container: chartRef.current,
-          initialData: await initialChess(),
+          role: role!,
         })
         setChart(chart)
         chart.draw()
@@ -60,30 +55,24 @@ export function GobangStage() {
   })
 
   useEffect(() => {
-    const event = chart?.getLayerById(boardId)?.event
-    event?.onWithOff('click-point', 'user', async ({data}) => {
-      if (isMe || !chart || !role) return
+    if (!chart || !role) return
 
-      const scatterLayer = chart.getLayerById(boardId) as LayerScatter
-      const nextData = scatterLayer.data!.rawTableListWithHeaders
-      const {position} = decodeSource(data.source)
+    const layer = chart.getLayerById(boardId) as LayerCommonChess
 
-      if (appendReadyChess({chart, role, position}) !== 'action') {
-        return
-      }
-
-      nextData.find(([x, y]) => isEqual([x, y], position))![2] = role
-      await appendChessMutation({position, board: nextData}, seq + 1)
+    layer.chessEvent.onWithOff('chess', 'user', async ({position, board}) => {
+      board.find(([x, y]) => isEqual([x, y], position))![2] = role
+      await appendChessMutation({position, board}, seq + 1)
     })
   }, [appendChessMutation, chart, isMe, role, seq])
 
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
       const {position, board} = data.payload as GobangPayload
+      const layer = chart.getLayerById(boardId) as LayerCommonChess
 
       setSound({type: 'chess'})
-      replaceBoard({chart, data: board})
-      appendFocusChess({role: currentRole, chart, position})
+      replaceBoard({chart, data: board, position})
+      layer.disabled = isMe
 
       if (isGobangChessWin({data: board, position})) {
         setTimeout(async () => {
@@ -102,7 +91,7 @@ export function GobangStage() {
     <AppStage>
       <Background />
       <GameBar />
-      <Backdrop open={!chart}>
+      <Backdrop open={!chart && !totalData}>
         <Stack alignItems="center" spacing={2}>
           <Typography variant="h6">正在加载中...</Typography>
           <CircularProgress color="inherit" />

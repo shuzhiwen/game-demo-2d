@@ -1,2 +1,3 @@
 export * from './board'
-export * from './operate'
+export * from './chess'
+export * from './chinese'

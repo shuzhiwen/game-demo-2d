@@ -3,6 +3,7 @@ import {
   ChinesePayload,
   RoleDict,
   boardId,
+  replaceBoard,
   useChatMessage,
   useChessNavigate,
   useChessStorage,
@@ -10,7 +11,7 @@ import {
   useHistoryData,
   useStaticRole,
 } from '@chess/helper'
-import {createChineseBoard, replaceBoard} from '@chess/render'
+import {createChineseBoard} from '@chess/render'
 import {LayerChineseChess} from '@chess/render/chinese'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
@@ -32,7 +33,7 @@ export function ChineseStage() {
   const {myMessage, otherMessage, setMessage} = useChatMessage()
   const chartRef = useRef<HTMLDivElement | null>(null)
   const [chart, setChart] = useState<Chart | null>(null)
-  const {isMe, data, seq = 0} = useHistoryData({limit: 5})
+  const {isMe, data, totalData, seq = 0} = useHistoryData({limit: 5})
   const currentRole = isMe ? role! : anotherRole
 
   useEffectOnce(() => {
@@ -51,21 +52,24 @@ export function ChineseStage() {
   })
 
   useEffect(() => {
-    const layer = chart?.getLayerById(boardId) as Maybe<LayerChineseChess>
-    layer?.chessEvent.onWithOff('chess', 'user', (data) => {
+    if (!chart) return
+
+    const layer = chart.getLayerById(boardId) as LayerChineseChess
+
+    layer.chessEvent.onWithOff('chess', 'user', (data) => {
       appendChessMutation(data, seq + 1)
     })
   }, [appendChessMutation, chart, seq])
 
   useUpdateEffect(() => {
     if (chart && data?.kind === 'chess') {
-      const {board, eaten} = data.payload as ChinesePayload
+      const {board, eaten, nextPosition} = data.payload as ChinesePayload
       const layer = chart.getLayerById(boardId) as LayerChineseChess
 
-      layer.disabled = isMe
       setSound({type: 'chess'})
-      replaceBoard({chart, data: board})
+      replaceBoard({chart, data: board, position: nextPosition})
       eaten && setMessage({isMe, content: '系统消息：吃！'})
+      layer.disabled = isMe
 
       if (eaten === ChineseChess['KING']) {
         setTimeout(async () => {
@@ -84,7 +88,7 @@ export function ChineseStage() {
     <AppStage>
       <Background />
       <GameBar />
-      <Backdrop open={!chart}>
+      <Backdrop open={!chart && !totalData}>
         <Stack alignItems="center" spacing={2}>
           <Typography variant="h6">正在加载中...</Typography>
           <CircularProgress color="inherit" />
