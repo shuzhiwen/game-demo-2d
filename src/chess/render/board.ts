@@ -22,7 +22,7 @@ const chessColorMappingFactory = (mode: 'chess' | 'chinese') => (d: ElConfig) =>
   }
 }
 
-const highlightAnimationConfig: CacheLayerAnimation['options'] = {
+const highlightAnimationConfig: CacheLayerAnimation<'highlight'>['options'] = {
   highlight: {
     loop: {
       type: 'fade',

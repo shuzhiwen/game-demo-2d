@@ -50,10 +50,8 @@ export function createChessLayer(
   return chart.createLayer({...options, type: 'chess' as any})
 }
 
-export class LayerChess extends LayerBase<BasicLayerOptions<any>> {
-  chessEvent = new EventManager<'chess', 'user', (data: GobangPayload) => void>(
-    LayerChess.constructor.name
-  )
+export class LayerChess extends LayerBase<BasicLayerOptions<any>, 'chess' | 'highlight'> {
+  chessEvent = new EventManager<'chess', (data: GobangPayload) => void>()
 
   data: Maybe<DataTableList>
 
@@ -140,12 +138,12 @@ export class LayerChess extends LayerBase<BasicLayerOptions<any>> {
   draw() {
     this.drawBasic({
       type: 'circle',
-      sublayer: 'chess',
+      key: 'chess',
       data: [{data: this.chessData, ...this.style.chess}],
     })
     this.drawBasic({
       type: 'circle',
-      sublayer: 'highlight',
+      key: 'highlight',
       data: [
         {
           data: [this.highlightChessData ?? {x: -1, y: -1, r: 0}],

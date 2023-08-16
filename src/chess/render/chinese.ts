@@ -28,6 +28,8 @@ import {
 } from 'awesome-chart/dist/types'
 import {cloneDeep, isEqual, range} from 'lodash-es'
 
+type Key = 'line' | 'text' | 'boardText' | 'chess' | 'highlight'
+
 type DataKey = 'x' | 'y' | 'role' | 'chess'
 
 type LayerStyle = Partial<{
@@ -55,10 +57,8 @@ export function createChineseChessLayer(
   return chart.createLayer({...options, type: 'chineseChess' as any})
 }
 
-export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
-  chessEvent = new EventManager<'chess', 'user', (data: ChinesePayload) => void>(
-    LayerChineseChess.name
-  )
+export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
+  chessEvent = new EventManager<'chess', (data: ChinesePayload) => void>()
 
   data: Maybe<DataTableList>
 
@@ -217,25 +217,27 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>> {
   draw() {
     this.drawBasic({
       type: 'line',
+      key: 'line',
       data: [{data: this.lineData, ...this.style?.line}],
     })
     this.drawBasic({
       type: 'text',
-      sublayer: 'boardText',
+      key: 'boardText',
       data: [{data: this.boardTextData, ...this.style?.text}],
     })
     this.drawBasic({
       type: 'circle',
-      sublayer: 'highlight',
+      key: 'highlight',
       data: [{data: group(this.highlightChessData), ...this.style?.highlight}],
     })
     this.drawBasic({
       type: 'circle',
+      key: 'chess',
       data: [{data: this.chessData, ...this.style?.chess}],
-      sublayer: 'chess',
     })
     this.drawBasic({
       type: 'text',
+      key: 'text',
       data: [
         {
           data: this.textData,
