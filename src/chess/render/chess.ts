@@ -8,8 +8,11 @@ import {
   LayerScatter,
   checkColumns,
   createStyle,
+  isSC,
+  makeClass,
   registerCustomLayer,
   scaleLinear,
+  selector,
   tableListToObjects,
   ungroup,
   validateAndCreateData,
@@ -18,12 +21,14 @@ import {
   BasicLayerOptions,
   ChartContext,
   CircleDrawerProps,
+  D3Selection,
   DrawerData,
   GraphStyle,
   LayerScatterOptions,
   LayerScatterScale,
 } from 'awesome-chart/dist/types'
 import {cloneDeep, isEqual} from 'lodash-es'
+import {addLightForElement, addShadowForContainer} from './filter'
 
 type DataKey = 'x' | 'y' | 'role'
 
@@ -75,6 +80,7 @@ export class LayerChess extends LayerBase<BasicLayerOptions<any>, 'chess' | 'hig
 
   constructor(options: BasicLayerOptions<any>, context: ChartContext) {
     super({context, options, sublayers: ['chess', 'highlight']})
+    isSC(this.root) && addShadowForContainer(this.root)
   }
 
   setData(data: LayerScatter['data']) {
@@ -152,6 +158,10 @@ export class LayerChess extends LayerBase<BasicLayerOptions<any>, 'chess' | 'hig
         },
       ],
     })
+
+    selector
+      .getChildren(this.root as D3Selection, makeClass('chess', false))
+      .each(addLightForElement as any)
 
     this.event.onWithOff('click-chess', 'internal', ({data}) => {
       const {role, position} = data.source.meta as ChessSourceMeta

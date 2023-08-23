@@ -11,7 +11,10 @@ import {
   createStyle,
   createText,
   group,
+  isSC,
+  makeClass,
   registerCustomLayer,
+  selector,
   tableListToObjects,
   validateAndCreateData,
 } from 'awesome-chart'
@@ -19,6 +22,7 @@ import {
   BasicLayerOptions,
   ChartContext,
   CircleDrawerProps,
+  D3Selection,
   DrawerData,
   GraphStyle,
   LayerScatterOptions,
@@ -27,6 +31,7 @@ import {
   TextStyle,
 } from 'awesome-chart/dist/types'
 import {cloneDeep, isEqual, range} from 'lodash-es'
+import {addLightForElement, addShadowForContainer} from './filter'
 
 type Key = 'line' | 'text' | 'boardText' | 'chess' | 'highlight'
 
@@ -90,6 +95,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
 
   constructor(options: BasicLayerOptions<any>, context: ChartContext) {
     super({context, options, sublayers: ['line', 'text', 'boardText', 'chess', 'highlight']})
+    isSC(this.root) && addShadowForContainer(this.root)
     this.needRecalculated = true
   }
 
@@ -113,7 +119,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
     const data = tableListToObjects<DataKey, number>(this.data.source)
     const {top, left, width, height, right, bottom} = layout
     const [stepWidth, stepHeight] = [width / 8, height / 9]
-    const chessSize = Math.max(stepWidth, stepHeight) / 2.8
+    const chessSize = Math.max(stepWidth, stepHeight) / 2.4
 
     this.chessData = data.map(({x, y, role, chess}) => ({
       r: chessSize,
@@ -246,6 +252,10 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
         },
       ],
     })
+
+    selector
+      .getChildren(this.root as D3Selection, makeClass('chess', false))
+      .each(addLightForElement as any)
 
     this.event.onWithOff('click-chess', 'internal', ({data}) => {
       const {role, position} = data.source.meta as ChineseSourceMeta
