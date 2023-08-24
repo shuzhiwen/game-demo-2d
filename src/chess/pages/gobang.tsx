@@ -46,6 +46,7 @@ export function GobangStage() {
       if (chartRef.current) {
         const chart = createBoard({
           container: chartRef.current,
+          initialDisabled: isMe,
           role: role!,
         })
         setChart(chart)

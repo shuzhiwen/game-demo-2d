@@ -44,6 +44,7 @@ export function ChineseStage() {
     if (chartRef.current) {
       const chart = createChineseBoard({
         container: chartRef.current,
+        initialDisabled: isMe,
         role: role!,
       })
       setChart(chart)

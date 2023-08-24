@@ -1,4 +1,4 @@
-import {LayerChineseChess, LayerChess} from '@chess/render'
+import {LayerChess, LayerChineseChess} from '@chess/render'
 import {Chart, DataTableList} from 'awesome-chart'
 import {RawTableList} from 'awesome-chart/dist/types'
 import {boardId} from '../helper'
@@ -18,7 +18,12 @@ export function replaceBoard(props: {
 export function encodeInviteUrl(inviteCode: string) {
   const pathname = window.location.pathname.split('/').find(Boolean)
   const base64 = btoa(encodeURI(inviteCode))
-  return `${window.location.origin}/${pathname}/login?code=${base64}`
+
+  return `${
+    (import.meta as any).env.DEV
+      ? window.location.origin
+      : 'http://www.shuzhiwen.com/game'
+  }/${pathname}/login?code=${base64}`
 }
 
 export function decodeInviteUrl(inviteCode: string) {

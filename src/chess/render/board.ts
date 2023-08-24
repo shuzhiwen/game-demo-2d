@@ -6,8 +6,7 @@ import {
 } from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
 import {ChineseChess, Role, RoleColorDict, boardId, boardSize} from '../helper'
-import {ChessSourceMeta, createChessLayer} from './chess'
-import {createChineseChessLayer} from './chinese'
+import {ChessSourceMeta} from './chess'
 
 const myTheme = merge({}, darkTheme, {
   text: {shadow: ''},
@@ -47,8 +46,12 @@ const initialChess = ([['x', 'y', 'role']] as RawTableList).concat(
   })
 )
 
-export function createBoard(props: {container: HTMLElement; role: Role}) {
-  const {container, role} = props
+export function createBoard(props: {
+  role: Role
+  container: HTMLElement
+  initialDisabled: boolean
+}) {
+  const {container, role, initialDisabled} = props
   const {width, height} = container.getBoundingClientRect()
   const containerSize = Math.min(width, height)
   const cellSize = containerSize / boardSize
@@ -69,12 +72,14 @@ export function createBoard(props: {container: HTMLElement; role: Role}) {
     type: 'axis',
     layout: chart.layout.main,
   })
-  const chessLayer = createChessLayer(chart, {
+  const chessLayer = chart.createLayer({
     id: boardId,
+    type: 'chess',
     layout: chart.layout.main,
-  })
+  })!
 
   chessLayer.role = role
+  chessLayer.disabled = initialDisabled
   chessLayer.setAnimation(highlightAnimationConfig)
   chessLayer.setData(new DataTableList(initialChess))
   chessLayer.setStyle({
@@ -133,10 +138,11 @@ const initialChineseChess: RawTableList = [
 ]
 
 export function createChineseBoard(props: {
-  container: HTMLElement
   role: Role
+  container: HTMLElement
+  initialDisabled: boolean
 }) {
-  const {container, role} = props
+  const {container, role, initialDisabled} = props
   const {width, height} = container.getBoundingClientRect()
   const containerSize = Math.min(width, height)
   const chart = new Chart({
@@ -151,10 +157,11 @@ export function createChineseBoard(props: {
       render: (import.meta as any).env.DEV ? undefined : () => null,
     },
   })
-  const chineseLayer = createChineseChessLayer(chart, {
+  const chineseLayer = chart.createLayer({
     id: boardId,
+    type: 'chinese',
     layout: chart.layout.main,
-  })
+  })!
   const chessMap = new Map(
     initialChineseChess.map(([x, y, ...data]) => {
       return [`${x}-${y}`, data]
@@ -169,11 +176,12 @@ export function createChineseBoard(props: {
   )
 
   chineseLayer.role = role
+  chineseLayer.disabled = initialDisabled
   chineseLayer.setAnimation(highlightAnimationConfig)
   chineseLayer.setData(new DataTableList(initialData))
   chineseLayer.setStyle({
     text: {fontSize: 16, mapping: colorMappingFactory('chess')},
-    chess: {strokeWidth: 2, mapping: colorMappingFactory('chinese')},
+    chess: {strokeWidth: 4, mapping: colorMappingFactory('chinese')},
     highlight: {strokeWidth: 4, stroke: 'orange', fillOpacity: 0},
     line: {strokeWidth: 2},
   })

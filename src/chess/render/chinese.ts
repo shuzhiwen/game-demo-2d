@@ -6,30 +6,25 @@ import {
 } from '@chess/helper'
 import {checkPlaceChineseChess} from '@chess/scripts'
 import {
-  Chart,
   DataTableList,
   EventManager,
   LayerBase,
-  LayerDict,
   LayerScatter,
   checkColumns,
+  createData,
   createStyle,
   createText,
+  elClass,
   group,
-  makeClass,
-  registerCustomLayer,
   selector,
   tableListToObjects,
-  validateAndCreateData,
 } from 'awesome-chart'
 import {
-  BasicLayerOptions,
-  ChartContext,
   CircleDrawerProps,
   D3Selection,
   DrawerData,
   GraphStyle,
-  LayerScatterOptions,
+  LayerOptions,
   LineDrawerProps,
   TextDrawerProps,
   TextStyle,
@@ -55,18 +50,7 @@ export type ChineseSourceMeta = {
   role: Role
 }
 
-export function createChineseChessLayer(
-  chart: Chart,
-  options: Omit<LayerScatterOptions, 'type'>
-): LayerChineseChess {
-  if (!Object.keys(LayerDict).includes('chineseChess')) {
-    registerCustomLayer('chineseChess', LayerChineseChess)
-  }
-
-  return chart.createLayer({...options, type: 'chineseChess' as any})
-}
-
-export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
+export class LayerChineseChess extends LayerBase<Key> {
   chessEvent = new EventManager<'chess', (data: ChinesePayload) => void>()
 
   data: Maybe<DataTableList>
@@ -97,9 +81,8 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
 
   private highlightChessData: Maybe<DrawerData<CircleDrawerProps>>
 
-  constructor(options: BasicLayerOptions<any>, context: ChartContext) {
+  constructor(options: LayerOptions) {
     super({
-      context,
       options,
       sublayers: ['line', 'text', 'boardText', 'chess', 'highlight'],
     })
@@ -115,7 +98,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
   }
 
   setData(data: LayerScatter['data']) {
-    this.data = validateAndCreateData('tableList', this.data, data)
+    this.data = createData('tableList', this.data, data)
     checkColumns(this.data, ['x', 'y', 'role', 'chess'])
     this.focusPosition = null
     this.nextPosition = null
@@ -134,7 +117,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
     const data = tableListToObjects<DataKey, number>(this.data.source)
     const {top, left, width, height, right, bottom} = layout
     const [stepWidth, stepHeight] = [width / 8, height / 9]
-    const chessSize = Math.max(stepWidth, stepHeight) / 2.4
+    const chessSize = Math.min(stepWidth, stepHeight) / 2.4
 
     this.chessData = data.map(({x, y, role, chess}) => ({
       r: chessSize,
@@ -254,7 +237,13 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
     this.drawBasic({
       type: 'circle',
       key: 'highlight',
-      data: [{data: group(this.highlightChessData), ...this.style?.highlight}],
+      data: [
+        {
+          data: group(this.highlightChessData),
+          ...this.style?.highlight,
+          evented: false,
+        },
+      ],
     })
     this.drawBasic({
       type: 'text',
@@ -269,7 +258,7 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
     })
 
     selector
-      .getChildren(this.root as D3Selection, makeClass('chess', false))
+      .getChildren(this.root as D3Selection, elClass('chess'))
       .each(addLightForElement as any)
 
     this.event.onWithOff('click-chess', 'internal', ({data}) => {

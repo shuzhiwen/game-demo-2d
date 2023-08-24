@@ -44,6 +44,7 @@ export function GoStage() {
     if (chartRef.current) {
       const chart = createBoard({
         container: chartRef.current,
+        initialDisabled: isMe,
         role: role!,
       })
       setChart(chart)

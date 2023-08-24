@@ -1,30 +1,25 @@
 import {GobangPayload, Role} from '@chess/helper'
 import {
-  Chart,
   DataTableList,
   EventManager,
   LayerBase,
-  LayerDict,
   LayerScatter,
   checkColumns,
+  createData,
   createStyle,
+  elClass,
   isSC,
-  makeClass,
-  registerCustomLayer,
   scaleLinear,
   selector,
   tableListToObjects,
   ungroup,
-  validateAndCreateData,
 } from 'awesome-chart'
 import {
-  BasicLayerOptions,
-  ChartContext,
   CircleDrawerProps,
   D3Selection,
   DrawerData,
   GraphStyle,
-  LayerScatterOptions,
+  LayerOptions,
   LayerScatterScale,
 } from 'awesome-chart/dist/types'
 import {cloneDeep, isEqual} from 'lodash-es'
@@ -44,21 +39,7 @@ export type ChessSourceMeta = {
   role: Role
 }
 
-export function createChessLayer(
-  chart: Chart,
-  options: Omit<LayerScatterOptions, 'type'>
-): LayerChess {
-  if (!Object.keys(LayerDict).includes('chess')) {
-    registerCustomLayer('chess', LayerChess)
-  }
-
-  return chart.createLayer({...options, type: 'chess' as any})
-}
-
-export class LayerChess extends LayerBase<
-  BasicLayerOptions<any>,
-  'chess' | 'highlight'
-> {
+export class LayerChess extends LayerBase<'chess' | 'highlight'> {
   chessEvent = new EventManager<'chess', (data: GobangPayload) => void>()
 
   data: Maybe<DataTableList>
@@ -81,15 +62,15 @@ export class LayerChess extends LayerBase<
 
   private highlightChessData: Maybe<DrawerData<CircleDrawerProps>>
 
-  constructor(options: BasicLayerOptions<any>, context: ChartContext) {
-    super({context, options, sublayers: ['chess', 'highlight']})
+  constructor(options: LayerOptions) {
+    super({options, sublayers: ['chess', 'highlight']})
     isSC(this.root) && addShadowForContainer(this.root)
   }
 
   setData(data: LayerScatter['data']) {
     const {width, height} = this.options.layout
 
-    this.data = validateAndCreateData('tableList', this.data, data)
+    this.data = createData('tableList', this.data, data)
     this.focusPosition = null
 
     checkColumns(this.data, ['x', 'y', 'role'])
@@ -163,7 +144,7 @@ export class LayerChess extends LayerBase<
     })
 
     selector
-      .getChildren(this.root as D3Selection, makeClass('chess', false))
+      .getChildren(this.root as D3Selection, elClass('chess'))
       .each(addLightForElement as any)
 
     this.event.onWithOff('click-chess', 'internal', ({data}) => {
