@@ -10,22 +10,22 @@ import {ChessSourceMeta, createChessLayer} from './chess'
 import {createChineseChessLayer} from './chinese'
 
 const myTheme = merge({}, darkTheme, {
+  text: {shadow: ''},
   animation: {update: {duration: 0, delay: 0}},
 })
 
-const chessColorMappingFactory =
-  (mode: 'chess' | 'chinese') => (d: ElConfig) => {
-    const {role, focused} = d.source.meta as ChessSourceMeta
-    const valid = role !== Role.EMPTY
+const colorMappingFactory = (mode: 'chess' | 'chinese') => (d: ElConfig) => {
+  const {role, focused} = d.source.meta as ChessSourceMeta
+  const valid = role !== Role.EMPTY
 
-    return {
-      ...d,
-      stroke: mode === 'chess' ? d.stroke : RoleColorDict[role],
-      fill: mode === 'chess' ? RoleColorDict[role] : 'rgb(238,232,170)',
-      fillOpacity: valid ? 1 : 0,
-      opacity: focused ? 0.5 : 1,
-    }
+  return {
+    ...d,
+    stroke: mode === 'chess' ? d.stroke : RoleColorDict[role],
+    fill: mode === 'chess' ? RoleColorDict[role] : '#deb887',
+    fillOpacity: valid ? 1 : 0,
+    opacity: focused ? 0.5 : 1,
   }
+}
 
 const highlightAnimationConfig: CacheLayerAnimation<'highlight'>['options'] = {
   highlight: {
@@ -78,7 +78,7 @@ export function createBoard(props: {container: HTMLElement; role: Role}) {
   chessLayer.setAnimation(highlightAnimationConfig)
   chessLayer.setData(new DataTableList(initialChess))
   chessLayer.setStyle({
-    chess: {mapping: chessColorMappingFactory('chess')},
+    chess: {mapping: colorMappingFactory('chess')},
     highlight: {strokeWidth: 2, stroke: 'orange', fillOpacity: 0},
     chessSize: [cellSize / 3, cellSize / 3],
   })
@@ -172,12 +172,8 @@ export function createChineseBoard(props: {
   chineseLayer.setAnimation(highlightAnimationConfig)
   chineseLayer.setData(new DataTableList(initialData))
   chineseLayer.setStyle({
-    text: {
-      shadow: '',
-      fontSize: 16,
-      mapping: chessColorMappingFactory('chess'),
-    },
-    chess: {strokeWidth: 2, mapping: chessColorMappingFactory('chinese')},
+    text: {fontSize: 16, mapping: colorMappingFactory('chess')},
+    chess: {strokeWidth: 2, mapping: colorMappingFactory('chinese')},
     highlight: {strokeWidth: 4, stroke: 'orange', fillOpacity: 0},
     line: {strokeWidth: 2},
   })

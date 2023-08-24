@@ -16,7 +16,6 @@ import {
   createStyle,
   createText,
   group,
-  isSC,
   makeClass,
   registerCustomLayer,
   selector,
@@ -104,8 +103,15 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
       options,
       sublayers: ['line', 'text', 'boardText', 'chess', 'highlight'],
     })
-    isSC(this.root) && addShadowForContainer(this.root)
     this.needRecalculated = true
+    this.systemEvent.once('draw', 'shadow', () => {
+      addShadowForContainer(
+        selector.getDirectChild(
+          this.root as D3Selection,
+          `${this.className}-chess`
+        )
+      )
+    })
   }
 
   setData(data: LayerScatter['data']) {
@@ -242,13 +248,13 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
     })
     this.drawBasic({
       type: 'circle',
-      key: 'highlight',
-      data: [{data: group(this.highlightChessData), ...this.style?.highlight}],
+      key: 'chess',
+      data: [{data: this.chessData, ...this.style?.chess}],
     })
     this.drawBasic({
       type: 'circle',
-      key: 'chess',
-      data: [{data: this.chessData, ...this.style?.chess}],
+      key: 'highlight',
+      data: [{data: group(this.highlightChessData), ...this.style?.highlight}],
     })
     this.drawBasic({
       type: 'text',

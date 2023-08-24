@@ -19,7 +19,7 @@ export const RoleDict: Record<Role, string> = {
 export const RoleColorDict: Record<Role, string> = {
   [Role.RED]: '#c4473d',
   [Role.BLACK]: '#161823',
-  [Role.WHITE]: '#fffbf0',
+  [Role.WHITE]: '#f2ecde',
   [Role.EMPTY]: '#00000000',
 }
 
