@@ -4,8 +4,12 @@ import * as Apollo from '@apollo/client'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
 export type Exact<T extends {[key: string]: unknown}> = {[K in keyof T]: T[K]}
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {[SubKey in K]?: Maybe<T[SubKey]>}
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {[SubKey in K]: Maybe<T[SubKey]>}
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>
+}
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>
+}
 const defaultOptions = {} as const
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -56,13 +60,19 @@ export type TransportUsersQueryVariables = Exact<{
   channelId: Scalars['String']
 }>
 
-export type TransportUsersQuery = {__typename?: 'Query'; transportUsers: Array<string>}
+export type TransportUsersQuery = {
+  __typename?: 'Query'
+  transportUsers: Array<string>
+}
 
 export type EnterChannelMutationVariables = Exact<{
   input: ChannelInput
 }>
 
-export type EnterChannelMutation = {__typename?: 'Mutation'; enterChannel: number}
+export type EnterChannelMutation = {
+  __typename?: 'Mutation'
+  enterChannel: number
+}
 
 export type ExitChannelMutationVariables = Exact<{
   input: ChannelInput
@@ -82,7 +92,12 @@ export type ReceiveDataSubscriptionVariables = Exact<{
 
 export type ReceiveDataSubscription = {
   __typename?: 'Subscription'
-  receiveData: {__typename?: 'Transport'; data: any; userId: string; seq: number}
+  receiveData: {
+    __typename?: 'Transport'
+    data: any
+    userId: string
+    seq: number
+  }
 }
 
 export const TransportHistoryDocument = gql`
@@ -114,7 +129,10 @@ export const TransportHistoryDocument = gql`
  * });
  */
 export function useTransportHistoryQuery(
-  baseOptions: Apollo.QueryHookOptions<TransportHistoryQuery, TransportHistoryQueryVariables>
+  baseOptions: Apollo.QueryHookOptions<
+    TransportHistoryQuery,
+    TransportHistoryQueryVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
   return Apollo.useQuery<TransportHistoryQuery, TransportHistoryQueryVariables>(
@@ -123,16 +141,23 @@ export function useTransportHistoryQuery(
   )
 }
 export function useTransportHistoryLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<TransportHistoryQuery, TransportHistoryQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    TransportHistoryQuery,
+    TransportHistoryQueryVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useLazyQuery<TransportHistoryQuery, TransportHistoryQueryVariables>(
-    TransportHistoryDocument,
-    options
-  )
+  return Apollo.useLazyQuery<
+    TransportHistoryQuery,
+    TransportHistoryQueryVariables
+  >(TransportHistoryDocument, options)
 }
-export type TransportHistoryQueryHookResult = ReturnType<typeof useTransportHistoryQuery>
-export type TransportHistoryLazyQueryHookResult = ReturnType<typeof useTransportHistoryLazyQuery>
+export type TransportHistoryQueryHookResult = ReturnType<
+  typeof useTransportHistoryQuery
+>
+export type TransportHistoryLazyQueryHookResult = ReturnType<
+  typeof useTransportHistoryLazyQuery
+>
 export type TransportHistoryQueryResult = Apollo.QueryResult<
   TransportHistoryQuery,
   TransportHistoryQueryVariables
@@ -160,7 +185,10 @@ export const TransportUsersDocument = gql`
  * });
  */
 export function useTransportUsersQuery(
-  baseOptions: Apollo.QueryHookOptions<TransportUsersQuery, TransportUsersQueryVariables>
+  baseOptions: Apollo.QueryHookOptions<
+    TransportUsersQuery,
+    TransportUsersQueryVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
   return Apollo.useQuery<TransportUsersQuery, TransportUsersQueryVariables>(
@@ -169,7 +197,10 @@ export function useTransportUsersQuery(
   )
 }
 export function useTransportUsersLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<TransportUsersQuery, TransportUsersQueryVariables>
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    TransportUsersQuery,
+    TransportUsersQueryVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
   return Apollo.useLazyQuery<TransportUsersQuery, TransportUsersQueryVariables>(
@@ -177,8 +208,12 @@ export function useTransportUsersLazyQuery(
     options
   )
 }
-export type TransportUsersQueryHookResult = ReturnType<typeof useTransportUsersQuery>
-export type TransportUsersLazyQueryHookResult = ReturnType<typeof useTransportUsersLazyQuery>
+export type TransportUsersQueryHookResult = ReturnType<
+  typeof useTransportUsersQuery
+>
+export type TransportUsersLazyQueryHookResult = ReturnType<
+  typeof useTransportUsersLazyQuery
+>
 export type TransportUsersQueryResult = Apollo.QueryResult<
   TransportUsersQuery,
   TransportUsersQueryVariables
@@ -211,16 +246,22 @@ export type EnterChannelMutationFn = Apollo.MutationFunction<
  * });
  */
 export function useEnterChannelMutation(
-  baseOptions?: Apollo.MutationHookOptions<EnterChannelMutation, EnterChannelMutationVariables>
+  baseOptions?: Apollo.MutationHookOptions<
+    EnterChannelMutation,
+    EnterChannelMutationVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useMutation<EnterChannelMutation, EnterChannelMutationVariables>(
-    EnterChannelDocument,
-    options
-  )
+  return Apollo.useMutation<
+    EnterChannelMutation,
+    EnterChannelMutationVariables
+  >(EnterChannelDocument, options)
 }
-export type EnterChannelMutationHookResult = ReturnType<typeof useEnterChannelMutation>
-export type EnterChannelMutationResult = Apollo.MutationResult<EnterChannelMutation>
+export type EnterChannelMutationHookResult = ReturnType<
+  typeof useEnterChannelMutation
+>
+export type EnterChannelMutationResult =
+  Apollo.MutationResult<EnterChannelMutation>
 export type EnterChannelMutationOptions = Apollo.BaseMutationOptions<
   EnterChannelMutation,
   EnterChannelMutationVariables
@@ -253,7 +294,10 @@ export type ExitChannelMutationFn = Apollo.MutationFunction<
  * });
  */
 export function useExitChannelMutation(
-  baseOptions?: Apollo.MutationHookOptions<ExitChannelMutation, ExitChannelMutationVariables>
+  baseOptions?: Apollo.MutationHookOptions<
+    ExitChannelMutation,
+    ExitChannelMutationVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
   return Apollo.useMutation<ExitChannelMutation, ExitChannelMutationVariables>(
@@ -261,8 +305,11 @@ export function useExitChannelMutation(
     options
   )
 }
-export type ExitChannelMutationHookResult = ReturnType<typeof useExitChannelMutation>
-export type ExitChannelMutationResult = Apollo.MutationResult<ExitChannelMutation>
+export type ExitChannelMutationHookResult = ReturnType<
+  typeof useExitChannelMutation
+>
+export type ExitChannelMutationResult =
+  Apollo.MutationResult<ExitChannelMutation>
 export type ExitChannelMutationOptions = Apollo.BaseMutationOptions<
   ExitChannelMutation,
   ExitChannelMutationVariables
@@ -295,10 +342,16 @@ export type SendDataMutationFn = Apollo.MutationFunction<
  * });
  */
 export function useSendDataMutation(
-  baseOptions?: Apollo.MutationHookOptions<SendDataMutation, SendDataMutationVariables>
+  baseOptions?: Apollo.MutationHookOptions<
+    SendDataMutation,
+    SendDataMutationVariables
+  >
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useMutation<SendDataMutation, SendDataMutationVariables>(SendDataDocument, options)
+  return Apollo.useMutation<SendDataMutation, SendDataMutationVariables>(
+    SendDataDocument,
+    options
+  )
 }
 export type SendDataMutationHookResult = ReturnType<typeof useSendDataMutation>
 export type SendDataMutationResult = Apollo.MutationResult<SendDataMutation>
@@ -339,10 +392,13 @@ export function useReceiveDataSubscription(
   >
 ) {
   const options = {...defaultOptions, ...baseOptions}
-  return Apollo.useSubscription<ReceiveDataSubscription, ReceiveDataSubscriptionVariables>(
-    ReceiveDataDocument,
-    options
-  )
+  return Apollo.useSubscription<
+    ReceiveDataSubscription,
+    ReceiveDataSubscriptionVariables
+  >(ReceiveDataDocument, options)
 }
-export type ReceiveDataSubscriptionHookResult = ReturnType<typeof useReceiveDataSubscription>
-export type ReceiveDataSubscriptionResult = Apollo.SubscriptionResult<ReceiveDataSubscription>
+export type ReceiveDataSubscriptionHookResult = ReturnType<
+  typeof useReceiveDataSubscription
+>
+export type ReceiveDataSubscriptionResult =
+  Apollo.SubscriptionResult<ReceiveDataSubscription>

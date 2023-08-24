@@ -94,7 +94,9 @@ export function useCustomMutation() {
       if (loading) return
       if (!userId || !channelId) throw new Error()
       sendMutation({
-        variables: {input: {userId, channelId: `${channelId}_chat`, data, seq: 0}},
+        variables: {
+          input: {userId, channelId: `${channelId}_chat`, data, seq: 0},
+        },
       })
     },
     exitMutation: async () => {
@@ -141,7 +143,8 @@ export function useStaticRole() {
   return {
     firstRole: isChinese ? Role.RED : Role.BLACK,
     secondRole: isChinese ? Role.BLACK : Role.WHITE,
-    anotherRole: role !== Role.BLACK ? Role.BLACK : isChinese ? Role.RED : Role.WHITE,
+    anotherRole:
+      role !== Role.BLACK ? Role.BLACK : isChinese ? Role.RED : Role.WHITE,
   }
 }
 

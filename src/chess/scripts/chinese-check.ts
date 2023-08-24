@@ -57,7 +57,10 @@ function checkPlaceChineseChessForPawn(props: SubCheckProps) {
       }
     } else {
       // 上方黑卒已过河
-      if (nextY > 4 && Math.abs(nextX - prevX) + Math.abs(nextY - prevY) === 1) {
+      if (
+        nextY > 4 &&
+        Math.abs(nextX - prevX) + Math.abs(nextY - prevY) === 1
+      ) {
         return true
       }
     }
@@ -69,7 +72,10 @@ function checkPlaceChineseChessForPawn(props: SubCheckProps) {
       }
     } else {
       // 下方红兵已过河
-      if (nextY <= 4 && Math.abs(nextX - prevX) + Math.abs(nextY - prevY) === 1) {
+      if (
+        nextY <= 4 &&
+        Math.abs(nextX - prevX) + Math.abs(nextY - prevY) === 1
+      ) {
         return true
       }
     }

@@ -19,15 +19,24 @@ export function ChessEntry() {
           element={<Navigate to={ChessRouteDict['gobang_login']} replace />}
         />
         <Route path={ChessRouteDict['gobang_login']} Component={ChessEnter} />
-        <Route path={ChessRouteDict['gobang_prepare']} Component={ChessPrepare} />
+        <Route
+          path={ChessRouteDict['gobang_prepare']}
+          Component={ChessPrepare}
+        />
         <Route path={ChessRouteDict['gobang_stage']} Component={GobangStage} />
         <Route
           path={ChessRouteDict['chinese_base']}
           element={<Navigate to={ChessRouteDict['chinese_login']} replace />}
         />
         <Route path={ChessRouteDict['chinese_login']} Component={ChessEnter} />
-        <Route path={ChessRouteDict['chinese_prepare']} Component={ChessPrepare} />
-        <Route path={ChessRouteDict['chinese_stage']} Component={ChineseStage} />
+        <Route
+          path={ChessRouteDict['chinese_prepare']}
+          Component={ChessPrepare}
+        />
+        <Route
+          path={ChessRouteDict['chinese_stage']}
+          Component={ChineseStage}
+        />
       </Routes>
     </ChessStorageProvider>
   )

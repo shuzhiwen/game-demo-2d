@@ -1,6 +1,11 @@
 import {GoPayload, Role} from '@chess/helper'
 import {TransportHistoryQuery} from '@generated'
-import {DataTable, isRealNumber, safeLoop, tableListToTable} from 'awesome-chart'
+import {
+  DataTable,
+  isRealNumber,
+  safeLoop,
+  tableListToTable,
+} from 'awesome-chart'
 import {RawTableList} from 'awesome-chart/dist/types'
 
 interface GoCheckProps {

@@ -1,6 +1,12 @@
 import {Snackbar, SnackbarProps} from '@mui/material'
 import {noop} from 'lodash-es'
-import {PropsWithChildren, createContext, useCallback, useContext, useState} from 'react'
+import {
+  PropsWithChildren,
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+} from 'react'
 
 type Props = Pick<SnackbarProps, 'open' | 'message' | 'anchorOrigin'>
 

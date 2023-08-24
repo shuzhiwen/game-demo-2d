@@ -10,7 +10,11 @@ import {
 } from '@chess/helper'
 import {LayerChineseChess, createBoard} from '@chess/render'
 import {LayerChess} from '@chess/render/chess'
-import {checkAppendGoChess, checkEatGoChess, isGoBoardRepeat} from '@chess/scripts'
+import {
+  checkAppendGoChess,
+  checkEatGoChess,
+  isGoBoardRepeat,
+} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
 import {useSnack} from '@context'

@@ -1,5 +1,10 @@
 import {ChessEntry} from '@chess'
-import {ApolloProvider, DialogProvider, SnackProvider, SoundProvider} from '@context'
+import {
+  ApolloProvider,
+  DialogProvider,
+  SnackProvider,
+  SoundProvider,
+} from '@context'
 import {StrictMode} from 'react'
 import {BrowserRouter} from 'react-router-dom'
 import {GameMenu} from './menu'

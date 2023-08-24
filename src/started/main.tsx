@@ -43,7 +43,10 @@ function preload(this: Phaser.Scene) {
   this.load.image('ground', 'image/platform.png')
   this.load.image('star', 'image/star.png')
   this.load.image('bomb', 'image/bomb.png')
-  this.load.spritesheet('dude', 'image/dude.png', {frameWidth: 32, frameHeight: 48})
+  this.load.spritesheet('dude', 'image/dude.png', {
+    frameWidth: 32,
+    frameHeight: 48,
+  })
 }
 
 const create = (cx: number, cy: number) => {
@@ -96,7 +99,8 @@ const create = (cx: number, cy: number) => {
             return null
           })
 
-          const x = player.x < 400 ? Math.Between(400, 800) : Math.Between(0, 400)
+          const x =
+            player.x < 400 ? Math.Between(400, 800) : Math.Between(0, 400)
           const bomb = bombs.create(x, 16, 'bomb')
 
           bomb.setBounce(1)

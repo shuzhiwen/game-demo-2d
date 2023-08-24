@@ -31,8 +31,16 @@ type Mutation {
   enterChannel(input: ChannelInput!): Int!
   exitChannel(input: ChannelInput!): Int!
   loginByEmail(email: String!, password: String!): AuthInfo!
-  logonByEmail(email: String!, password: String!, verificationCode: String!): AuthInfo!
-  resetPasswordByEmail(email: String!, password: String!, verificationCode: String!): Boolean!
+  logonByEmail(
+    email: String!
+    password: String!
+    verificationCode: String!
+  ): AuthInfo!
+  resetPasswordByEmail(
+    email: String!
+    password: String!
+    verificationCode: String!
+  ): Boolean!
   sayHello(hello: String): Boolean!
   sendData(input: SendDataInput!): Boolean!
   sendEmailVerificationCode(email: String!): Boolean

@@ -1,6 +1,10 @@
 import {useChessNavigate, useCustomMutation} from '@chess/helper'
 import {useSound} from '@context'
-import {ExitToAppRounded, VolumeOffRounded, VolumeUpRounded} from '@mui/icons-material'
+import {
+  ExitToAppRounded,
+  VolumeOffRounded,
+  VolumeUpRounded,
+} from '@mui/icons-material'
 import {AppBar, IconButton, Toolbar, Typography} from '@mui/material'
 import {useCallback} from 'react'
 

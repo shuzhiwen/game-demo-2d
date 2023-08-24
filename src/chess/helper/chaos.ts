@@ -3,7 +3,11 @@ import {Chart, DataTableList} from 'awesome-chart'
 import {RawTableList} from 'awesome-chart/dist/types'
 import {boardId} from '../helper'
 
-export function replaceBoard(props: {data: RawTableList; chart: Chart; position: Vec2}) {
+export function replaceBoard(props: {
+  data: RawTableList
+  chart: Chart
+  position: Vec2
+}) {
   const {data, chart, position} = props
   const layer = chart.getLayerById(boardId) as LayerChineseChess | LayerChess
   layer.highlightPosition = position

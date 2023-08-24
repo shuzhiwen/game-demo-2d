@@ -1,4 +1,9 @@
-import {decodeInviteUrl, useChessNavigate, useChessStorage, useStaticRole} from '@chess/helper'
+import {
+  decodeInviteUrl,
+  useChessNavigate,
+  useChessStorage,
+  useStaticRole,
+} from '@chess/helper'
 import {useDialog} from '@context'
 import {useEnterChannelMutation, useTransportUsersLazyQuery} from '@generated'
 import {Button, Stack, TextField} from '@mui/material'
@@ -53,7 +58,11 @@ export function ChessEnter() {
 
   return (
     <Stack p={4} spacing={2}>
-      <TextField label="房间代码" value={code} onChange={(e) => setCode(e.target.value)} />
+      <TextField
+        label="房间代码"
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
+      />
       <Button variant="contained" onClick={() => connectServer()}>
         进入房间
       </Button>

@@ -32,7 +32,12 @@ export function UserStatus(props: UserStatusProps) {
       spacing={2}
     >
       {align === 'right' && (
-        <Stack flex={1} height="100%" justifyContent="center" alignItems="start">
+        <Stack
+          flex={1}
+          height="100%"
+          justifyContent="center"
+          alignItems="start"
+        >
           <MessageInput />
         </Stack>
       )}

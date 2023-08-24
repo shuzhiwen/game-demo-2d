@@ -1,5 +1,9 @@
 import {Chart, DataTableList, darkTheme, robustRange} from 'awesome-chart'
-import {CacheLayerAnimation, ElConfig, RawTableList} from 'awesome-chart/dist/types'
+import {
+  CacheLayerAnimation,
+  ElConfig,
+  RawTableList,
+} from 'awesome-chart/dist/types'
 import {merge} from 'lodash-es'
 import {ChineseChess, Role, RoleColorDict, boardId, boardSize} from '../helper'
 import {ChessSourceMeta, createChessLayer} from './chess'
@@ -9,18 +13,19 @@ const myTheme = merge({}, darkTheme, {
   animation: {update: {duration: 0, delay: 0}},
 })
 
-const chessColorMappingFactory = (mode: 'chess' | 'chinese') => (d: ElConfig) => {
-  const {role, focused} = d.source.meta as ChessSourceMeta
-  const valid = role !== Role.EMPTY
+const chessColorMappingFactory =
+  (mode: 'chess' | 'chinese') => (d: ElConfig) => {
+    const {role, focused} = d.source.meta as ChessSourceMeta
+    const valid = role !== Role.EMPTY
 
-  return {
-    ...d,
-    stroke: mode === 'chess' ? d.stroke : RoleColorDict[role],
-    fill: mode === 'chess' ? RoleColorDict[role] : 'rgb(238,232,170)',
-    fillOpacity: valid ? 1 : 0,
-    opacity: focused ? 0.5 : 1,
+    return {
+      ...d,
+      stroke: mode === 'chess' ? d.stroke : RoleColorDict[role],
+      fill: mode === 'chess' ? RoleColorDict[role] : 'rgb(238,232,170)',
+      fillOpacity: valid ? 1 : 0,
+      opacity: focused ? 0.5 : 1,
+    }
   }
-}
 
 const highlightAnimationConfig: CacheLayerAnimation<'highlight'>['options'] = {
   highlight: {
@@ -127,7 +132,10 @@ const initialChineseChess: RawTableList = [
   [8, 6, Role.RED, ChineseChess['PAWN']],
 ]
 
-export function createChineseBoard(props: {container: HTMLElement; role: Role}) {
+export function createChineseBoard(props: {
+  container: HTMLElement
+  role: Role
+}) {
   const {container, role} = props
   const {width, height} = container.getBoundingClientRect()
   const containerSize = Math.min(width, height)
@@ -164,7 +172,11 @@ export function createChineseBoard(props: {container: HTMLElement; role: Role}) 
   chineseLayer.setAnimation(highlightAnimationConfig)
   chineseLayer.setData(new DataTableList(initialData))
   chineseLayer.setStyle({
-    text: {shadow: '', fontSize: 16, mapping: chessColorMappingFactory('chess')},
+    text: {
+      shadow: '',
+      fontSize: 16,
+      mapping: chessColorMappingFactory('chess'),
+    },
     chess: {strokeWidth: 2, mapping: chessColorMappingFactory('chinese')},
     highlight: {strokeWidth: 4, stroke: 'orange', fillOpacity: 0},
     line: {strokeWidth: 2},

@@ -1,4 +1,9 @@
-import {ChineseChess, ChineseChessDict, ChinesePayload, Role} from '@chess/helper'
+import {
+  ChineseChess,
+  ChineseChessDict,
+  ChinesePayload,
+  Role,
+} from '@chess/helper'
 import {checkPlaceChineseChess} from '@chess/scripts'
 import {
   Chart,
@@ -94,7 +99,11 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
   private highlightChessData: Maybe<DrawerData<CircleDrawerProps>>
 
   constructor(options: BasicLayerOptions<any>, context: ChartContext) {
-    super({context, options, sublayers: ['line', 'text', 'boardText', 'chess', 'highlight']})
+    super({
+      context,
+      options,
+      sublayers: ['line', 'text', 'boardText', 'chess', 'highlight'],
+    })
     isSC(this.root) && addShadowForContainer(this.root)
     this.needRecalculated = true
   }
@@ -268,9 +277,13 @@ export class LayerChineseChess extends LayerBase<BasicLayerOptions<any>, Key> {
 
       if (isEqual(this.nextPosition, position)) {
         const board = cloneDeep(this.data.source)
-        const focus = board.find(([x, y]) => isEqual([x, y], this.focusPosition))!
+        const focus = board.find(([x, y]) =>
+          isEqual([x, y], this.focusPosition)
+        )!
         const next = board.find(([x, y]) => isEqual([x, y], this.nextPosition))!
-        const eaten = Object.values(ChineseChess).includes(next[3]) ? next[3] : null
+        const eaten = Object.values(ChineseChess).includes(next[3])
+          ? next[3]
+          : null
 
         ;[next[2], next[3]] = [focus[2], focus[3]]
         ;[focus[2], focus[3]] = [Role.EMPTY, -1]

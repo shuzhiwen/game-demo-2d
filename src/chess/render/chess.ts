@@ -55,7 +55,10 @@ export function createChessLayer(
   return chart.createLayer({...options, type: 'chess' as any})
 }
 
-export class LayerChess extends LayerBase<BasicLayerOptions<any>, 'chess' | 'highlight'> {
+export class LayerChess extends LayerBase<
+  BasicLayerOptions<any>,
+  'chess' | 'highlight'
+> {
   chessEvent = new EventManager<'chess', (data: GobangPayload) => void>()
 
   data: Maybe<DataTableList>
@@ -173,7 +176,9 @@ export class LayerChess extends LayerBase<BasicLayerOptions<any>, 'chess' | 'hig
 
       if (isEqual(this.focusPosition, position)) {
         const board = cloneDeep(this.data.source)
-        const focus = board.find(([x, y]) => isEqual([x, y], this.focusPosition))!
+        const focus = board.find(([x, y]) =>
+          isEqual([x, y], this.focusPosition)
+        )!
 
         focus[2] = this.role
         this.disabled = true

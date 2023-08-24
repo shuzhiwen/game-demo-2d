@@ -4,7 +4,14 @@ import chess from '@assets/audio/sound/chess.mp3'
 import fail from '@assets/audio/sound/fail.mp3'
 import success from '@assets/audio/sound/success.mp3'
 import {noop} from 'lodash-es'
-import {PropsWithChildren, createContext, useCallback, useContext, useRef, useState} from 'react'
+import {
+  PropsWithChildren,
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react'
 
 type PlaySoundProps<T> = {
   volume?: number
@@ -39,12 +46,15 @@ export function SoundProvider(props: PropsWithChildren) {
     audio.volume = volume ?? 0.5
     audio.play()
   }, [])
-  const setBackground = useCallback<Context['setBackground']>(({type, volume}) => {
-    const audio = backgroundRef.current!
-    audio.src = musics[type]
-    audio.volume = volume ?? 0.3
-    setPlaying(false)
-  }, [])
+  const setBackground = useCallback<Context['setBackground']>(
+    ({type, volume}) => {
+      const audio = backgroundRef.current!
+      audio.src = musics[type]
+      audio.volume = volume ?? 0.3
+      setPlaying(false)
+    },
+    []
+  )
   const play = useCallback(() => {
     backgroundRef.current?.play()
     setPlaying(true)

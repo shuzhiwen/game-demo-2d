@@ -42,7 +42,9 @@ function useClient() {
   })
   const networkLink = split(
     ({query}) => {
-      const {kind, operation} = getMainDefinition(query) as OperationDefinitionNode
+      const {kind, operation} = getMainDefinition(
+        query
+      ) as OperationDefinitionNode
       return kind === 'OperationDefinition' && operation === 'subscription'
     },
     wsLink,
