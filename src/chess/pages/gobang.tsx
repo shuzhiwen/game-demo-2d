@@ -98,18 +98,14 @@ export function GobangStage() {
           <CircularProgress color="inherit" />
         </Stack>
       </Backdrop>
-      <Stack flex={1} m={0} spacing={2} sx={{filter: chart ? '' : 'blur(5px)'}}>
-        <Stack p={3}>
-          <UserStatus align="left" role={anotherRole} message={otherMessage}>
-            {isMe && <Hourglass />}
-          </UserStatus>
-        </Stack>
+      <Stack flex={1} m={0} sx={{filter: chart ? '' : 'blur(5px)'}}>
+        <UserStatus align="left" role={anotherRole} message={otherMessage}>
+          {isMe && <Hourglass />}
+        </UserStatus>
         <Stack ref={chartRef} className="fb1 fbjc fbac" />
-        <Stack p={3}>
-          <UserStatus align="right" role={role!} message={myMessage}>
-            {!isMe && <Hourglass />}
-          </UserStatus>
-        </Stack>
+        <UserStatus align="right" role={role!} message={myMessage}>
+          {!isMe && <Hourglass />}
+        </UserStatus>
       </Stack>
     </AppStage>
   )

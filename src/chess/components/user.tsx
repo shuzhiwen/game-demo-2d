@@ -30,6 +30,7 @@ export function UserStatus(props: UserStatusProps) {
       position="relative"
       justifyContent={align === 'left' ? 'start' : 'end'}
       spacing={2}
+      p={3}
     >
       {align === 'right' && (
         <Stack

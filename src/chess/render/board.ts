@@ -20,7 +20,7 @@ const colorMappingFactory = (mode: 'chess' | 'chinese') => (d: ElConfig) => {
   return {
     ...d,
     stroke: mode === 'chess' ? d.stroke : RoleColorDict[role],
-    fill: mode === 'chess' ? RoleColorDict[role] : '#deb887',
+    fill: mode === 'chess' ? RoleColorDict[role] : d.fill,
     fillOpacity: valid ? 1 : 0,
     opacity: focused ? 0.5 : 1,
   }
@@ -83,9 +83,15 @@ export function createBoard(props: {
   chessLayer.setAnimation(highlightAnimationConfig)
   chessLayer.setData(new DataTableList(initialChess))
   chessLayer.setStyle({
-    chess: {mapping: colorMappingFactory('chess')},
-    highlight: {strokeWidth: 2, stroke: 'orange', fillOpacity: 0},
     chessSize: [cellSize / 3, cellSize / 3],
+    chess: {
+      mapping: colorMappingFactory('chess'),
+    },
+    highlight: {
+      strokeWidth: 2,
+      stroke: 'orange',
+      fillOpacity: 0,
+    },
   })
 
   axisLayer?.setScale({nice: {fixedStep: 1}})
@@ -150,7 +156,7 @@ export function createChineseBoard(props: {
     adjust: false,
     width: containerSize,
     height: containerSize,
-    padding: [24, 24, 24, 24],
+    padding: [32, 32, 32, 32],
     container: props.container,
     theme: myTheme,
     tooltipOptions: {
@@ -180,10 +186,23 @@ export function createChineseBoard(props: {
   chineseLayer.setAnimation(highlightAnimationConfig)
   chineseLayer.setData(new DataTableList(initialData))
   chineseLayer.setStyle({
-    text: {fontSize: 16, mapping: colorMappingFactory('chess')},
-    chess: {strokeWidth: 4, mapping: colorMappingFactory('chinese')},
-    highlight: {strokeWidth: 4, stroke: 'orange', fillOpacity: 0},
-    line: {strokeWidth: 2},
+    text: {
+      fontSize: 16,
+      mapping: colorMappingFactory('chess'),
+    },
+    chess: {
+      strokeWidth: 2,
+      fill: '#ffdead',
+      mapping: colorMappingFactory('chinese'),
+    },
+    highlight: {
+      strokeWidth: 2,
+      stroke: 'orange',
+      fillOpacity: 0,
+    },
+    line: {
+      strokeWidth: 2,
+    },
   })
 
   return chart

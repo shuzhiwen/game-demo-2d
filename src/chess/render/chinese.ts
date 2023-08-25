@@ -18,21 +18,24 @@ import {
   group,
   selector,
   tableListToObjects,
+  ungroup,
 } from 'awesome-chart'
 import {
-  CircleDrawerProps,
   D3Selection,
   DrawerData,
+  EllipseDrawerProps,
   GraphStyle,
   LayerOptions,
   LineDrawerProps,
+  PathDrawerProps,
   TextDrawerProps,
   TextStyle,
 } from 'awesome-chart/dist/types'
+import chroma from 'chroma-js'
 import {cloneDeep, isEqual, range} from 'lodash-es'
 import {addLightForElement, addShadowForContainer} from './filter'
 
-type Key = 'line' | 'text' | 'boardText' | 'chess' | 'highlight'
+type Key = 'line' | 'text' | 'boardText' | 'chess' | 'highlight' | 'bg1' | 'bg2'
 
 type DataKey = 'x' | 'y' | 'role' | 'chess'
 
@@ -43,7 +46,7 @@ type LayerStyle = Partial<{
   text: TextStyle
 }>
 
-export type ChineseSourceMeta = {
+type ChineseSourceMeta = {
   focused: boolean
   chess: ChineseChess
   position: Vec2
@@ -55,7 +58,7 @@ export class LayerChineseChess extends LayerBase<Key> {
 
   data: Maybe<DataTableList>
 
-  style: Maybe<LayerStyle>
+  style: LayerStyle = {}
 
   role: Maybe<Role>
 
@@ -75,25 +78,77 @@ export class LayerChineseChess extends LayerBase<Key> {
 
   private boardTextData: DrawerData<TextDrawerProps>[] = []
 
-  private chessData: (DrawerData<CircleDrawerProps> & {
+  private chessData: (DrawerData<EllipseDrawerProps> & {
     meta: ChineseSourceMeta
   })[] = []
 
-  private highlightChessData: Maybe<DrawerData<CircleDrawerProps>>
+  private highlightChessData: Maybe<DrawerData<EllipseDrawerProps>>
+
+  private bg1Data: DrawerData<EllipseDrawerProps>[] = []
+
+  private bg2Data: DrawerData<PathDrawerProps>[] = []
 
   constructor(options: LayerOptions) {
-    super({
-      options,
-      sublayers: ['line', 'text', 'boardText', 'chess', 'highlight'],
-    })
+    const boardKey = ['line', 'boardText'] as const
+    const chessKey = ['text', 'chess', 'highlight', 'bg1', 'bg2'] as const
+    super({options, sublayers: [...boardKey, ...chessKey]})
     this.needRecalculated = true
     this.systemEvent.once('draw', 'shadow', () => {
       addShadowForContainer(
         selector.getDirectChild(
           this.root as D3Selection,
-          `${this.className}-chess`
+          `${this.className}-bg2`
         )
       )
+    })
+    this.event.onWithOff('click-chess', 'internal', ({data}) => {
+      const {role, position} = data.source.meta as ChineseSourceMeta
+
+      if (this.disabled || !this.data) {
+        this.focusPosition = null
+        this.nextPosition = null
+        return
+      }
+
+      if (isEqual(this.nextPosition, position)) {
+        const board = cloneDeep(this.data.source)
+        const focus = board.find(([x, y]) =>
+          isEqual([x, y], this.focusPosition)
+        )!
+        const next = board.find(([x, y]) => isEqual([x, y], this.nextPosition))!
+        const eaten = Object.values(ChineseChess).includes(next[3])
+          ? next[3]
+          : null
+
+        ;[next[2], next[3]] = [focus[2], focus[3]]
+        ;[focus[2], focus[3]] = [Role.EMPTY, -1]
+
+        this.disabled = true
+        this.chessEvent.fire('chess', {
+          prevPosition: this.focusPosition,
+          nextPosition: position,
+          eaten,
+          board,
+        } as ChinesePayload)
+      } else if (
+        this.focusPosition &&
+        checkPlaceChineseChess({
+          data: this.data!.source,
+          prevPosition: this.focusPosition,
+          nextPosition: position,
+        })
+      ) {
+        this.nextPosition = position
+      } else {
+        this.focusPosition = null
+        this.nextPosition = null
+        if (role !== Role.EMPTY && role === this.role) {
+          this.focusPosition = position
+        }
+      }
+
+      this.needRecalculated = true
+      this.draw()
     })
   }
 
@@ -120,9 +175,10 @@ export class LayerChineseChess extends LayerBase<Key> {
     const chessSize = Math.min(stepWidth, stepHeight) / 2.4
 
     this.chessData = data.map(({x, y, role, chess}) => ({
-      r: chessSize,
-      x: left + x * stepWidth,
-      y: top + y * stepHeight,
+      rx: chessSize,
+      ry: chessSize - 2,
+      cx: left + x * stepWidth,
+      cy: top + y * stepHeight - 4,
       meta: {
         chess,
         role,
@@ -132,7 +188,7 @@ export class LayerChineseChess extends LayerBase<Key> {
     }))
     this.highlightChessData = this.chessData.find(({meta}) =>
       isEqual(meta.position, this.highlightPosition)
-    ) || {x: -100, y: -100, r: 0}
+    ) || {cx: -100, cy: -100, rx: 0, ry: 0}
 
     if (this.nextPosition && this.focusPosition) {
       const focus = this.chessData.find(({meta}) => {
@@ -145,12 +201,24 @@ export class LayerChineseChess extends LayerBase<Key> {
       focus.meta = {...focus.meta, role: Role.EMPTY}
     }
 
-    this.textData = this.chessData.map((item) =>
+    this.bg1Data = this.chessData
+      .filter(({meta}) => meta.role !== Role.EMPTY)
+      .map(({rx, ry, ...rest}) => ({
+        ...rest,
+        rx: rx + 2,
+        ry: ry + 2,
+      }))
+    this.bg2Data = this.bg1Data.map(({cx, cy, rx}) => ({
+      path: `M ${cx - rx},${cy} A ${rx + 1},${rx - 1},0,1,0,${cx + rx},${cy} Z`,
+    }))
+    this.textData = this.chessData.map(({cx, cy, meta}) =>
       createText({
-        ...item,
+        x: cx,
+        y: cy,
         style: this.style?.text,
-        value: ChineseChessDict[item.meta.chess]?.[item.meta.role],
+        value: ChineseChessDict[meta.chess]?.[meta.role],
         position: 'center',
+        meta,
       })
     )
     this.boardTextData = [
@@ -219,96 +287,55 @@ export class LayerChineseChess extends LayerBase<Key> {
   }
 
   draw() {
+    const {line, text, chess, highlight} = this.style
+
     this.drawBasic({
       type: 'line',
       key: 'line',
-      data: [{data: this.lineData, ...this.style?.line}],
+      data: [{data: this.lineData, ...line}],
     })
     this.drawBasic({
       type: 'text',
       key: 'boardText',
-      data: [{data: this.boardTextData, ...this.style?.text}],
+      data: [{data: this.boardTextData, ...text}],
     })
     this.drawBasic({
-      type: 'circle',
-      key: 'chess',
-      data: [{data: this.chessData, ...this.style?.chess}],
-    })
-    this.drawBasic({
-      type: 'circle',
-      key: 'highlight',
+      type: 'path',
+      key: 'bg2',
       data: [
         {
-          data: group(this.highlightChessData),
-          ...this.style?.highlight,
-          evented: false,
+          data: this.bg2Data,
+          fill: chroma(ungroup(chess?.fill) ?? '#00000000')
+            .darken(1)
+            .hex(),
         },
+      ],
+    })
+    this.drawBasic({
+      type: 'ellipse',
+      key: 'bg1',
+      data: [{data: this.bg1Data, fill: chess?.fill}],
+    })
+    this.drawBasic({
+      type: 'ellipse',
+      key: 'chess',
+      data: [{data: this.chessData, ...chess}],
+    })
+    this.drawBasic({
+      type: 'ellipse',
+      key: 'highlight',
+      data: [
+        {evented: false, data: group(this.highlightChessData), ...highlight},
       ],
     })
     this.drawBasic({
       type: 'text',
       key: 'text',
-      data: [
-        {
-          data: this.textData,
-          ...this.style?.text,
-          opacity: this.textData.map(({value}) => (value ? 1 : 0)),
-        },
-      ],
+      data: [{data: this.textData, ...text}],
     })
 
     selector
       .getChildren(this.root as D3Selection, elClass('chess'))
       .each(addLightForElement as any)
-
-    this.event.onWithOff('click-chess', 'internal', ({data}) => {
-      const {role, position} = data.source.meta as ChineseSourceMeta
-
-      if (this.disabled || !this.data) {
-        this.focusPosition = null
-        this.nextPosition = null
-        return
-      }
-
-      if (isEqual(this.nextPosition, position)) {
-        const board = cloneDeep(this.data.source)
-        const focus = board.find(([x, y]) =>
-          isEqual([x, y], this.focusPosition)
-        )!
-        const next = board.find(([x, y]) => isEqual([x, y], this.nextPosition))!
-        const eaten = Object.values(ChineseChess).includes(next[3])
-          ? next[3]
-          : null
-
-        ;[next[2], next[3]] = [focus[2], focus[3]]
-        ;[focus[2], focus[3]] = [Role.EMPTY, -1]
-
-        this.disabled = true
-        this.chessEvent.fire('chess', {
-          prevPosition: this.focusPosition,
-          nextPosition: position,
-          eaten,
-          board,
-        } as ChinesePayload)
-      } else if (
-        this.focusPosition &&
-        checkPlaceChineseChess({
-          data: this.data!.source,
-          prevPosition: this.focusPosition,
-          nextPosition: position,
-        })
-      ) {
-        this.nextPosition = position
-      } else {
-        this.focusPosition = null
-        this.nextPosition = null
-        if (role !== Role.EMPTY && role === this.role) {
-          this.focusPosition = position
-        }
-      }
-
-      this.needRecalculated = true
-      this.draw()
-    })
   }
 }

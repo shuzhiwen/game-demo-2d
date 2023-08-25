@@ -64,7 +64,36 @@ export class LayerChess extends LayerBase<'chess' | 'highlight'> {
 
   constructor(options: LayerOptions) {
     super({options, sublayers: ['chess', 'highlight']})
+
     isSC(this.root) && addShadowForContainer(this.root)
+
+    this.event.onWithOff('click-chess', 'internal', ({data}) => {
+      const {role, position} = data.source.meta as ChessSourceMeta
+
+      if (this.disabled || !this.data || !this.role) {
+        this.focusPosition = null
+        return
+      }
+
+      if (isEqual(this.focusPosition, position)) {
+        const board = cloneDeep(this.data.source)
+        const focus = board.find(([x, y]) =>
+          isEqual([x, y], this.focusPosition)
+        )!
+
+        focus[2] = this.role
+        this.disabled = true
+        this.chessEvent.fire('chess', {
+          position: this.focusPosition,
+          board,
+        } as GobangPayload)
+      } else {
+        this.focusPosition = role === Role.EMPTY ? position : null
+      }
+
+      this.needRecalculated = true
+      this.draw()
+    })
   }
 
   setData(data: LayerScatter['data']) {
@@ -92,8 +121,8 @@ export class LayerChess extends LayerBase<'chess' | 'highlight'> {
   }
 
   update() {
-    if (!this.data || !this.scale) {
-      throw new Error('Invalid data or scale')
+    if (!this.data) {
+      throw new Error('Invalid data')
     }
 
     const {chessSize} = this.style,
@@ -146,33 +175,5 @@ export class LayerChess extends LayerBase<'chess' | 'highlight'> {
     selector
       .getChildren(this.root as D3Selection, elClass('chess'))
       .each(addLightForElement as any)
-
-    this.event.onWithOff('click-chess', 'internal', ({data}) => {
-      const {role, position} = data.source.meta as ChessSourceMeta
-
-      if (this.disabled || !this.data || !this.role) {
-        this.focusPosition = null
-        return
-      }
-
-      if (isEqual(this.focusPosition, position)) {
-        const board = cloneDeep(this.data.source)
-        const focus = board.find(([x, y]) =>
-          isEqual([x, y], this.focusPosition)
-        )!
-
-        focus[2] = this.role
-        this.disabled = true
-        this.chessEvent.fire('chess', {
-          position: this.focusPosition,
-          board,
-        } as GobangPayload)
-      } else {
-        this.focusPosition = role === Role.EMPTY ? position : null
-      }
-
-      this.needRecalculated = true
-      this.draw()
-    })
   }
 }

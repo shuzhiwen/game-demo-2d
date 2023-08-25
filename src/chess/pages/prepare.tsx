@@ -53,7 +53,7 @@ export function ChessPrepare() {
     <AppStage>
       <Background />
       <GameBar />
-      <Stack width={200} m="auto" spacing={4}>
+      <Stack minWidth={240} m="auto" spacing={4}>
         <UserStatus align="left" role={anotherRole}>
           {gameReady.size >= 2 && (
             <Stack direction="row" spacing={1} alignItems="center">
