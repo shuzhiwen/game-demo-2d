@@ -18,6 +18,7 @@ export function GameMenu() {
   const navigate = useNavigate()
   const {pathname} = useLocation()
   const isRootPage = pathname === '/'
+  const isLoginPage = pathname.includes('login')
   const handleNavigate = (path: string) => {
     setAnchorEl(null)
     navigate(path)
@@ -27,7 +28,7 @@ export function GameMenu() {
     [pathname]
   )
 
-  return isMobile() && !isRootPage ? null : (
+  return isMobile() && !isRootPage && !isLoginPage ? null : (
     <Stack>
       <Stack direction="row" spacing={1} alignItems="center">
         <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
