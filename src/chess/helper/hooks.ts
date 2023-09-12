@@ -7,7 +7,7 @@ import {
 } from '@generated'
 import {RawTableList} from 'awesome-chart/dist/types'
 import {useCallback, useMemo, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {NavigateOptions, useNavigate} from 'react-router-dom'
 import {useEffectOnce, useLocation} from 'react-use'
 import {ChessRouteDict, ChineseChess, Role} from './constants'
 import {useChessStorage} from './context'
@@ -113,22 +113,23 @@ export function useChessNavigate() {
   const {pathname} = useLocation()
   const {role, channelId} = useChessStorage()
   const navigate = useCallback(
-    (page: 'login' | 'prepare' | 'stage') => {
+    (page: 'login' | 'prepare' | 'stage', options?: NavigateOptions) => {
       const key = pathname?.match('gobang')
         ? 'gobang'
         : pathname?.match('chinese')
         ? 'chinese'
         : 'go'
-      _navigate(ChessRouteDict[`${key}_${page}`])
+      _navigate(ChessRouteDict[`${key}_${page}`], options)
     },
     [_navigate, pathname]
   )
 
   useEffectOnce(() => {
     if (!channelId || !role) {
-      navigate('login')
+      navigate('login', {replace: true})
     } else if (!pathname?.match('stage')) {
-      navigate('prepare')
+      console.log(2)
+      navigate('prepare', {replace: true})
     }
   })
 

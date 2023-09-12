@@ -7,9 +7,9 @@ import {useLocation, useNavigate} from 'react-router-dom'
 
 const MenuDict: Record<string, string> = {
   '/started': '测试',
-  '/chinese': '联机象棋',
-  '/gobang': '联机五子棋',
-  '/go': '联机围棋',
+  '/chinese/login': '联机象棋',
+  '/gobang/login': '联机五子棋',
+  '/go/login': '联机围棋',
 }
 
 export function GameMenu() {
