@@ -128,7 +128,6 @@ export function useChessNavigate() {
     if (!channelId || !role) {
       navigate('login', {replace: true})
     } else if (!pathname?.match('stage')) {
-      console.log(2)
       navigate('prepare', {replace: true})
     }
   })

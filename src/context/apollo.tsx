@@ -29,12 +29,12 @@ const errorLink = onError(({graphQLErrors, networkError}) => {
 function useClient() {
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: `ws://${HOST}${GRAPHQL_SERVER}`,
+      url: `wss://${HOST}${GRAPHQL_SERVER}`,
     })
   )
   const authTokenLink = setContext(({operationName}, context) => {
     return {
-      uri: `http://${HOST}${GRAPHQL_SERVER}/${operationName}`,
+      uri: `https://${HOST}${GRAPHQL_SERVER}/${operationName}`,
       headers: {
         ...context.headers,
       },
