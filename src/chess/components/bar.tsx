@@ -9,13 +9,10 @@ import {AppBar, IconButton, Toolbar, Typography} from '@mui/material'
 import {useCallback} from 'react'
 
 export function GameBar() {
-  const {useSoundControl} = useSound()
+  const {useBackground} = useSound()
   const navigate = useChessNavigate()
   const {exitMutation} = useCustomMutation()
-  const {pause, play, playing} = useSoundControl
-  const toggleBackground = useCallback(() => {
-    playing ? pause() : play()
-  }, [pause, play, playing])
+  const {toggle, playing} = useBackground
   const handleExit = useCallback(async () => {
     await exitMutation()
     navigate('login')
@@ -25,7 +22,7 @@ export function GameBar() {
     <AppBar position="relative" color="transparent">
       <Toolbar sx={{svg: {color: 'white'}}}>
         <Typography variant="h6" flex={1}></Typography>
-        <IconButton onClick={toggleBackground}>
+        <IconButton onClick={toggle}>
           {playing ? <VolumeUpRounded /> : <VolumeOffRounded />}
         </IconButton>
         <IconButton onClick={handleExit}>

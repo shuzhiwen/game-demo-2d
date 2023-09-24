@@ -21,7 +21,7 @@ type PlaySoundProps<T> = {
 type Context = {
   setSound: (props: PlaySoundProps<Keys<typeof sounds>>) => void
   setBackground: (props: PlaySoundProps<Keys<typeof musics>>) => void
-  useSoundControl: {playing: boolean; play: AnyFunction; pause: AnyFunction}
+  useBackground: {playing: boolean; toggle: AnyFunction}
 }
 
 const sounds = {chess, success, fail}
@@ -31,7 +31,7 @@ const musics = {kisstherain, hujiashibapai}
 const SoundContext = createContext<Context>({
   setSound: noop,
   setBackground: noop,
-  useSoundControl: {playing: false, play: noop, pause: noop},
+  useBackground: {playing: false, toggle: noop},
 })
 
 export const useSound = () => useContext(SoundContext)
@@ -55,18 +55,19 @@ export function SoundProvider(props: PropsWithChildren) {
     },
     []
   )
-  const play = useCallback(() => {
-    backgroundRef.current?.play()
-    setPlaying(true)
-  }, [])
-  const pause = useCallback(() => {
-    backgroundRef.current?.pause()
-    setPlaying(false)
-  }, [])
+  const toggle = useCallback(() => {
+    if (playing) {
+      backgroundRef.current?.pause()
+      setPlaying(false)
+    } else {
+      backgroundRef.current?.play()
+      setPlaying(true)
+    }
+  }, [playing])
 
   return (
     <SoundContext.Provider
-      value={{setSound, setBackground, useSoundControl: {pause, play, playing}}}
+      value={{setSound, setBackground, useBackground: {toggle, playing}}}
     >
       {props.children}
       <audio ref={soundRef} />
