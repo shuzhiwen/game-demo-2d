@@ -97,10 +97,10 @@ export function createBoard(props: {
   axisLayer?.setScale({nice: {fixedStep: 1}})
   axisLayer?.setStyle({
     maxScaleXTextNumber: Infinity,
-    axisLineAxisX: {strokeWidth: 2, strokeOpacity: 0.4},
-    axisLineAxisY: {strokeWidth: 2, strokeOpacity: 0.4},
-    splitLineAxisX: {strokeWidth: 2, strokeOpacity: 0.4},
-    splitLineAxisY: {strokeWidth: 2, strokeOpacity: 0.4},
+    axisLineX: {strokeWidth: 2, strokeOpacity: 0.4},
+    axisLineY: {strokeWidth: 2, strokeOpacity: 0.4},
+    splitLineX: {strokeWidth: 2, strokeOpacity: 0.4},
+    splitLineY: {strokeWidth: 2, strokeOpacity: 0.4},
     textX: {hidden: true},
     textY: {hidden: true},
   })
