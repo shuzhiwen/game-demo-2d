@@ -4,7 +4,7 @@ import {
   useChessStorage,
   useStaticRole,
 } from '@chess/helper'
-import {useDialog} from '@context'
+import {useConfirm} from '@context'
 import {useEnterChannelMutation, useTransportUsersLazyQuery} from '@generated'
 import {Button, Stack, TextField} from '@mui/material'
 import {useState} from 'react'
@@ -18,7 +18,7 @@ export function ChessEnter() {
   const [enterMutation] = useEnterChannelMutation()
   const [usersQuery] = useTransportUsersLazyQuery()
   const {firstRole, secondRole} = useStaticRole()
-  const {showDialog} = useDialog()
+  const {showConfirm} = useConfirm()
 
   const connectServer = async (channelId = code) => {
     const {userId, setChannelId, setRole} = storage
@@ -31,7 +31,7 @@ export function ChessEnter() {
       navigate(users.length === 1 ? 'prepare' : 'stage')
       return
     } else if (users.length >= 2) {
-      showDialog({title: '房间人数已满'})
+      showConfirm({title: '房间人数已满'})
       return
     }
 
@@ -45,7 +45,7 @@ export function ChessEnter() {
       setRole(userCount === 1 ? firstRole : secondRole)
       setTimeout(() => navigate('prepare'))
     } else {
-      showDialog({content: '连接服务器失败'})
+      showConfirm({content: '连接服务器失败'})
     }
   }
 

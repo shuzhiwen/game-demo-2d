@@ -64,7 +64,7 @@ export function GoStage() {
       const layer = chart.getLayerById(boardId) as LayerChineseChess
 
       if (!eaten && life === 0) {
-        showSnack({message: '落子无气，请在选择其他位置'})
+        showSnack({message: '落子无气，请选择其他位置'})
         layer.disabled = false
         return
       }
@@ -85,7 +85,7 @@ export function GoStage() {
 
       setSound({type: 'chess'})
       replaceBoard({chart, data: board, position})
-      eaten && setMessage({isMe, content: '系统消息：吃！'})
+      eaten && setMessage({isMe, content: '【系统消息】吃！'})
       layer.disabled = isMe
     }
   }, [data, chart])

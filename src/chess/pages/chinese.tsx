@@ -15,7 +15,7 @@ import {createChineseBoard} from '@chess/render'
 import {LayerChineseChess} from '@chess/render/chinese'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
-import {useDialog} from '@context'
+import {useConfirm} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart} from 'awesome-chart'
@@ -25,7 +25,7 @@ import {GameBar, UserStatus} from '../components'
 
 export function ChineseStage() {
   const navigate = useChessNavigate()
-  const {showDialog} = useDialog()
+  const {showConfirm} = useConfirm()
   const {role} = useChessStorage()
   const {anotherRole} = useStaticRole()
   const {setSound, setBackground} = useSound()
@@ -69,16 +69,16 @@ export function ChineseStage() {
 
       setSound({type: 'chess'})
       replaceBoard({chart, data: board, position: nextPosition})
-      eaten && setMessage({isMe, content: '系统消息：吃！'})
+      eaten && setMessage({isMe, content: '【系统消息】吃！'})
       layer.disabled = isMe
 
       if (eaten === ChineseChess['KING']) {
         setTimeout(async () => {
           await exitMutation()
           setSound({type: isMe ? 'success' : 'fail'})
-          showDialog({
+          showConfirm({
             title: `${RoleDict[currentRole]}方获胜!`,
-            onClose: () => navigate('login'),
+            onConfirm: () => navigate('login'),
           })
         })
       }

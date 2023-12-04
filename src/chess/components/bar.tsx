@@ -1,5 +1,5 @@
 import {useChessNavigate, useCustomMutation} from '@chess/helper'
-import {useSound} from '@context'
+import {useConfirm, useSound} from '@context'
 import {
   ExitToAppRounded,
   VolumeOffRounded,
@@ -11,12 +11,20 @@ import {useCallback} from 'react'
 export function GameBar() {
   const {useBackground} = useSound()
   const navigate = useChessNavigate()
+  const {showConfirm} = useConfirm()
   const {exitMutation} = useCustomMutation()
   const {toggle, playing} = useBackground
-  const handleExit = useCallback(async () => {
+  const logout = useCallback(async () => {
     await exitMutation()
     navigate('login')
   }, [exitMutation, navigate])
+  const handleExit = useCallback(() => {
+    showConfirm({
+      title: '确定退出房间吗',
+      content: '退出后对局记录可能丢失！',
+      onConfirm: logout,
+    })
+  }, [logout, showConfirm])
 
   return (
     <AppBar position="relative" color="transparent">

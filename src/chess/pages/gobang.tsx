@@ -15,7 +15,7 @@ import {LayerChess} from '@chess/render/chess'
 import {isGobangChessWin} from '@chess/scripts'
 import {AppStage, Background} from '@components'
 import {Hourglass} from '@components/hourglass'
-import {useDialog} from '@context'
+import {useConfirm} from '@context'
 import {useSound} from '@context/sound'
 import {Backdrop, CircularProgress, Stack, Typography} from '@mui/material'
 import {Chart} from 'awesome-chart'
@@ -27,7 +27,7 @@ import {GameBar, UserStatus} from '../components'
 export function GobangStage() {
   const navigate = useChessNavigate()
   const {role} = useChessStorage()
-  const {showDialog} = useDialog()
+  const {showConfirm} = useConfirm()
   const {anotherRole} = useStaticRole()
   const {setSound, setBackground} = useSound()
   const {myMessage, otherMessage} = useChatMessage()
@@ -79,9 +79,9 @@ export function GobangStage() {
         setTimeout(async () => {
           await exitMutation()
           setSound({type: isMe ? 'success' : 'fail'})
-          showDialog({
+          showConfirm({
             title: `${RoleDict[currentRole]}子获胜!`,
-            onClose: () => navigate('login'),
+            onConfirm: () => navigate('login'),
           })
         })
       }

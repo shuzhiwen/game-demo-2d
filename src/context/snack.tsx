@@ -10,11 +10,9 @@ import {
 
 type Props = Pick<SnackbarProps, 'open' | 'message' | 'anchorOrigin'>
 
-type ContextShape = {
+const Context = createContext<{
   showSnack: (props: Omit<Props, 'open'>) => void
-}
-
-const Context = createContext<ContextShape>({showSnack: noop})
+}>({showSnack: noop})
 
 export const useSnack = () => useContext(Context)
 

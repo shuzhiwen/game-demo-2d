@@ -1,8 +1,10 @@
+import {Stack, Typography} from '@mui/material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
+import {isMobile} from '@utils'
 import {noop} from 'lodash-es'
 import {
   PropsWithChildren,
@@ -16,37 +18,56 @@ type Props = {
   open: boolean
   title?: Maybe<string>
   content?: Maybe<string>
-  onClose?: AnyFunction
+  onConfirm?: AnyFunction
+  onCancel?: AnyFunction
 }
 
-type ContextShape = {
-  showDialog: (props: Omit<Props, 'open'>) => void
-}
+const Context = createContext<{
+  showConfirm: (props: Omit<Props, 'open'>) => void
+}>({showConfirm: noop})
 
-const Context = createContext<ContextShape>({showDialog: noop})
-
-export const useDialog = () => useContext(Context)
+export const useConfirm = () => useContext(Context)
 
 export function DialogProvider(props: PropsWithChildren) {
   const [state, setState] = useState<Props>({open: false})
+  const {open, title, content, onCancel, onConfirm} = state
   const show = useCallback((props: Omit<Props, 'open'>) => {
     setState({...props, open: true})
   }, [])
-  const hide = useCallback(() => {
-    state.onClose?.()
-    setState((prev) => ({...prev, open: false, onClose: undefined}))
-  }, [state])
+  const createHide = useCallback(
+    (callback?: AnyFunction) => () => {
+      setState((prev) => ({...prev, open: false}))
+      setTimeout((prev) => ({...prev, onConfirm: undefined}), 1000)
+      callback?.()
+    },
+    []
+  )
 
   return (
-    <Context.Provider value={{showDialog: show}}>
+    <Context.Provider value={{showConfirm: show}}>
       {props.children}
-      <Dialog open={state.open} onClose={hide}>
-        {state.title && <DialogTitle>{state.title}</DialogTitle>}
-        {state.content && <DialogContent>{state.content}</DialogContent>}
+      <Dialog open={open} onClose={createHide()}>
+        {title && <DialogTitle>{title}</DialogTitle>}
+        {content && (
+          <DialogContent>
+            <Typography variant="body2">{content}</Typography>
+          </DialogContent>
+        )}
         <DialogActions>
-          <Button onClick={hide} fullWidth>
-            我知道了
-          </Button>
+          {!onCancel && !onConfirm ? (
+            <Stack flex={1}>
+              <Button onClick={createHide()}>我知道了</Button>
+            </Stack>
+          ) : (
+            <Stack flex={1} direction={isMobile() ? 'column' : 'row'}>
+              <Button onClick={createHide(onCancel)} fullWidth>
+                取消
+              </Button>
+              <Button onClick={createHide(onConfirm)} fullWidth>
+                确认
+              </Button>
+            </Stack>
+          )}
         </DialogActions>
       </Dialog>
     </Context.Provider>
